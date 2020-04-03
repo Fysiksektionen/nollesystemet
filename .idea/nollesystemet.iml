@@ -19,8 +19,17 @@
     </content>
     <orderEntry type="jdk" jdkName="Python 3.8 (nollesystemet)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="jquery-3.4.1.slim" level="application" />
+    <orderEntry type="library" name="popper" level="application" />
+    <orderEntry type="library" name="bootstrap" level="application" />
   </component>
   <component name="TemplatesService">
     <option name="TEMPLATE_CONFIGURATION" value="Django" />
+    <option name="TEMPLATE_FOLDERS">
+      <list>
+        <option value="$MODULE_DIR$/administration/templates" />
+        <option value="$MODULE_DIR$/administration/templatetags" />
+      </list>
+    </option>
   </component>
 </module>
