@@ -1,1 +1,47 @@
 from django.db import models
+
+class Happening(models.Model):
+    name = models.CharField(max_length=50, unique=True)
+    description = models.CharField(max_length=300)
+    start_time = models.DateTimeField()
+    end_time = models.DateTimeField()
+    image_file_path = models.CharField(max_length=50)
+
+    registration = models.BooleanField()
+    external_registration = models.BooleanField()
+    user_groups = models.ManyToManyField()#TODO: UserGroup
+    nolle_groups = models.ManyToManyField()#TODO: NolleGroup
+
+    has_base_price = models.BooleanField(default=False)
+    food = models.BooleanField(default=True)
+    cost_for_drinks = models.BooleanField(default=False)
+    cost_for_extras = models.BooleanField(default=False)
+
+    editors = models.ManyToManyField()#TODO: UserProfile
+
+
+class GroupHappeningProperties(models.Model):
+    group = models.ForeignKey(on_delete=models.CASCADE)#TODO: UserGroup
+    happening = models.ForeignKey(Happening, on_delete=models.CASCADE)
+    base_price = models.IntegerField()
+
+
+class DrinkOption(models.Model):
+    happening = models.ForeignKey(Happening, on_delete=models.CASCADE)
+    drink = models.CharField(max_length=30)
+    price = models.IntegerField()
+
+
+class ExtraOption(models.Model):
+    happening = models.ForeignKey(Happening, on_delete=models.CASCADE)
+    extra_option = models.CharField(max_length=30)
+    price = models.IntegerField()
+
+class Registration(models.Model):
+    happening = models.ForeignKey(Happening, on_delete=models.CASCADE)
+    user = models.ForeignKey(on_delete=models.CASCADE) #TODO: User
+    food_preference = models.CharField(max_length=50)
+    drink_option = models.ForeignKey(null=True, blank=True, on_delete=models.SET_NULL)
+    extra_option = models.ManyToManyField(null=True, blank=True)
+    other = models.CharField(max_length=300)
+
