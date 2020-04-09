@@ -78,9 +78,9 @@ WSGI_APPLICATION = 'nollesystemet.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'db',
-        'USER': 'root',
-        'PASSWORD': 'nenne1110m',
+        'OPTIONS': {
+            'read_default_file': 'Database/db_info.cnf',
+        }
     }
 }
 
