@@ -1,2 +1,14 @@
-/Database/db_info.cnf
 /venv/
+/Database/db_info.cnf
+__pycache__/
+fadderiet/__pycache__/
+fadderiet/migrations/__pycache__/
+fadderiet/static/
+fadderiet/templates/
+fohseriet/__pycache__/
+fohseriet/migrations/__pycache__/
+fohseriet/static/fohseriet/js/
+fohseriet/static/fohseriet/resources/
+fohseriet/templates/template_resources/
+fohseriet/templatetags/__pycache__/
+nollesystemet/__pycache__/
