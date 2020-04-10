@@ -39,7 +39,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'fohseriet',
     'fadderiet',
-    'uniauth.apps.UniauthConfig'
 ]
 
 MIDDLEWARE = [
@@ -53,10 +52,9 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
 ]
 
-AUTHENTICATION_BACKENDS = [
-    'uniauth.backends.LinkedEmailBackend',
-    'uniauth.backends.CASBackend',
-]
+# AUTHENTICATION_BACKENDS = [
+#
+# ]
 
 ROOT_URLCONF = 'nollesystemet.urls'
 
@@ -110,9 +108,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-UNIAUTH_USER_PROFILE_MODEL = "fohseriet.CustomUser"
-
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 # Internationalization
 # https://docs.djangoproject.com/en/3.0/topics/i18n/
 
