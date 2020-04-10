@@ -1,8 +1,7 @@
 from django.db import models
-from django.contrib.auth.models import Group
-import uniauth.models as unimod
+from django.contrib.auth.models import Group, User
 
-class CustomUser(unimod.UserProfile):
+class CustomUser(User):
     pass
 
 class CustomUserGroup(Group):
