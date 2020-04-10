@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'fohseriet',
     'fadderiet',
-    'uniauth'
+    'uniauth.apps.UniauthConfig'
 ]
 
 MIDDLEWARE = [
@@ -110,10 +110,9 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-LOGIN_URL = "/login/"
-UNIAUTH_LOGIN_DISPLAY_STANDARD = True
-UNIAUTH_LOGOUT_CAS_COMPLETELY = True
+UNIAUTH_USER_PROFILE_MODEL = "fohseriet.CustomUser"
 
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 # Internationalization
 # https://docs.djangoproject.com/en/3.0/topics/i18n/
 

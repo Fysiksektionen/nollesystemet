@@ -5,6 +5,8 @@ from django.utils import timezone
 from django.utils.crypto import get_random_string
 from django.utils.encoding import force_bytes, force_text
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
+from django.apps import apps as django_apps
+from django.core.exceptions import ImproperlyConfigured
 try:
     from urllib import urlencode
     from urlparse import urlunparse
@@ -16,6 +18,7 @@ except ImportError:
 DEFAULT_SETTING_VALUES = {
     'LOGIN_URL': '/accounts/login/',
     'PASSWORD_RESET_TIMEOUT_DAYS': 3,
+    'UNIAUTH_USER_PROFILE_MODEL': 'uniauth.UserProfile',
     'UNIAUTH_ALLOW_STANDALONE_ACCOUNTS': True,
     'UNIAUTH_ALLOW_SHARED_EMAILS': True,
     'UNIAUTH_FROM_EMAIL': 'uniauth@example.com',
@@ -27,6 +30,19 @@ DEFAULT_SETTING_VALUES = {
     'UNIAUTH_MAX_LINKED_EMAILS': 20,
     'UNIAUTH_PERFORM_RECURSIVE_MERGING': True,
 }
+
+def get_user_profile_model():
+    """
+    Return the UserProfile model that is active in this project.
+    """
+    try:
+        return django_apps.get_model(settings.UNIAUTH_USER_PROFILE_MODEL, require_ready=False)
+    except ValueError:
+        raise ImproperlyConfigured("UNIAUTH_USER_PROFILE_MODEL must be of the form 'app_label.model_name'")
+    except LookupError:
+        raise ImproperlyConfigured(
+            "UNIAUTH_USER_PROFILE_MODEL refers to model '%s' that has not been installed" % settings.UNIAUTH_USER_PROFILE_MODEL
+        )
 
 
 def choose_username(email):

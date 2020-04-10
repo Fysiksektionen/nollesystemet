@@ -6,6 +6,7 @@ from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
+from .utils import get_user_profile_model
 
 
 class UserProfile(models.Model):
@@ -54,7 +55,7 @@ def create_user_profile(sender, instance, created, **kwargs):
     LinkedEmail immediately.
     """
     if created:
-        profile = UserProfile.objects.create(user=instance)
+        profile = get_user_profile_model().objects.create(user=instance)
         if profile and instance.email:
             LinkedEmail.objects.create(profile=profile,
                     address=instance.email, is_verified=True)
@@ -84,7 +85,7 @@ class LinkedEmail(models.Model):
     """
 
     # Person owning this email
-    profile = models.ForeignKey('UserProfile', related_name='linked_emails',
+    profile = models.ForeignKey(UserProfile, related_name='linked_emails',
             on_delete=models.CASCADE, null=False)
 
     # The email address
@@ -155,7 +156,7 @@ class InstitutionAccount(models.Model):
     """
 
     # The person the account is for
-    profile = models.ForeignKey('UserProfile', related_name='accounts',
+    profile = models.ForeignKey(UserProfile, related_name='accounts',
             on_delete=models.CASCADE, null=False)
 
     # The institution the account is with

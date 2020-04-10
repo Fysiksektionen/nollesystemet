@@ -2,7 +2,7 @@ from cas import CASClient
 from django.contrib.auth import get_user_model
 from django.contrib.auth.backends import ModelBackend
 from django.db.models import Q
-from uniauth.models import InstitutionAccount, UserProfile
+from uniauth.models import InstitutionAccount
 from uniauth.utils import is_tmp_user
 
 

@@ -1,4 +1,12 @@
 from django.db import models
+from django.contrib.auth.models import Group
+import uniauth.models as unimod
+
+class CustomUser(unimod.UserProfile):
+    pass
+
+class CustomUserGroup(Group):
+    pass
 
 class Happening(models.Model):
     name = models.CharField(max_length=50, unique=True)
@@ -7,21 +15,21 @@ class Happening(models.Model):
     end_time = models.DateTimeField()
     image_file_path = models.CharField(max_length=50)
 
-    registration = models.BooleanField()
+    takes_registration = models.BooleanField()
     external_registration = models.BooleanField()
-    user_groups = models.ManyToManyField()#TODO: UserGroup
-    nolle_groups = models.ManyToManyField()#TODO: NolleGroup
+    user_groups = models.ManyToManyField(CustomUserGroup, related_name="user_groups")#TODO: UserGroup
+    nolle_groups = models.ManyToManyField(CustomUserGroup, related_name="nolle_groups")#TODO: NolleGroup
 
     has_base_price = models.BooleanField(default=False)
     food = models.BooleanField(default=True)
     cost_for_drinks = models.BooleanField(default=False)
     cost_for_extras = models.BooleanField(default=False)
 
-    editors = models.ManyToManyField()#TODO: UserProfile
+    editors = models.ManyToManyField(CustomUser)#TODO: UserProfile
 
 
 class GroupHappeningProperties(models.Model):
-    group = models.ForeignKey(on_delete=models.CASCADE)#TODO: UserGroup
+    group = models.ForeignKey(CustomUserGroup, on_delete=models.CASCADE)#TODO: UserGroup
     happening = models.ForeignKey(Happening, on_delete=models.CASCADE)
     base_price = models.IntegerField()
 
@@ -39,9 +47,9 @@ class ExtraOption(models.Model):
 
 class Registration(models.Model):
     happening = models.ForeignKey(Happening, on_delete=models.CASCADE)
-    user = models.ForeignKey(on_delete=models.CASCADE) #TODO: User
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE) #TODO: User
     food_preference = models.CharField(max_length=50)
-    drink_option = models.ForeignKey(null=True, blank=True, on_delete=models.SET_NULL)
-    extra_option = models.ManyToManyField(null=True, blank=True)
+    drink_option = models.ForeignKey(DrinkOption, blank=True, null=True, on_delete=models.SET_NULL)
+    extra_option = models.ManyToManyField(ExtraOption, blank=True)
     other = models.CharField(max_length=300)
 

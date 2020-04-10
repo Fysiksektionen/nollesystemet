@@ -23,5 +23,5 @@ urlpatterns = [
     path('fohseriet/', include('fohseriet.urls')),
     path('fadderiet/', include('fadderiet.urls')),
     path('admin/', admin.site.urls),
-    url('accounts/', include('uniauth.urls.all', namespace='uniauth')),
+    url('accounts/', include('uniauth.urls', namespace='uniauth')),
 ]
