@@ -3,7 +3,7 @@
   <component name="FacetManager">
     <facet type="django" name="Django">
       <configuration>
-        <option name="rootFolder" value="$MODULE_DIR$/../nollegruppssystemet" />
+        <option name="rootFolder" value="$MODULE_DIR$/../nollesystemet" />
         <option name="settingsModule" value="nollesystemet/settings.py" />
         <option name="manageScript" value="manage.py" />
         <option name="environment" value="&lt;map/&gt;" />
@@ -16,7 +16,7 @@
     <content url="file://$MODULE_DIR$">
       <excludeFolder url="file://$MODULE_DIR$/venv" />
     </content>
-    <orderEntry type="jdk" jdkName="Python 3.7 (nollegruppssystemet)" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="Python 3.8 (nollesystemet)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
   <component name="TemplatesService">
