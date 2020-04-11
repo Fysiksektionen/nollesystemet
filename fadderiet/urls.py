@@ -2,6 +2,7 @@ from django.urls import path
 
 from . import views
 
+app_name = 'fadderiet'
 urlpatterns = [
     path('', views.hello_world, name='index'),
     path('schema/', views.hello_world, name='schema'),

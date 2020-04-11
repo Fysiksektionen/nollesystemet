@@ -22,4 +22,5 @@ urlpatterns = [
     path('fohseriet/', include('fohseriet.urls')),
     path('fadderiet/', include('fadderiet.urls')),
     path('admin/', admin.site.urls),
+    # path('accounts/', include('uniauth.urls', namespace='uniauth')),
 ]
