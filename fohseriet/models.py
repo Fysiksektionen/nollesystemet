@@ -8,6 +8,7 @@ class UserProfile(models.Model):
     last_name = models.CharField(max_length=100, blank=True)
 
     email = models.EmailField(blank=True)
+    kth_id = models.CharField(max_length=20, blank=True)
     phone_number = models.CharField(max_length=15, blank=True)
     food_preference = models.CharField(max_length=15, blank=True)
     contact_name = models.CharField(max_length=100, blank=True)

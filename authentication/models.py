@@ -12,7 +12,6 @@ class NolleGroup(Group):
 
 class AuthUser(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(max_length=40, unique=True)
-    kth_id = models.CharField(max_length=20, blank=True, unique=True)
     USERNAME_FIELD = 'username'
 
     is_staff = models.BooleanField(
