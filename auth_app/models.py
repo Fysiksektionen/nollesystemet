@@ -50,11 +50,3 @@ class AuthUser(AbstractBaseUser, PermissionsMixin):
     auth_backend_choices = [('DJANGO', 'Django'), ('CAS', 'CAS')]
     auth_backend = models.CharField(max_length=20, choices=auth_backend_choices)
     objects = AuthUserManager()
-
-class AuthUserGroup(Group):
-    pass
-
-class UserProfile(models.Model):
-    first_name = models.CharField(max_length=100, blank=False)
-    last_name = models.CharField(max_length=100, blank=False)
-    auth_user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, )
