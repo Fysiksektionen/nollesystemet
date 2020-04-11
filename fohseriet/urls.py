@@ -1,7 +1,6 @@
 from django.urls import path
-
+from django.contrib.auth.views import LoginView
 from . import views
-from auth_app.views import LoginView
 
 app_name = 'fohseriet'
 urlpatterns = [

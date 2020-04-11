@@ -37,7 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'auth_app.apps.AuthAppConfig',
+    'authentication.apps.AuthenticationAppConfig',
     'fohseriet',
     'fadderiet',
 ]
@@ -54,8 +54,8 @@ MIDDLEWARE = [
 ]
 
 AUTHENTICATION_BACKENDS = [
-    'auth_app.backends.UserCredentialsBackend',
-    'auth_app.backends.KTHBackend'
+    'authentication.backends.UserCredentialsBackend',
+    'authentication.backends.KTHCASBackend'
 ]
 
 ROOT_URLCONF = 'nollesystemet.urls'
@@ -133,7 +133,13 @@ STATIC_ROOT = 'static'
 
 # Custom authentication
 
-AUTH_USER_MODEL = 'auth_app.AuthUser'
+AUTH_USER_MODEL = 'authentication.AuthUser'
+USER_PROFILE_MODEL = 'fohseriet.UserProfile'
 KTH_CAS_SERVER_URL = 'https://login.kth.se/'
 
-
+# Uniauth setup
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# INSTALLED_APPS.append('uniauth')
+# AUTHENTICATION_BACKENDS.append('uniauth.backends.LinkedEmailBackend')
+# AUTHENTICATION_BACKENDS.append('uniauth.backends.CASBackend')
+# UNIAUTH_LOGIN_DISPLAY_STANDARD = True
