@@ -1,15 +1,7 @@
 from django.db import models
 from django.conf import settings
-from django.contrib.auth.models import Group
+from auth_app.models import UserGroup, UserProfile
 
-class UserGroup(Group):
-    pass
-
-class UserProfile(models.Model):
-    first_name = models.CharField(max_length=100, blank=False)
-    last_name = models.CharField(max_length=100, blank=False)
-    auth_user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    user_group = models.ForeignKey(UserGroup, null=True, on_delete=models.SET_NULL)
 
 class Happening(models.Model):
     name = models.CharField(max_length=50, unique=True)

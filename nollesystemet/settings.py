@@ -53,9 +53,10 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
 ]
 
-# AUTHENTICATION_BACKENDS = [
-#
-# ]
+AUTHENTICATION_BACKENDS = [
+    'auth_app.backends.UserCredentialsBackend',
+    'auth_app.backends.KTHBackend'
+]
 
 ROOT_URLCONF = 'nollesystemet.urls'
 
@@ -133,5 +134,6 @@ STATIC_ROOT = 'static'
 # Custom authentication
 
 AUTH_USER_MODEL = 'auth_app.AuthUser'
+KTH_CAS_SERVER_URL = 'https://login.kth.se/'
 
 

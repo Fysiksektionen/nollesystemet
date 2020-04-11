@@ -1,3 +1,5 @@
 from django.shortcuts import render
+from django.contrib.auth.views import LoginView as DjangoAuthLoginView
 
-# Create your views here.
+class LoginView(DjangoAuthLoginView):
+    pass
