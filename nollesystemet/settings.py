@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'auth_app.apps.AuthAppConfig',
     'fohseriet',
     'fadderiet',
 ]
@@ -127,3 +128,10 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = 'static'
+
+
+# Custom authentication
+
+AUTH_USER_MODEL = 'auth_app.AuthUser'
+
+

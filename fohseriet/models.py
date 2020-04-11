@@ -1,11 +1,6 @@
 from django.db import models
-from django.contrib.auth.models import Group, User
-
-class CustomUser(User):
-    pass
-
-class CustomUserGroup(Group):
-    pass
+from django.conf import settings
+from auth_app.models import *
 
 class Happening(models.Model):
     name = models.CharField(max_length=50, unique=True)
@@ -16,19 +11,19 @@ class Happening(models.Model):
 
     takes_registration = models.BooleanField()
     external_registration = models.BooleanField()
-    user_groups = models.ManyToManyField(CustomUserGroup, related_name="user_groups")#TODO: UserGroup
-    nolle_groups = models.ManyToManyField(CustomUserGroup, related_name="nolle_groups")#TODO: NolleGroup
+    user_groups = models.ManyToManyField(AuthUserGroup, related_name="user_groups")#TODO: UserGroup
+    nolle_groups = models.ManyToManyField(AuthUserGroup, related_name="nolle_groups")#TODO: NolleGroup
 
     has_base_price = models.BooleanField(default=False)
     food = models.BooleanField(default=True)
     cost_for_drinks = models.BooleanField(default=False)
     cost_for_extras = models.BooleanField(default=False)
 
-    editors = models.ManyToManyField(CustomUser)#TODO: UserProfile
+    editors = models.ManyToManyField(settings.AUTH_USER_MODEL)#TODO: UserProfile
 
 
 class GroupHappeningProperties(models.Model):
-    group = models.ForeignKey(CustomUserGroup, on_delete=models.CASCADE)#TODO: UserGroup
+    group = models.ForeignKey(AuthUserGroup, on_delete=models.CASCADE)#TODO: UserGroup
     happening = models.ForeignKey(Happening, on_delete=models.CASCADE)
     base_price = models.IntegerField()
 
@@ -46,7 +41,7 @@ class ExtraOption(models.Model):
 
 class Registration(models.Model):
     happening = models.ForeignKey(Happening, on_delete=models.CASCADE)
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE) #TODO: User
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE) #TODO: User
     food_preference = models.CharField(max_length=50)
     drink_option = models.ForeignKey(DrinkOption, blank=True, null=True, on_delete=models.SET_NULL)
     extra_option = models.ManyToManyField(ExtraOption, blank=True)
