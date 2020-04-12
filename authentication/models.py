@@ -47,6 +47,8 @@ class AuthUser(AbstractBaseUser, PermissionsMixin):
     user_group = models.ForeignKey(UserGroup, null=True, on_delete=models.SET_NULL, default=None)
     nolle_group = models.ForeignKey(NolleGroup, null=True, on_delete=models.SET_NULL, default=None)
 
+    # TODO: Add boolean for being done with profile setup. Do not authenticate without profile setup.
+
     def can_use_auth_method(self, backend_name):
         return self.auth_backend == '__all__' or self.auth_backend == backend_name
 

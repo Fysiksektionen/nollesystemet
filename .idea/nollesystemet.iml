@@ -25,6 +25,7 @@
       <list>
         <option value="$MODULE_DIR$/fadderiet/templates" />
         <option value="$MODULE_DIR$/fohseriet/templates" />
+        <option value="$MODULE_DIR$/authentication/templates" />
       </list>
     </option>
   </component>
