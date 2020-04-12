@@ -55,7 +55,7 @@ MIDDLEWARE = [
 
 AUTHENTICATION_BACKENDS = [
     'authentication.backends.UserCredentialsBackend',
-    'authentication.backends.KTHCASBackend'
+    'authentication.backends.CASBackend'
 ]
 
 ROOT_URLCONF = 'nollesystemet.urls'

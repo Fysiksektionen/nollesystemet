@@ -4,6 +4,11 @@ from django.conf import settings
 
 
 class AuthUserManager(BaseUserManager):
+    """
+    Manager that defines special behaviors and good-to-have functions on models.
+    Defines functions for user creation with automatic creation of linking USER_PROFILE_MODEL.
+    """
+
     use_in_migrations = True
 
     def _create_user(self, username, password, **extra_fields):
@@ -14,7 +19,7 @@ class AuthUserManager(BaseUserManager):
         user.set_password(password)
         user.save(using=self._db)
 
-        user_profile = apps.get_model(settings.USER_PROFILE_MODEL)(auth_user=user)
+        user_profile = apps.get_model(settings.USER_PROFILE_MODEL)(auth=user)
         user_profile.save()
 
         return user
