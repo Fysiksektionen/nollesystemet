@@ -1,0 +1,20 @@
+{% extends "authentication/base.html" %}
+
+{% block content %}
+    <h3>GET</h3>
+    {% for key, value in request.GET.items %}
+        <p>{{ key }}: {{ value }}</p>
+    {% endfor %}
+    <h3>POST</h3>
+    {% for key, value in request.POST.items %}
+        <p>{{ key }}: {{ value }}</p>
+    {% endfor %}
+    <h3>Session</h3>
+    {% for key, value in request.session.items %}
+        <p>{{ key }}: {{ value }}</p>
+    {% endfor %}
+
+    {% for key in request %}
+        <p>{{ key }}</p>
+    {% endfor %}
+{% endblock %}

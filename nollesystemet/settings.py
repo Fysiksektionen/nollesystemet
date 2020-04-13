@@ -54,8 +54,9 @@ MIDDLEWARE = [
 ]
 
 AUTHENTICATION_BACKENDS = [
+    'authentication.backends.MultipleGroupCategoriesBackend',
     'authentication.backends.UserCredentialsBackend',
-    'authentication.backends.CASBackend'
+    'authentication.backends.CASBackend',
 ]
 
 ROOT_URLCONF = 'nollesystemet.urls'
@@ -135,7 +136,8 @@ STATIC_ROOT = 'static'
 
 AUTH_USER_MODEL = 'authentication.AuthUser'
 USER_PROFILE_MODEL = 'fohseriet.UserProfile'
-KTH_CAS_SERVER_URL = 'https://login.kth.se/'
+CAS_SERVER_URL = 'https://login.kth.se/'
+CREATE_USER_IF_MISSING_CAS = False
 
 # Uniauth setup
 # EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
