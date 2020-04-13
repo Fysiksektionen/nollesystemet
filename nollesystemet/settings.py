@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+from django.urls import reverse_lazy
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
@@ -60,7 +62,8 @@ AUTH_USER_MODEL = 'authentication.AuthUser'
 AUTHENTICATION_BACKENDS = [
     'authentication.backends.MultipleGroupCategoriesBackend',
     'authentication.backends.UserCredentialsBackend',
-    'authentication.backends.CASBackend',
+    # 'authentication.backends.CASBackend',
+    'authentication.backends.FakeCASBackend',
 ]
 
 ROOT_URLCONF = 'nollesystemet.urls'
@@ -128,6 +131,8 @@ USE_L10N = True
 
 USE_TZ = True
 
+
+CAS_SERVER_URL = reverse_lazy('authentication:fake_cas')
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/

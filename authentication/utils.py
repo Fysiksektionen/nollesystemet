@@ -1,7 +1,8 @@
 from urllib.parse import urlunparse, urlencode
+
+from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.shortcuts import resolve_url
-from django.conf import settings
 
 # TODO: Understand and modify functions. Remove any unwanted or unnecessary functionality.
 
@@ -61,10 +62,10 @@ def get_service_url(request, redirect_url=None):
             request.path, '', '', ''),
     )
     query_params = request.GET.copy()
-    query_params[REDIRECT_FIELD_NAME] = redirect_url or \
-            get_redirect_url(request)
+    query_params[REDIRECT_FIELD_NAME] = redirect_url or get_redirect_url(request)
     # The CAS server may have added the ticket as an extra query
     # parameter upon checking the credentials - ensure it is ignored
     query_params.pop('ticket', None)
+    print(query_params)
     service_url += '?' + urlencode(query_params)
     return service_url

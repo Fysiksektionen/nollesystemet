@@ -1,8 +1,12 @@
 import django.forms as forms
-from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.forms import AuthenticationForm, UsernameField
 
 class CredAuthenticationForm(AuthenticationForm):
     pass
+
+class FakeCASLoginForm(forms.Form):
+    username = UsernameField()
+
 
 # TODO: Write authentication and user related forms
 # Authenticate using credentials

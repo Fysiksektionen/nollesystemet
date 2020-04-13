@@ -1,11 +1,10 @@
 {% extends "authentication/base.html" %}
 
 {% block content %}
-    <h2>Login using credentials</h2>
+    <h2>CAS fake logout</h2>
 
     <form method="post">
         {% csrf_token %}
-        {{ form.as_p }}
-        <input type="submit" name="Login">
+        <input type="submit" name="Logout">
     </form>
 {% endblock %}

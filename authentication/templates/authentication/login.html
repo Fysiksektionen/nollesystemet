@@ -1,6 +1,7 @@
 {% extends "authentication/base.html" %}
 
 {% block content %}
+    <h2>Choose login method</h2>
     <a href="{{ cred_login_url }}">Login using credentials</a>
     <a href="{{ cas_login_url }}">Login using CAS</a>
 {% endblock %}

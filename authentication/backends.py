@@ -1,13 +1,13 @@
+from cas import CASClient
+from django.contrib.auth import get_user_model
 from django.contrib.auth.backends import ModelBackend
 from django.contrib.auth.models import Group
-from django.contrib.auth import get_user_model
-from django.db import models
-from django.db.models import Q, QuerySet
-from cas import CASClient
 from django.contrib.auth.models import Permission
+from django.db.models import Q
 
 import authentication.utils as utils
 from .models import AuthUser
+
 
 class UserCredentialsBackend(ModelBackend):
     """ Backend defining authentication for users using username and password. """
@@ -44,7 +44,7 @@ class CASBackend(ModelBackend):
 
         # Attempt to verify the ticket with the institution's CAS server
         client = CASClient(version=2, service_url=service,
-                           server_url=utils.get_setting('CAS_SERVER_URL'))
+                           server_url=str(utils.get_setting('CAS_SERVER_URL')))
         username, attributes, pgtiou = client.verify_ticket(ticket)
 
         # Add the attributes returned by the CAS server to the session
@@ -66,7 +66,7 @@ class CASBackend(ModelBackend):
             else:
                 user = None
 
-        return user and self.user_can_authenticate(user)
+        return user if self.user_can_authenticate(user) else None
 
 
 class FakeCASBackend(CASBackend):
@@ -94,7 +94,7 @@ class FakeCASBackend(CASBackend):
             else:
                 user = None
 
-        return user and self.user_can_authenticate(user)
+        return user if self.user_can_authenticate(user) else None
 
 
 class MultipleGroupCategoriesBackend(ModelBackend):
