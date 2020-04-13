@@ -2,11 +2,11 @@ from django.contrib.auth.backends import ModelBackend
 from django.contrib.auth.models import Group
 from django.contrib.auth import get_user_model
 from django.db import models
-from django.conf import settings
 from django.db.models import Q, QuerySet
 from cas import CASClient
 from django.contrib.auth.models import Permission
 
+import authentication.utils as utils
 from .models import AuthUser
 
 class UserCredentialsBackend(ModelBackend):
@@ -44,7 +44,7 @@ class CASBackend(ModelBackend):
 
         # Attempt to verify the ticket with the institution's CAS server
         client = CASClient(version=2, service_url=service,
-                           server_url=settings.CAS_SERVER_URL)
+                           server_url=utils.get_setting('CAS_SERVER_URL'))
         username, attributes, pgtiou = client.verify_ticket(ticket)
 
         # Add the attributes returned by the CAS server to the session
@@ -60,7 +60,7 @@ class CASBackend(ModelBackend):
             user = user_model.objects.get_by_natural_key(username)
         except user_model.DoesNotExist:
             # If such a user does not exist, get or create.
-            if settings.CREATE_USER_IF_MISSING_CAS:
+            if utils.get_setting('CREATE_USER_IF_MISSING_CAS'):
                 # TODO: Create a user with a profile.
                 user = user_model.objects.create_user(username, None, **{'auth_backend': self.backend_name})
             else:
@@ -76,7 +76,7 @@ class FakeCASBackend(CASBackend):
         """
         Authenticates a fake ticket containing the user's username. Uses the following rules:
             - Returns matching user if username exists.
-            - if settings.CREATE_USER_IF_MISSING_CAS:
+            - if CREATE_USER_IF_MISSING_CAS:
                 Creates and return user if username is missing.
               else:
                 Returns None.
@@ -88,7 +88,7 @@ class FakeCASBackend(CASBackend):
             user = user_model.objects.get_by_natural_key(ticket)
         except user_model.DoesNotExist:
             # If such a user does not exist, get or create
-            if settings.CREATE_USER_IF_MISSING_CAS:
+            if utils.get_setting('CREATE_USER_IF_MISSING_CAS'):
                 # TODO: Create a user with a profile.
                 user = user_model.objects.create_user(ticket, None, **{'auth_backend': self.backend_name})
             else:

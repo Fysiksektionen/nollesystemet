@@ -1,10 +1,9 @@
 from django.http import HttpResponseRedirect
-from django.shortcuts import render, reverse
 from django.views import View
 from django.views.generic.base import TemplateView
 from django.contrib.auth.views import LoginView
 from django.contrib.auth import REDIRECT_FIELD_NAME, authenticate, login as django_login
-from django.conf import settings
+from django.urls import reverse, reverse_lazy
 from .forms import CredAuthenticationForm
 import authentication.utils as utils
 import cas
@@ -39,8 +38,8 @@ class Login(TemplateView):
     # TODO: Write docstring.
 
     template_name = 'authentication/login.html'
-    cred_login_url = None
-    cas_login_url = None
+    cred_login_url = reverse_lazy('authentication:login_cred')
+    cas_login_url = reverse_lazy('authentication:login_cas')
     default_redirect_url = None
 
     def get(self, request, *args, **kwargs):
@@ -100,7 +99,7 @@ class LoginCas(View):
 
         service_url = utils.get_service_url(request, next_url)
         # TODO: Check if this holds for fake CAS server.
-        client = cas.CASClient(version=2, service_url=service_url, server_url=settings.CAS_SERVER_URL)
+        client = cas.CASClient(version=2, service_url=service_url, server_url=utils.get_setting('CAS_SERVER_URL'))
 
         # If a ticket was provided, attempt to authenticate with it
         if ticket:

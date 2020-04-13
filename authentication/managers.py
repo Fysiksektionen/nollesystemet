@@ -1,6 +1,7 @@
 from django.contrib.auth.models import BaseUserManager
 from django.apps import apps
 from django.conf import settings
+import authentication.utils as utils
 
 
 class AuthUserManager(BaseUserManager):
@@ -19,7 +20,7 @@ class AuthUserManager(BaseUserManager):
         user.set_password(password)
         user.save(using=self._db)
 
-        user_profile = apps.get_model(settings.USER_PROFILE_MODEL)(auth=user)
+        user_profile = apps.get_model(utils.get_setting('USER_PROFILE_MODEL'))(auth=user)
         user_profile.save()
 
         return user

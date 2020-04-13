@@ -5,11 +5,13 @@ from django.forms.fields import TypedMultipleChoiceField
 class MultipleStringChoiceField(models.CharField):
     def __init__(self, separator=",", **kwargs):
         self.separator = separator
-        if not ("choices" in kwargs):
-            raise KeyError("You must specify the choices option to MultipleStringChoiceField.")
+        if not ('max_length' in kwargs):
+            if not ("choices" in kwargs):
+                raise KeyError("You must specify the choices option to MultipleStringChoiceField if you don't specify max_length.")
 
-        max_length = len(self.separator.join([pair[0] for pair in kwargs["choices"]]))
-        kwargs['max_length'] = max_length
+            max_length = len(self.separator.join([pair[0] for pair in kwargs["choices"]]))
+            kwargs['max_length'] = max_length
+
         super().__init__(**kwargs)
 
     def formfield(self, **kwargs):

@@ -1,9 +1,12 @@
 from django.db import models
 from django.conf import settings
+from django.apps import apps
+from django.contrib.auth import get_backends
 from django.forms import MultipleChoiceField
 from django.contrib.auth.models import Group, AbstractBaseUser, PermissionsMixin
 from .managers import AuthUserManager
 from .model_fields import MultipleStringChoiceField
+
 
 class UserGroup(Group):
     """
@@ -14,6 +17,7 @@ class UserGroup(Group):
     """
     is_external = models.BooleanField()
 
+
 class NolleGroup(Group):
     """
     Model for "nØllegrupper". Can have special permissions.
@@ -21,6 +25,7 @@ class NolleGroup(Group):
     """
     description = models.TextField(max_length=1000, blank=True)
     logo = models.ImageField(null=True)
+
 
 class AuthUser(AbstractBaseUser, PermissionsMixin):
     """
@@ -41,9 +46,7 @@ class AuthUser(AbstractBaseUser, PermissionsMixin):
     )
 
     # Field for authorized authentication backends
-    AUTH_BACKEND_NAMES = ['CRED', 'CAS']    # TODO: Dynamically link this to defined backends.
-    auth_backend_choices = [*[(name, name) for name in AUTH_BACKEND_NAMES], ('__all__', 'All')]
-    auth_backend = MultipleStringChoiceField(separator=",", choices=auth_backend_choices)
+    auth_backend = MultipleStringChoiceField(separator=",", choices=None, max_length=150)
 
     objects = AuthUserManager()
 
@@ -51,11 +54,17 @@ class AuthUser(AbstractBaseUser, PermissionsMixin):
     group = None
     user_group = models.ManyToManyField(UserGroup, blank=True)
     nolle_group = models.ForeignKey(NolleGroup, blank=True, null=True, on_delete=models.SET_NULL)
-    PERMISSION_GROUPS = ['user_group', 'nolle_group']   # Used by backend to determine what fields are group-references.
+    PERMISSION_GROUPS = ['user_group', 'nolle_group']  # Used by backend to determine what fields are group-references.
 
     has_set_profile = models.BooleanField(verbose_name="Profile setup done",
                                           default=False)
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        auth_backend_names = [backend.backend_name for backend in get_backends()
+                              if hasattr(backend, 'backend_name')]
+        self._meta.get_field('auth_backend').choices = [*[(name, name) for name in auth_backend_names],
+                                                        ('__all__', 'All')]
+
     def can_use_auth_method(self, backend_name):
         return '__all__' in self.auth_backend.split(",") or backend_name in self.auth_backend.split(",")
-

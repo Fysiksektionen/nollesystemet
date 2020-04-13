@@ -1,9 +1,27 @@
 from urllib.parse import urlunparse, urlencode
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.shortcuts import resolve_url
+from django.conf import settings
 
-# TODO: Create default settings and settings access method.
 # TODO: Understand and modify functions. Remove any unwanted or unnecessary functionality.
+
+DEFAULT_SETTING_VALUES = {
+    'USER_PROFILE_MODEL': 'fohseriet.UserProfile',
+    'CAS_SERVER_URL': 'https://login.kth.se/',
+    'CREATE_USER_IF_MISSING_CAS': False,
+}
+
+def get_setting(setting_name):
+    """
+    Returns the value of the setting with the provided name
+    if set. Returns the value in DEFAULT_SETTING_VALUES
+    otherwise.
+    """
+    try:
+        return getattr(settings, setting_name)
+    except AttributeError:
+        return DEFAULT_SETTING_VALUES[setting_name]
+
 
 def get_redirect_url(request, use_referer=False, default_url=None):
     """
