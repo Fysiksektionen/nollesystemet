@@ -1,10 +1,7 @@
-from django.db import models
-from django.conf import settings
-from django.apps import apps
 from django.contrib.auth import get_backends
-from django.forms import MultipleChoiceField
-from django.contrib.auth.models import Group, AbstractBaseUser, PermissionsMixin
-from .managers import AuthUserManager
+from django.contrib.auth.models import Group, AbstractBaseUser, PermissionsMixin, AbstractUser
+from django.db import models
+
 from .model_fields import MultipleStringChoiceField
 
 
@@ -27,31 +24,22 @@ class NolleGroup(Group):
     logo = models.ImageField(null=True)
 
 
-class AuthUser(AbstractBaseUser, PermissionsMixin):
+class AuthUser(AbstractUser):
     """
     User model for handling authentication and permissions. Makes it possible to authenticate either with
     username and password (auth_backend = 'CRED') or using external CAS authentication (auth_backend = 'CAS').
-
-    Defines special group permissions to handle multiple group fields (user_group, nolle_group).
     """
-    # Username setup
-    username = models.CharField(max_length=40, unique=True)
-    USERNAME_FIELD = 'username'
 
-    # Used only to give access to Admin panel
-    is_staff = models.BooleanField(
-        'staff status',
-        default=False,
-        help_text='Designates whether the user can log into this admin site.',
-    )
+    # Remove unwanted inherited things
+    group = None
+    first_name = None
+    last_name = None
+    date_joined = None
 
     # Field for authorized authentication backends
     auth_backend = MultipleStringChoiceField(separator=",", choices=None, max_length=150)
 
-    objects = AuthUserManager()
-
     # Remove standard group and add two new groups
-    group = None
     user_group = models.ManyToManyField(UserGroup, blank=True)
     nolle_group = models.ForeignKey(NolleGroup, blank=True, null=True, on_delete=models.SET_NULL)
     PERMISSION_GROUPS = ['user_group', 'nolle_group']  # Used by backend to determine what fields are group-references.

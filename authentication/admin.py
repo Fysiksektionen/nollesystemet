@@ -5,10 +5,11 @@ Define ModelAdmins for custom edit behaviour in admin app and register to app.
 This is for smooth development and backdoors for admins, not for user-side behavior.
 """
 
+from django.apps import apps
 from django.contrib import admin, auth
+
 import authentication.utils as utils
 from .models import UserGroup, AuthUser, NolleGroup
-from django.apps import apps
 
 # Don't keep the default Group model.
 admin.site.unregister(auth.models.Group)
@@ -24,6 +25,7 @@ class UserProfileInline(admin.StackedInline):
 @admin.register(AuthUser)
 class UserAdmin(admin.ModelAdmin):
     inlines = (UserProfileInline,)
+
 
 @admin.register(UserGroup)
 class UserGroupAdmin(admin.ModelAdmin):

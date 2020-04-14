@@ -1,0 +1,5 @@
+host = HOST_URL
+use_tls = USE_TLS
+port = PORT
+username = USERNAME
+password = PASSWORD

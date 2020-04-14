@@ -55,17 +55,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
 ]
 
-
-# Authentication settings
-AUTH_USER_MODEL = 'authentication.AuthUser'
-
-AUTHENTICATION_BACKENDS = [
-    'authentication.backends.MultipleGroupCategoriesBackend',
-    'authentication.backends.UserCredentialsBackend',
-    # 'authentication.backends.CASBackend',
-    'authentication.backends.FakeCASBackend',
-]
-
 ROOT_URLCONF = 'nollesystemet.urls'
 
 TEMPLATES = [
@@ -94,7 +83,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'OPTIONS': {
-            'read_default_file': 'Database/db_info.cnf',
+            'read_default_file': 'config_files/db_info.cnf',
         }
     }
 }
@@ -131,11 +120,39 @@ USE_L10N = True
 
 USE_TZ = True
 
-
-CAS_SERVER_URL = reverse_lazy('authentication:fake_cas')
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = '/static/'
 STATIC_ROOT = 'static'
+
+# Authentication settings
+AUTH_USER_MODEL = 'authentication.AuthUser'
+
+AUTHENTICATION_BACKENDS = [
+    'authentication.backends.MultipleGroupCategoriesBackend',
+    'authentication.backends.UserCredentialsBackend',
+    # 'authentication.backends.CASBackend',
+    'authentication.backends.FakeCASBackend',
+]
+
+CAS_SERVER_URL = reverse_lazy('authentication:fake_cas')
+LOGIN_URL = reverse_lazy('authentication:login')
+
+#Email setup
+def get_email_info(filename):
+    with open(filename) as f:
+        content = f.read().splitlines()
+    options = {}
+    for line in content:
+        try:
+            key, value = line.split('=')
+        except:
+            raise Exception('Error in file formatting. %s' % filename)
+        options[key.strip()] = value.lstrip().strip()
+    return options['host'], options['use_tls'] == 'True', int(options['port']), options['username'], options['password']
+
+
+EMAIL_HOST, EMAIL_USE_TLS, EMAIL_PORT, EMAIL_HOST_USER, EMAIL_HOST_PASSWORD = get_email_info('config_files/mail.cnf')
+
+AUTHENTICATION_BACKENDS.append('django.core.mail.backends.smtp.EmailBackend')

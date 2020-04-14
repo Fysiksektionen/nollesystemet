@@ -42,7 +42,10 @@ def _login_success_redirect(request, user, next_url, drop_params=None):
     return HttpResponseRedirect(next_url + suffix)
 
 class Login(TemplateView):
-    # TODO: Write docstring.
+    """
+    Lets user pick authentication method.
+    Template should redirect to the urls in context (cred_login_url and cas_login_url).
+    """
 
     template_name = 'authentication/login.html'
     cred_login_url = reverse_lazy('authentication:login_cred')
@@ -50,7 +53,6 @@ class Login(TemplateView):
     default_redirect_url = reverse_lazy('authentication:request_info')
 
     def get(self, request, *args, **kwargs):
-        # TODO: Understand and fix GET-param logic.
         # Determine redirect url
         next_url = utils.get_redirect_url(request, default_url=self.default_redirect_url)
 
@@ -70,7 +72,7 @@ class Login(TemplateView):
 
 
 class LoginCred(LoginView):
-    # TODO: Write docstring.
+    """ View for user login using credentials. """
 
     form_class = CredAuthenticationForm
     template_name = 'authentication/login_cred.html'
@@ -84,10 +86,8 @@ class LoginCred(LoginView):
 
 
 class LoginCas(View):
-    """
-    Redirects to the CAS login URL, or verifies the
-    CAS ticket, if provided.
-    """
+    """ Redirects to the CAS login URL, or verifies the CAS ticket, if provided. """
+
     default_redirect_url = reverse_lazy('authentication:request_info')
 
     def get(self, request):
@@ -103,7 +103,6 @@ class LoginCas(View):
             return _login_success_redirect(request, request.user, next_url)
 
         service_url = utils.get_service_url(request, next_url)
-        # TODO: Check if this holds for fake CAS server.
         client = cas.CASClient(version=2, service_url=service_url, server_url=str(utils.get_setting('CAS_SERVER_URL')))
 
         # If a ticket was provided, attempt to authenticate with it

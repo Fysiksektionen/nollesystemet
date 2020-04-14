@@ -9,7 +9,6 @@ from django.shortcuts import resolve_url
 DEFAULT_SETTING_VALUES = {
     'USER_PROFILE_MODEL': 'fohseriet.UserProfile',
     'CAS_SERVER_URL': 'https://login.kth.se/',
-    'CREATE_USER_IF_MISSING_CAS': False,
 }
 
 def get_setting(setting_name):

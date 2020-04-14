@@ -59,12 +59,7 @@ class CASBackend(ModelBackend):
         try:
             user = user_model.objects.get_by_natural_key(username)
         except user_model.DoesNotExist:
-            # If such a user does not exist, get or create.
-            if utils.get_setting('CREATE_USER_IF_MISSING_CAS'):
-                # TODO: Create a user with a profile.
-                user = user_model.objects.create_user(username, None, **{'auth_backend': self.backend_name})
-            else:
-                user = None
+            user = None
 
         return user if self.user_can_authenticate(user) else None
 
@@ -74,12 +69,8 @@ class FakeCASBackend(CASBackend):
 
     def authenticate(self, request, ticket, service, **kwargs):
         """
-        Authenticates a fake ticket containing the user's username. Uses the following rules:
-            - Returns matching user if username exists.
-            - if CREATE_USER_IF_MISSING_CAS:
-                Creates and return user if username is missing.
-              else:
-                Returns None.
+        Authenticates a fake ticket containing the user's username.
+        Returns matching user if username exists and None if the user does not exist.
         """
         user_model = AuthUser
 
@@ -87,17 +78,14 @@ class FakeCASBackend(CASBackend):
         try:
             user = user_model.objects.get_by_natural_key(ticket)
         except user_model.DoesNotExist:
-            # If such a user does not exist, get or create
-            if utils.get_setting('CREATE_USER_IF_MISSING_CAS'):
-                # TODO: Create a user with a profile.
-                user = user_model.objects.create_user(ticket, None, **{'auth_backend': self.backend_name})
-            else:
-                user = None
+            user = None
 
         return user if self.user_can_authenticate(user) else None
 
 
 class MultipleGroupCategoriesBackend(ModelBackend):
+    """ Backend for dealing with multiple groups permissions. """
+
     def authenticate(self, *args, **kwargs):
         return None
 
