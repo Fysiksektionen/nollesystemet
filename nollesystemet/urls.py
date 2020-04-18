@@ -22,5 +22,4 @@ urlpatterns = [
     path('fadderiet/', include('fadderiet.urls')),
     path('admin/', admin.site.urls),
     path('auth/', include('authentication.urls')),
-    path('accounts/', include('django.contrib.auth.urls')),
 ]

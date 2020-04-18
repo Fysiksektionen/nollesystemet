@@ -32,7 +32,6 @@ def get_redirect_url(request, use_referer=False, default_url=None):
       1. URL provided as GET parameter under REDIRECT_FIELD_NAME
       2. Referring page if use_referer is True, and set in header
       3. default_url parameter
-      4. UNIAUTH_LOGIN_REDIRECT_URL setting
     """
     redirect_url = request.GET.get(REDIRECT_FIELD_NAME)
     if not redirect_url:

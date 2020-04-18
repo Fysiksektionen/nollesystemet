@@ -1,16 +1,17 @@
 from urllib.parse import urlencode
 
 import cas
+import django.contrib.auth.views as auth_views
 from django.contrib.auth import REDIRECT_FIELD_NAME, authenticate, login as django_login, logout as django_logout
-from django.contrib.auth.views import LoginView
 from django.forms import Form
 from django.http import HttpResponseRedirect
+from django.shortcuts import resolve_url
 from django.urls import reverse, reverse_lazy
 from django.views import View
 from django.views.generic import FormView, TemplateView
 
 import authentication.utils as utils
-from .forms import CredAuthenticationForm, FakeCASLoginForm
+from .forms import FakeCASLoginForm
 
 
 def _login_success_redirect(request, user, next_url, drop_params=None):
@@ -41,19 +42,20 @@ def _login_success_redirect(request, user, next_url, drop_params=None):
         suffix = '?' + query_params.urlencode()
     return HttpResponseRedirect(next_url + suffix)
 
+
 class Login(TemplateView):
     """
     Lets user pick authentication method.
     Template should redirect to the urls in context (cred_login_url and cas_login_url).
     """
 
+    default_redirect_url = reverse_lazy('authentication:index')
     template_name = 'authentication/login.html'
     cred_login_url = reverse_lazy('authentication:login_cred')
     cas_login_url = reverse_lazy('authentication:login_cas')
-    default_redirect_url = reverse_lazy('authentication:request_info')
 
     def get(self, request, *args, **kwargs):
-        # Determine redirect url
+        # Determine redirect url from GET-params or from calling url
         next_url = utils.get_redirect_url(request, default_url=self.default_redirect_url)
 
         # If the user is already authenticated, proceed to next page
@@ -71,24 +73,20 @@ class Login(TemplateView):
         return super().get(request, *args, **kwargs)
 
 
-class LoginCred(LoginView):
+class LoginCred(auth_views.LoginView):
     """ View for user login using credentials. """
 
-    form_class = CredAuthenticationForm
     template_name = 'authentication/login_cred.html'
-    default_redirect_url = reverse_lazy('authentication:request_info')
+    default_redirect_url = reverse_lazy('authentication:index')
 
     def get_redirect_url(self):
-        return super().get_redirect_url() or self.default_redirect_url
-
-    def form_valid(self, form):
-        return super().form_valid(form)
+        return super().get_redirect_url() or resolve_url(self.default_redirect_url)
 
 
 class LoginCas(View):
     """ Redirects to the CAS login URL, or verifies the CAS ticket, if provided. """
 
-    default_redirect_url = reverse_lazy('authentication:request_info')
+    default_redirect_url = reverse_lazy('authentication:index')
 
     def get(self, request):
 
@@ -125,6 +123,11 @@ class LoginCas(View):
         else:
             return HttpResponseRedirect(client.get_login_url())
 
+    # If called with POST send to GET-response
+    def post(self, request):
+        return self.get(request)
+
+
 class FakeCASLogin(FormView):
     template_name = 'authentication/login_cas_fake.html'
     form_class = FakeCASLoginForm
@@ -146,4 +149,25 @@ class FakeCASLogout(FormView):
         return HttpResponseRedirect(reverse('authentication:request_info'))
 
 
-# TODO: Write views for all authentication and user functionality.
+class PasswordResetView(auth_views.PasswordResetView):
+    email_template_name = 'authentication/password_reset_email.html'
+    subject_template_name = 'authentication/password_reset_subject.txt'
+    success_url = reverse_lazy('authentication:password_reset_done')
+    template_name = 'authentication/password_reset_form.html'
+
+class PasswordResetConfirmView(auth_views.PasswordResetConfirmView):
+    success_url = reverse_lazy('authentication:password_reset_complete')
+    template_name = 'authentication/password_reset_confirm.html'
+
+class PasswordResetDoneView(auth_views.PasswordResetDoneView):
+    template_name = 'authentication/password_reset_done.html'
+
+class PasswordResetCompleteView(auth_views.PasswordResetCompleteView):
+    template_name = 'authentication/password_reset_complete.html'
+
+class PasswordChangeView(auth_views.PasswordChangeView):
+    success_url = reverse_lazy('authentication:password_change_done')
+    template_name = 'authentication/password_change_form.html'
+
+class PasswordChangeDoneView(auth_views.PasswordChangeDoneView):
+    template_name = 'authentication/password_change_done.html'
