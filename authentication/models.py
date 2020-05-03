@@ -8,7 +8,7 @@ class UserGroup(Group):
 
 class NolleGroup(Group):
     description = models.TextField(max_length=1000, blank=True)
-    logo = models.ImageField(null=True)
+    logo = models.ImageField(null=True, blank=True)
 
 class AuthUser(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(max_length=40, unique=True)

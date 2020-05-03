@@ -1,0 +1,17 @@
+{% extends 'fohseriet/base.html' %}
+
+{% block content %}
+
+    <form method="post">{% csrf_token %}
+        {{ form.as_p }}
+        <input type="submit" value="Update">
+    </form>
+
+    <ul>
+        {% for do in drink_options %}
+            <li>{{ do.drink }}, {{ do.price }}</li>
+        {% endfor %}
+    </ul>
+
+
+{% endblock %}

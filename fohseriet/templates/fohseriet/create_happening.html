@@ -1,0 +1,21 @@
+{% extends 'fohseriet/base.html' %}
+
+{% block content %}
+
+    <h1 style="margin-bottom: 1em;">Skapa evenemang</h1>
+    <form method="post">{% csrf_token %}
+        {{ form.as_p }}
+
+        <h3>Baspris</h3>
+        {{ base_price_formset }}
+
+        <h3>Dryck</h3>
+        {{ drink_option_formset }}
+
+        <h3>Extraval</h3>
+        {{ extra_option_formset }}
+
+        <div><input type="submit" value="Spara" class="btn btn-primary m-3"></div>
+    </form>
+
+{% endblock %}

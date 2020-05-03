@@ -1,9 +1,9 @@
 from django.contrib import admin, auth
 from django.conf import settings
-from .models import UserGroup, AuthUser
+from .models import UserGroup, AuthUser, NolleGroup
 from django.apps import apps
 
-admin.site.unregister(auth.models.Group)
+#admin.site.unregister(auth.models.Group)
 
 class UserProfileInline(admin.StackedInline):
     model = apps.get_model(settings.USER_PROFILE_MODEL)
@@ -18,3 +18,8 @@ class UserAdmin(admin.ModelAdmin):
 @admin.register(UserGroup)
 class UserGroupAdmin(admin.ModelAdmin):
     pass
+
+@admin.register(NolleGroup)
+class NolleGroupAdmin(admin.ModelAdmin):
+    pass
+

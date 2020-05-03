@@ -7,17 +7,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
     <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href={% static "fohseriet/scss/custom.css" %}>
+    <link rel="stylesheet" href={% static "fohseriet/scss/custom-bs.css" %}>
+    <!-- Additional base style for all pages -->
     <link rel="stylesheet" href={% static "fohseriet/css/basestyle.css" %}>
+    <!-- Extra style per page -->
     {% block extrastyle %}{% endblock %}
 
     <title>nØllesystemet - Administration</title>
 
     {% block extrahead %}{% endblock %}
+
 </head>
 <body>
 
-<div class="cover-container w-100 h-100 p-3 mx-auto d-flex flex-column">
+<div class="container">
     <div class="content">
         {% block content %}{% endblock %}
     </div>
