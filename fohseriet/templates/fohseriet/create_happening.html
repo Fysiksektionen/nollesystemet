@@ -13,9 +13,22 @@
         {{ drink_option_formset }}
 
         <h3>Extraval</h3>
-        {{ extra_option_formset }}
+        {{ extra_option_formset.management_form }}
+        {% for eopt_f in extra_option_formset %}
+            <div class="row form-row spacer">
+                <div class="">
+                    <div class="input-group">
+                        {{ eopt_f.as_table }}
+                        <div class="input-group-append">
 
-        <div><input type="submit" value="Spara" class="btn btn-primary m-3"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    <button class="btn btn-success" id="add-more-extraoption">+</button>
+
+        <div><button type="submit" class="btn btn-primary m-3">Spara</button></div>
     </form>
 
 {% endblock %}
