@@ -14,22 +14,7 @@ def index(request, *args, **kwargs):
     return render(request, template_name, {'heading': heading, 'text': text})
 
 
-class TestFormsView(View):
-    form_class = None
-    initial = {}
-    template_name = 'fohseriet/edit_happening.html'
-
-    def get(self, request, *args, **kwargs):
-        form = self.form_class()
-        return render(request, self.template_name, {'form': form})
-
-    def post(self, request, *args, **kwargs):
-        form = self.form_class(request.POST)
-        if form.is_valid():
-            return HttpResponseRedirect(reverse('fohseriet:start'))
-        return render(request, self.template_name, {'form': form})
-
-
+#This one needs to be updated to look more like the CreateView.
 class HappeningUpdateView(UpdateView):
     model = Happening
     fields = '__all__'
@@ -89,31 +74,6 @@ class HappeningCreateView(CreateView):
             return super().form_invalid(form)
 
 
-
-class HappeningFormView(View):
-    template_name = 'fohseriet/happening_form.html'
-
-    def get(self, request, *args, **kwargs):
-        happening_form = HappeningForm(request.GET or None)
-        drink_option_formset = DrinkOptionFormset(queryset=DrinkOption.objects.none())
-        return render(request, self.template_name, {
-            'happening_form': happening_form,
-            'drink_option_formset': drink_option_formset
-        })
-
-    def post(self, request, *args, **kwargs):
-        happening_form = HappeningForm(request.POST)
-        drink_option_formset = DrinkOptionFormset(request.POST)
-        if happening_form.is_valid() and drink_option_formset.is_valid():
-            happening = happening_form.save()
-            for form in drink_option_formset:
-                drink_option = form.save(commit=False)
-                drink_option.happening = happening
-                drink_option.save()
-            return redirect('fohseriet:happening-list')
-
-
-
 class HappeningListView(ListView):
     model = Happening
-    template_name = 'fohseriet/happenings.html'
+    template_name = 'fohseriet/happening_list.html'
