@@ -1,15 +1,15 @@
-$('#add-more-extraoption').click(function () {
-    cloneMore('div.input-group:last', 'extraoption');
-    console.log("Hej");
-});
-
 function cloneMore(selector, type) {
     var newElement = $(selector).clone(true);
     var total = $('#id_' + type + '-TOTAL_FORMS').val();
     newElement.find(':input').each(function() {
-        var name = $(this).attr('name').replace('-' + (total-1) + '-','-' + total + '-');
-        var id = 'id_' + name;
-        $(this).attr({'name': name, 'id': id}).val('').removeAttr('checked');
+        if(typeof $(this).attr('name') !== typeof undefined && $(this).attr('name') !== false){
+            if ($(this).attr('name').includes(type)){
+                var name = $(this).attr('name').replace('-' + (total-1) + '-','-' + total + '-');
+                var id = 'id_' + name;
+                $(this).attr({'name': name, 'id': id}).val('').removeAttr('checked');
+            }
+        }
+
     });
     newElement.find('label').each(function() {
         var newFor = $(this).attr('for').replace('-' + (total-1) + '-','-' + total + '-');
