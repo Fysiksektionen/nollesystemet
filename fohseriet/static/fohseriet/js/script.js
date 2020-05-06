@@ -1,21 +1,32 @@
-function cloneMore(selector, type) {
-    var newElement = $(selector).clone(true);
-    var total = $('#id_' + type + '-TOTAL_FORMS').val();
-    newElement.find(':input').each(function() {
-        if(typeof $(this).attr('name') !== typeof undefined && $(this).attr('name') !== false){
-            if ($(this).attr('name').includes(type)){
-                var name = $(this).attr('name').replace('-' + (total-1) + '-','-' + total + '-');
-                var id = 'id_' + name;
-                $(this).attr({'name': name, 'id': id}).val('').removeAttr('checked');
-            }
-        }
+function updateElementIndex(element, prefix, newIndex){
+    var oldIndexTextRegex = new RegExp('(' + prefix + '-\\d+)');
+    var newIndexText = prefix + '-' + newIndex;
+    if(element.attr('for')) element.attr('for', element.attr('for').replace(oldIndexTextRegex, newIndexText));
+    if(element.attr('name')) element.attr('name', element.attr('name').replace(oldIndexTextRegex, newIndexText));
+    if(element.attr('id')) element.attr('id', element.attr('id').replace(oldIndexTextRegex, newIndexText));
+}
 
-    });
-    newElement.find('label').each(function() {
-        var newFor = $(this).attr('for').replace('-' + (total-1) + '-','-' + total + '-');
-        $(this).attr('for', newFor);
+function cloneForm(selector, prefix) {
+    var newElement = $(selector).clone(true);
+    var total = $('#id_' + prefix + '-TOTAL_FORMS').val();
+    newElement.find(':input, label').each(function() {
+        updateElementIndex($(this), prefix, total);
     });
     total++;
-    $('#id_' + type + '-TOTAL_FORMS').val(total);
+    $('#id_' + prefix + '-TOTAL_FORMS').val(total);
     $(selector).after(newElement);
+}
+
+function deleteForm(buttonElement, formSelector, prefix){
+    var total = parseInt($('#id_' + prefix + '-TOTAL_FORMS').val());
+    if(total > 1){
+        buttonElement.closest(formSelector).remove();
+        var forms = $(formSelector);
+        $('#id_' + prefix + '-TOTAL_FORMS').val(forms.length);
+        for(var i = 0; i < forms.length; i++){
+            $(forms.get(i)).find(':input, label').each(function() {
+                updateElementIndex($(this), prefix, i);
+            });
+        }
+    }
 }

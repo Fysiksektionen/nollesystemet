@@ -9,14 +9,11 @@
         <h3>Baspris</h3>
         {{ base_price_formset.management_form }}
         {% for base_price_form in base_price_formset %}
-            <div class="row form-row spacer">
-            <div class="base-price">
+            <div class="row form-row spacer base-price">
                 <div class="input-group">
                     {{ base_price_form.as_table }}
+                    <button type="button" class="btn btn-danger remove-base-price">Ta bort</button>
                 </div>
-                <button type="button" class="btn btn-danger remove-base-price">Ta bort</button>
-            </div>
-
             </div>
         {% endfor %}
         <button type="button" class="btn btn-success" id="add-base-price">Lägg till fler</button>
@@ -25,9 +22,10 @@
         <h3>Dryck</h3>
         {{ drink_option_formset.management_form }}
         {% for drink_option_form in drink_option_formset %}
-            <div class="row form-row spacer">
-                <div class="input-group drink-option">
+            <div class="row form-row spacer drink-option">
+                <div class="input-group">
                     {{ drink_option_form.as_table }}
+                    <button type="button" class="btn btn-danger remove-drink-option">Ta bort</button>
                 </div>
             </div>
         {% endfor %}
@@ -37,9 +35,10 @@
         <h3>Extraval</h3>
         {{ extra_option_formset.management_form }}
         {% for extra_option_form in extra_option_formset %}
-            <div class="row form-row spacer">
-                <div class="input-group extra-option">
+            <div class="row form-row spacer extra-option">
+                <div class="input-group">
                     {{ extra_option_form.as_table }}
+                    <button type="button" class="btn btn-danger remove-extra-option">Ta bort</button>
                 </div>
             </div>
         {% endfor %}
@@ -55,16 +54,28 @@
 {% block extrascript %}
     <script>
         $('#add-base-price').click(function () {
-            cloneMore('div.base-price:last', 'grouphappeningproperties');
-            console.log("Hej");
+            cloneForm('div.base-price:last', 'grouphappeningproperties_set');
         });
 
         $('#add-drink-option').click(function () {
-            cloneMore('div.drink-option:last', 'drinkoption');
+            cloneForm('div.drink-option:last', 'drinkoption_set');
         });
 
         $('#add-extra-option').click(function () {
-            cloneMore('div.extra-option:last', 'extraoption');
+            cloneForm('div.extra-option:last', 'extraoption_set');
         });
+
+
+        $('.remove-base-price').click(function () {
+            deleteForm($(this), '.base-price', 'grouphappeningproperties_set');
+        });
+
+        $('.remove-drink-option').click(function () {
+            deleteForm($(this), '.drink-option', 'drinkoption_set');
+        })
+
+        $('.remove-extra-option').click(function () {
+            deleteForm($(this), '.extra-option', 'extraoption_set');
+        })
     </script>
 {% endblock %}
