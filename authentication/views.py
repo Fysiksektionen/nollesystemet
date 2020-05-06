@@ -116,7 +116,8 @@ class LoginCas(View):
 
             # Authentication failed: raise permission denied
             else:
-                raise Exception("Verification of CAS ticket failed.")
+                url = "%s?failed=True" % reverse('authentication:login')
+                return HttpResponseRedirect(url)
 
         # If no ticket was provided, redirect to the
         # login URL for the institution's CAS server

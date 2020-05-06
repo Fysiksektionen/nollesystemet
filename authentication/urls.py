@@ -1,5 +1,4 @@
 import django.contrib.auth.views as auth_views
-from django.http.response import HttpResponse
 from django.urls import path
 from django.views.generic import TemplateView
 
@@ -7,7 +6,7 @@ import authentication.views as views
 
 app_name = 'authentication'
 urlpatterns = [
-    path('', lambda request: HttpResponse("Hello world!\n You are at: " + request.get_full_path_info()), name='index'),
+    path('', TemplateView.as_view(template_name="authentication/index.html"), name='index'),
 
     path('login/', views.Login.as_view(), name="login"),
     path('login/cred/', views.LoginCred.as_view(), name="login_cred"),

@@ -1,7 +1,8 @@
 {% extends "authentication/base.html" %}
+{% block title %}Login{% endblock %}
 
 {% block content %}
-    <h2>Login using credentials</h2>
+    <h3>Login using credentials</h3>
     {% if form.errors and not form.non_field_errors %}
         <p class="errornote">
             Please correct the error{{ form.errors.items|pluralize }} below.
@@ -26,11 +27,11 @@
 
         <form action="{{ app_path }}" method="post" id="login-form">
             {% csrf_token %}
-            <div class="form-row">
+            <div class="">
                 {{ form.username.errors }}
                 {{ form.username.label_tag }} {{ form.username }}
             </div>
-            <div class="form-row">
+            <div class="">
                 {{ form.password.errors }}
                 {{ form.password.label_tag }} {{ form.password }}
                 <input type="hidden" name="next" value="{{ next }}">
@@ -42,7 +43,7 @@
                 </div>
             {% endif %}
             <div class="submit-row">
-                <label>&nbsp;</label><input type="submit" value="Log in">
+                <label>&nbsp;</label><input type="submit" value="Log in", class="btn btn-secondary">
             </div>
         </form>
 

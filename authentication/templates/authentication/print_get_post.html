@@ -1,5 +1,7 @@
 {% extends "authentication/base.html" %}
 
+{% block title %}Request parameters{% endblock %}
+
 {% block content %}
     <h3>GET</h3>
     {% for key, value in request.GET.items %}
