@@ -1,6 +1,6 @@
-from django.contrib.auth.models import BaseUserManager
 from django.apps import apps
-from django.conf import settings
+from django.contrib.auth.models import BaseUserManager
+
 import authentication.utils as utils
 
 
@@ -17,6 +17,7 @@ class AuthUserManager(BaseUserManager):
             raise ValueError('The given username must be set')
         username = self.model.normalize_username(username)
         user = self.model(username=username, **extra_fields)
+        user.auth_backend = 'CRED'
         user.set_password(password)
         user.save(using=self._db)
 

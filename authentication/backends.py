@@ -127,16 +127,19 @@ class MultipleGroupCategoriesBackend(ModelBackend):
                         if isinstance(group_field, Group):
                             # Is ForeignKey
                             list_of_groups = [group_field]
+                        elif group_field is None:
+                            # Is nulled field or otherwise None
+                            continue
                         else:
                             # Something else
-                            raise Exception("%s is not an acceptable field for permission handling." % group_type_name)
+                            raise Exception("%s is not an acceptable field for permission handling 1." % group_type_name)
 
                     for group in list_of_groups:
                         # If group_field is an instance of Group (or subclass)
                         if isinstance(group, Group):
                             query = query | Q(**{'group': group})
                         else:
-                            raise Exception("%s is not an acceptable field for permission handling." % group_type_name)
+                            raise Exception("%s is not an acceptable field for permission handling 2." % group_type_name)
 
             return Permission.objects.filter(query)
         else:

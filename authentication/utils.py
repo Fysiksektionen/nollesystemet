@@ -19,7 +19,10 @@ def get_setting(setting_name):
     try:
         return getattr(settings, setting_name)
     except AttributeError:
-        return DEFAULT_SETTING_VALUES[setting_name]
+        try:
+            return DEFAULT_SETTING_VALUES[setting_name]
+        except KeyError:
+            return None
 
 
 def get_redirect_url(request, use_referer=False, default_url=None):

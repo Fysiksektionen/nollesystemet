@@ -2,44 +2,49 @@ from urllib.parse import urlencode
 
 import cas
 import django.contrib.auth.views as auth_views
+from django.apps import apps
 from django.contrib.auth import REDIRECT_FIELD_NAME, authenticate, login as django_login, logout as django_logout
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.forms import Form
 from django.http import HttpResponseRedirect
 from django.shortcuts import resolve_url
 from django.urls import reverse, reverse_lazy
 from django.views import View
-from django.views.generic import FormView, TemplateView
+from django.views.generic import FormView, TemplateView, UpdateView
 
 import authentication.utils as utils
 from .forms import FakeCASLoginForm, UserCreationForm
 
 
-def _login_success_redirect(request, user, next_url, drop_params=None):
+def _login_success_redirect(request, user, next_url='/', drop_params=None):
     """
     Determines where to go upon successful authentication:
-    Redirects to link tmp account page if user is a temporary
-    user, redirects to next_url otherwise.
+    Redirects to profile setup if profile is not set up, redirects to next_url otherwise.
 
     Any query parameters whose key exists in drop_params are
-    not propogated to the destination URL
+    not propogated to the destination URL.
     """
     query_params = request.GET.copy()
-    print(query_params, drop_params)
     # Drop all blacklisted query parameters
     if drop_params:
         for key in drop_params:
             if key in query_params:
                 del query_params[key]
 
-    print(query_params, drop_params)
-
-    # TODO: Write redirect for user that has not yet filed their profile.
-
     suffix = ''
     if REDIRECT_FIELD_NAME in query_params:
         del query_params[REDIRECT_FIELD_NAME]
+
+    # If user profile is used in this build
+    user_model_name = utils.get_setting('USER_PROFILE_MODEL')
+    if user_model_name:
+        # If user profile is not set up
+        if not getattr(request.user, apps.get_model(user_model_name).auth_user.field.remote_field.name).has_set_profile:
+            query_params[REDIRECT_FIELD_NAME] = next_url
+            next_url = reverse('authentication:update_user_profile', kwargs={'pk': request.user.pk})
+
     if len(query_params) > 0:
-        suffix = '?' + query_params.urlencode()
+        suffix = '?' + query_params.urlencode(safe='/')
     return HttpResponseRedirect(next_url + suffix)
 
 
@@ -81,6 +86,11 @@ class LoginCred(auth_views.LoginView):
 
     def get_redirect_url(self):
         return super().get_redirect_url() or resolve_url(self.default_redirect_url)
+
+    def form_valid(self, form):
+        """Security check complete. Log the user in."""
+        django_login(self.request, form.get_user())
+        return _login_success_redirect(self.request, form.get_user(), self.get_redirect_url())
 
 
 class LoginCas(View):
@@ -130,6 +140,8 @@ class LoginCas(View):
 
 
 class FakeCASLogin(FormView):
+    """ Faked CAS server. Accepts username as login and returns that as ticket. """
+
     template_name = 'authentication/login_cas_fake.html'
     form_class = FakeCASLoginForm
 
@@ -173,11 +185,76 @@ class PasswordChangeView(auth_views.PasswordChangeView):
 class PasswordChangeDoneView(auth_views.PasswordChangeDoneView):
     template_name = 'authentication/password_change_done.html'
 
-class AuthUserCreate(FormView):
-    template_name = 'authentication/create_auth_user.html'
+class AuthUserCreateView(FormView):
+    template_name = 'authentication/authuser_create.html'
     form_class = UserCreationForm
     success_url = reverse_lazy('authentication:login')
 
     def form_valid(self, form):
         form.save()
         return super().form_valid(form)
+
+class AuthUserUpdateView(UpdateView, LoginRequiredMixin, UserPassesTestMixin):
+    """
+    AuthUser edit view. Does not allow password change. This can be done separately. 
+    Redirects to login if not authenticated or with permission.
+    """
+    
+    model = apps.get_model(utils.get_setting('AUTH_USER_MODEL'))
+    fields = ['username', 'email']
+    template_name_suffix = '_update_form'
+
+    success_url = reverse_lazy('authentication:index')
+
+    def get_success_url(self):
+        if REDIRECT_FIELD_NAME in self.request.GET:
+            return self.request.GET[REDIRECT_FIELD_NAME]
+        else:
+            return self.success_url
+
+    def test_func(self):
+        return str(self.request.user.pk) == self.kwargs['pk']
+
+    def get_login_url(self):
+        if not self.request.user.is_authenticated:
+            return utils.get_setting('LOGIN_URL') + '?' + REDIRECT_FIELD_NAME + "=" +\
+                   reverse('authentication:update_auth_user', kwargs={'pk': self.kwargs['pk']})
+        else:
+            return _login_success_redirect(self.request,
+                                           self.request.user,
+                                           self.success_url)
+
+class UserProfileUpdateView(UpdateView, LoginRequiredMixin, UserPassesTestMixin):
+    """
+    UserProfile edit view.
+    Redirects to login if not authenticated or with permission.
+    """
+
+    model = apps.get_model(utils.get_setting('USER_PROFILE_MODEL'))
+    fields = [field.name for field in model._meta.get_fields() if field.name not in ['has_set_profile', 'auth_user']]
+    template_name_suffix = '_update_form'
+
+    success_url = reverse_lazy('authentication:index')
+
+    def get_success_url(self):
+        if REDIRECT_FIELD_NAME in self.request.GET:
+            return self.request.GET[REDIRECT_FIELD_NAME]
+        else:
+            return self.success_url
+
+    def test_func(self):
+        return str(self.request.user.pk) == self.kwargs['pk']
+
+    def get_login_url(self):
+        if not self.request.user.is_authenticated:
+            return utils.get_setting('LOGIN_URL') + '?' + REDIRECT_FIELD_NAME + "=" + \
+                   reverse('authentication:update_auth_user', kwargs={'pk': self.kwargs['pk']})
+        else:
+            return _login_success_redirect(self.request,
+                                           self.request.user,
+                                           self.success_url)
+
+    def form_valid(self, form):
+        form.instance.has_set_profile = True
+        return super().form_valid(form)
+

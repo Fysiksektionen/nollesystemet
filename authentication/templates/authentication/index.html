@@ -9,6 +9,8 @@
         <a href="{% url "authentication:password_reset" %}" class="btn btn-primary">Reset password</a>
     {% else %}
         <a href="{% url "authentication:logout" %}" class="btn btn-primary">Logout</a>
+        <a href="{% url "authentication:update_auth_user" user.pk %}" class="btn btn-primary">Update auth user</a>
+        <a href="{% url "authentication:update_user_profile" user.pk %}" class="btn btn-primary">Update profile</a>
         <a href="{% url "authentication:password_change" %}" class="btn btn-primary">Change password</a>
     {% endif %}
 

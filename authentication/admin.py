@@ -7,7 +7,7 @@ This is for smooth development and backdoors for admins, not for user-side behav
 
 from django.contrib import admin, auth
 
-from .models import UserGroup, AuthUser, NolleGroup
+from .models import *
 
 # Don't keep the default Group model.
 admin.site.unregister(auth.models.Group)

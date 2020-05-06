@@ -17,5 +17,7 @@ class UserCreationForm(auth_forms.UserCreationForm):
         user.auth_backend = 'CRED'
         if commit:
             user.save()
+            user.profile.save()
+
         return user
 
