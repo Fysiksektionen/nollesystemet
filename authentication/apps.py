@@ -2,5 +2,5 @@ from django.apps import AppConfig
 
 class AuthenticationAppConfig(AppConfig):
     name = 'authentication'
-    verbose_name = 'Users'
+    verbose_name = 'Authentication app'
 

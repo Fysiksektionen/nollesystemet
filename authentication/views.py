@@ -11,7 +11,7 @@ from django.views import View
 from django.views.generic import FormView, TemplateView
 
 import authentication.utils as utils
-from .forms import FakeCASLoginForm
+from .forms import FakeCASLoginForm, UserCreationForm
 
 
 def _login_success_redirect(request, user, next_url, drop_params=None):
@@ -171,3 +171,12 @@ class PasswordChangeView(auth_views.PasswordChangeView):
 
 class PasswordChangeDoneView(auth_views.PasswordChangeDoneView):
     template_name = 'authentication/password_change_done.html'
+
+class AuthUserCreate(FormView):
+    template_name = 'authentication/create_auth_user.html'
+    form_class = UserCreationForm
+    success_url = reverse_lazy('authentication:login')
+
+    def form_valid(self, form):
+        form.save()
+        return super().form_valid(form)

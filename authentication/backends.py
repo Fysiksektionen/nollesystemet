@@ -30,7 +30,7 @@ class CASBackend(ModelBackend):
 
         return super().user_can_authenticate(user) and user.can_use_auth_method(backend_name=self.backend_name)
 
-    def authenticate(self, request, ticket, service, **kwargs):
+    def authenticate(self, request, **kwargs):
         """
         Method to verify CAS-tickets.
 
@@ -40,6 +40,11 @@ class CASBackend(ModelBackend):
 
         :returns user: User instance or None if not verified.
         """
+        try:
+            ticket = kwargs['ticket']
+            service = kwargs['service']
+        except KeyError:
+            return None
         user_model = AuthUser
 
         # Attempt to verify the ticket with the institution's CAS server
@@ -67,11 +72,16 @@ class CASBackend(ModelBackend):
 class FakeCASBackend(CASBackend):
     """ Fake backend authorizing simple fake tickets """
 
-    def authenticate(self, request, ticket, service, **kwargs):
+    def authenticate(self, request, **kwargs):
         """
         Authenticates a fake ticket containing the user's username.
         Returns matching user if username exists and None if the user does not exist.
         """
+        try:
+            ticket = kwargs['ticket']
+            service = kwargs['service']
+        except KeyError:
+            return None
         user_model = AuthUser
 
         # Try to find user
@@ -96,7 +106,8 @@ class MultipleGroupCategoriesBackend(ModelBackend):
         user_model = get_user_model()
 
         # If list of groups exist, is not None and not empty
-        if hasattr(user_model, 'PERMISSION_GROUPS') and user_model.PERMISSION_GROUPS and len(user_model.PERMISSION_GROUPS) != 0:
+        if hasattr(user_model, 'PERMISSION_GROUPS') and user_model.PERMISSION_GROUPS and len(
+                user_model.PERMISSION_GROUPS) != 0:
             query = Q()
 
             # For all fields in the list
@@ -106,14 +117,19 @@ class MultipleGroupCategoriesBackend(ModelBackend):
                 # If group_field is an instance of Group (or subclass)
                 if isinstance(group_field, Group):
                     query = query | Q(**{'group': group_field})
-
-                # Else assume that it's a many-to-many relation so you are dealing with a manager.
+                # Else assume that it's a ForignKey or many-to-many relation.
                 else:
-                    list_of_groups = None
+                    list_of_groups = []
                     try:
                         list_of_groups = group_field.all()
+                        # Is many-to-many
                     except:
-                        raise Exception("%s is not an acceptable field for permission handling." % group_type_name)
+                        if isinstance(group_field, Group):
+                            # Is ForeignKey
+                            list_of_groups = [group_field]
+                        else:
+                            # Something else
+                            raise Exception("%s is not an acceptable field for permission handling." % group_type_name)
 
                     for group in list_of_groups:
                         # If group_field is an instance of Group (or subclass)

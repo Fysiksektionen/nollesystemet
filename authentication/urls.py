@@ -28,4 +28,5 @@ urlpatterns = [
     path('cas_fake/', views.FakeCASLogin.as_view(), name='fake_cas'),
     path('cas_fake/login/', views.FakeCASLogin.as_view(), name='fake_cas_login'),
     path('cas_fake/logout/', views.FakeCASLogout.as_view(), name='fake_cas_logout'),
+    path('create_user/', views.AuthUserCreate.as_view(), name='auth_user_create'),
 ]

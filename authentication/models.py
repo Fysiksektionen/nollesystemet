@@ -1,3 +1,4 @@
+import django.core.validators as validators
 from django.contrib.auth import get_backends
 from django.contrib.auth.models import Group, AbstractBaseUser, PermissionsMixin, AbstractUser
 from django.db import models
@@ -47,6 +48,9 @@ class AuthUser(AbstractUser):
     has_set_profile = models.BooleanField(verbose_name="Profile setup done",
                                           default=False)
 
+    class Meta(AbstractUser.Meta):
+        permissions = [('can_add_kth_id_user', 'Can add a user for KTH-login')]
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         auth_backend_names = [backend.backend_name for backend in get_backends()
@@ -56,3 +60,13 @@ class AuthUser(AbstractUser):
 
     def can_use_auth_method(self, backend_name):
         return '__all__' in self.auth_backend.split(",") or backend_name in self.auth_backend.split(",")
+
+    def clean(self):
+        super().clean()
+        kth_id_validator = validators.RegexValidator(regex="^u1.*$", message="You can not start a username with 'u1'.", inverse_match=True)
+        kth_id_validator(getattr(self, self.USERNAME_FIELD))
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        return super().save(*args, **kwargs)
+

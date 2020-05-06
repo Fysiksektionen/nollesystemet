@@ -7,7 +7,6 @@ from django.shortcuts import resolve_url
 # TODO: Understand and modify functions. Remove any unwanted or unnecessary functionality.
 
 DEFAULT_SETTING_VALUES = {
-    'USER_PROFILE_MODEL': 'fohseriet.UserProfile',
     'CAS_SERVER_URL': 'https://login.kth.se/',
 }
 
