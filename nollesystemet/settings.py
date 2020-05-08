@@ -133,11 +133,13 @@ USER_PROFILE_MODEL = 'fohseriet.UserProfile'
 AUTHENTICATION_BACKENDS = [
     'authentication.backends.MultipleGroupCategoriesBackend',
     'authentication.backends.UserCredentialsBackend',
-    # 'authentication.backends.CASBackend',
-    'authentication.backends.FakeCASBackend',
+    'authentication.backends.CASBackend',
+    # 'authentication.backends.FakeCASBackend',
 ]
 
-CAS_SERVER_URL = reverse_lazy('authentication:fake_cas')
+# CAS_SERVER_URL = reverse_lazy('authentication:fake_cas')
+# CAS_SERVER_URL = "https://login.kth.se"
+CAS_SERVER_URL = "http://localhost:3004"
 LOGIN_URL = reverse_lazy('authentication:login')
 
 #Email setup

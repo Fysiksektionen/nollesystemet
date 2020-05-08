@@ -39,9 +39,11 @@ def _login_success_redirect(request, user, next_url='/', drop_params=None):
     user_model_name = utils.get_setting('USER_PROFILE_MODEL')
     if user_model_name:
         # If user profile is not set up
-        if not getattr(request.user, apps.get_model(user_model_name).auth_user.field.remote_field.name).has_set_profile:
+        profile_name = apps.get_model(user_model_name).auth_user.field.remote_field.name
+        if not getattr(request.user, profile_name).has_set_profile:
             query_params[REDIRECT_FIELD_NAME] = next_url
-            next_url = reverse('authentication:update_user_profile', kwargs={'pk': request.user.pk})
+            next_url = reverse('authentication:update_user_profile',
+                               kwargs={'pk': getattr(request.user, profile_name).pk})
 
     if len(query_params) > 0:
         suffix = '?' + query_params.urlencode(safe='/')
@@ -69,7 +71,8 @@ class Login(TemplateView):
 
         params = request.GET.copy()
         params.setdefault(REDIRECT_FIELD_NAME, next_url)
-        get_params = params.urlencode()
+        get_params = params.urlencode(safe='/')
+        print(self.cas_login_url)
         kwargs.update({
             'cred_login_url': self.cred_login_url + ('?' + get_params if get_params else ''),
             'cas_login_url': self.cas_login_url + ('?' + get_params if get_params else '')
@@ -111,6 +114,8 @@ class LoginCas(View):
             return _login_success_redirect(request, request.user, next_url)
 
         service_url = utils.get_service_url(request, next_url)
+        print(service_url)
+        print(str(utils.get_setting('CAS_SERVER_URL')))
         client = cas.CASClient(version=2, service_url=service_url, server_url=str(utils.get_setting('CAS_SERVER_URL')))
 
         # If a ticket was provided, attempt to authenticate with it
