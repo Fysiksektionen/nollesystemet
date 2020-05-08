@@ -1,0 +1,13 @@
+{% extends "authentication/base.html" %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+    {% if request.GET.failed %}
+        <strong>Login failed!</strong>
+    {% endif %}
+
+    <h3>Choose login method</h3>
+    <a href="{{ cred_login_url }}" class="btn btn-primary">Login using credentials</a>
+    <a href="{{ cas_login_url }}" class="btn btn-primary">Login using CAS</a>
+{% endblock %}

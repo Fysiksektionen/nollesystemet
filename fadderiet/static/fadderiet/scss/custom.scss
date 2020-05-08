@@ -1,0 +1,12 @@
+
+
+$theme-colors: (
+  "primary": #009375,
+  "white": #ffffff,
+  "black": #000000,
+);
+
+$btn-active-darken-percentage: 0%;
+$btn-active-border-darken-percentage: 0%;
+
+@import "../../../../static/bootstrap/scss/bootstrap";
