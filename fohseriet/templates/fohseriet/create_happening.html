@@ -4,7 +4,11 @@
 
     <h1 style="margin-bottom: 1em;">Skapa evenemang</h1>
     <form method="post">{% csrf_token %}
-        {{ form.as_p }}
+
+       <table>
+           {{ form.as_table }}
+       </table>
+
 
         <h3>Baspris</h3>
         {{ base_price_formset.management_form }}
