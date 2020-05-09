@@ -48,6 +48,12 @@ menu_item_info = {
         'align': 'right',
         'user': 'logged-in',
     },
+    'mina-sidor:profil': {
+        'name': 'Min profil',
+        'url_name': 'fadderiet:mina-sidor:profil',
+        'align': 'right',
+        'user': 'logged-in',
+    },
     'logga-in': {
         'name': 'Logga in',
         'url_name': 'fadderiet:logga-in:index',
@@ -73,10 +79,10 @@ def custom_redirect(url_name, *args, **kwargs):
 def make_crispy_form(form_class, submit_button=None, form_action=None):
     class CrispyForm(form_class):
         def __init__(self, *args, **kwargs):
-            super().__init__(*args, **kwargs)
             self.helper = FormHelper()
             self.helper.form_method = 'post'
             self.helper.add_input(Submit('submit', submit_button or 'Submit'))
             self.helper.form_action = form_action or ''
+            super().__init__(*args, **kwargs)
 
     return CrispyForm

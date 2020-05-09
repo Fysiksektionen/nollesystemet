@@ -1,0 +1,10 @@
+{% extends 'fadderiet/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Min profil{% endblock %}
+
+{% block content %}
+    <div class="col-4">
+        {% crispy form %}
+    </div>
+{% endblock %}

@@ -143,7 +143,7 @@ AUTHENTICATION_BACKENDS = [
 # CAS_SERVER_URL = reverse_lazy('authentication:fake_cas')
 # CAS_SERVER_URL = "https://login.kth.se"
 CAS_SERVER_URL = "http://localhost:3004"
-LOGIN_URL = reverse_lazy('authentication:login')
+LOGIN_URL = reverse_lazy('fadderiet:logga-in:index')
 
 #Email setup
 def get_email_info(filename):

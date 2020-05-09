@@ -1,4 +1,3 @@
-import django.contrib.auth.views as django_auth_views
 from django.urls import include, path
 
 import authentication.views as auth_views
@@ -15,14 +14,14 @@ login_urls = ([
 ], 'logga-in')
 
 password_reset_urls = ([
-    path('', views.hello_world, name='index'),
-    path('skickat/', views.hello_world, name='skickat'),
-    path('<uidb64>/<token>/', views.hello_world, name='lank'),
-    path('klart/', views.hello_world, name='klart'),
+    path('', views.PasswordResetView.as_view(), name='index'),
+    path('skickat/', views.PasswordResetDoneView.as_view(), name='skickat'),
+    path('<uidb64>/<token>/', views.PasswordResetConfirmView.as_view(), name='lank'),
+    path('klart/', views.PasswordResetCompleteView.as_view(), name='klart'),
 ], 'aterstall-losenord')
 
 my_pages_urls = ([
-    path('profil/', views.hello_world, name='profil'),
+    path('profil/', views.ProfileUpdateView.as_view(), name='profil'),
 ], 'mina-sidor')
 
 urlpatterns = [
@@ -37,7 +36,7 @@ urlpatterns = [
     path('nolleenkaten/', views.hello_world, name='nolleenkaten'),
 
     path('logga-in/', include(login_urls)),
-    path('logga-ut/', django_auth_views.LoginView.as_view(template_name="fadderiet/utloggad.html"), name='logga-ut'),
+    path('logga-ut/', views.LogoutView.as_view(), name='logga-ut'),
     path('registrera-dig/', views.RegisterView.as_view(), name='registrera-dig'),
     path('aterstall-losenord/', include(password_reset_urls)),
     path('byt-losenord/', views.hello_world, name='byt-losenord'),
