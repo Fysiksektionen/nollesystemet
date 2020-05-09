@@ -58,13 +58,11 @@ class MenuBaseMixin(ContextMixin):
 
 
 class MenuBaseView(MenuBaseMixin, TemplateView):
-    pass
+    menu_item_info = utils.menu_item_info
+    menu_items = ['index', 'schema', 'bra-info', 'anmal-dig', 'kontakt', ['mina-sidor', 'logga-in'], 'logga-ut']
 
 
 class LoginView(MenuBaseMixin, auth_views.Login):
-    menu_item_info = utils.menu_item_info
-    menu_items = ['index', 'schema', 'bra-info', 'anmal-dig', 'kontakt']
-
     default_redirect_url = reverse_lazy('fadderiet:index')
     template_name = 'fadderiet/logga-in.html'
     cred_login_url = reverse_lazy('fadderiet:logga-in:nollan')
@@ -72,10 +70,19 @@ class LoginView(MenuBaseMixin, auth_views.Login):
 
 
 class LoginCredentialsView(MenuBaseMixin, auth_views.LoginCred):
-    menu_item_info = utils.menu_item_info
-    menu_items = ['index', 'schema', 'bra-info', 'anmal-dig', 'kontakt']
-
     template_name = 'fadderiet/login_cred.html'
     default_redirect_url = reverse_lazy('fadderiet:index')
 
     form_class = utils.make_crispy_form(auth_views.LoginCred.form_class, 'Logga in')
+
+    extra_context = {
+        'reset_password_url': reverse_lazy('fadderiet:aterstall-losenord:index'),
+        'register_url': reverse_lazy('fadderiet:registrera-dig')
+    }
+
+
+class RegisterView(MenuBaseView, auth_views.AuthUserCreateView):
+    form_class = utils.make_crispy_form(auth_views.AuthUserCreateView.form_class, 'Registrera')
+
+    template_name = 'fadderiet/registrera-dig.html'
+    success_url = reverse_lazy('fadderiet:logga-in:index')

@@ -54,6 +54,12 @@ menu_item_info = {
         'align': 'right',
         'user': 'logged-out',
     },
+    'logga-ut': {
+        'name': 'Logga ut',
+        'url_name': 'fadderiet:logga-ut',
+        'align': 'right',
+        'user': 'logged-in',
+    },
 }
 
 

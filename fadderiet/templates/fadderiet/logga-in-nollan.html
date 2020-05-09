@@ -1,0 +1,23 @@
+{% extends "fadderiet/base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+    <div class="row justify-content-center">
+        <div class="col-5">
+            <h2 class="p-3 text-center">Välkommen nØllan!</h2>
+            <hr class="mt-0 mb-4">
+            {% crispy form %}
+            <div class="text-center">
+                <p>
+                    Har du glömt ditt användarnamn eller lösenord? </br>
+                    Klicka <a href="{{ register_url }}" class="">här</a> för att återställa det.
+                </p>
+                <p>
+                    Har du inte redan ett konto? Registrera dig <a href="{{ register_url }}" class="">här</a>.
+                </p>
+            </div>
+        </div>
+    </div>
+{% endblock %}
