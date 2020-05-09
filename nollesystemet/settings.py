@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'crispy_forms',
     'authentication.apps.AuthenticationAppConfig',
     'fohseriet',
     'fadderiet',
@@ -126,6 +127,9 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = 'static'
 
+# Crispy settings
+CRISPY_TEMPLATE_PACK = 'bootstrap4'
+
 # Authentication settings
 AUTH_USER_MODEL = 'authentication.AuthUser'
 USER_PROFILE_MODEL = 'fohseriet.UserProfile'
@@ -134,7 +138,6 @@ AUTHENTICATION_BACKENDS = [
     'authentication.backends.MultipleGroupCategoriesBackend',
     'authentication.backends.UserCredentialsBackend',
     'authentication.backends.CASBackend',
-    # 'authentication.backends.FakeCASBackend',
 ]
 
 # CAS_SERVER_URL = reverse_lazy('authentication:fake_cas')

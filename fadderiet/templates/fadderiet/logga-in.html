@@ -1,13 +1,20 @@
-{% extends "authentication/base.html" %}
+{% extends "fadderiet/base.html" %}
 
-{% block title %}Login{% endblock %}
+{% block title %}Logga in{% endblock %}
 
 {% block content %}
-    {% if request.GET.failed %}
-        <strong>Login failed!</strong>
-    {% endif %}
+    <div class="container text-center">
+        <div class="errornote">
+            {% if request.GET.failed %}
+                Inloggning misslyckades!
+            {% endif %}
+        </div>
 
-    <h3>Choose login method</h3>
-    <a href="{{ cred_login_url }}" class="btn btn-primary">Login using credentials</a>
-    <a href="{{ cas_login_url }}" class="btn btn-primary">Login using CAS</a>
+        <h2 class="p-3">Vem är du?</h2>
+
+        <div>
+            <a href="{{ cred_login_url }}" class="btn btn-primary p-3 pr-5 pl-5 mr-3">nØllan</a>
+            <a href="{{ cas_login_url }}" class="btn btn-primary p-3 pr-5 pl-5 mr-3">Fadder</a>
+        </div>
+    </div>
 {% endblock %}

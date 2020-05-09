@@ -1,12 +1,14 @@
 from django.shortcuts import HttpResponse
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.views.generic.base import ContextMixin, TemplateView
 
+import authentication.views as auth_views
 import fadderiet.utils as utils
 
 
 def hello_world(request, *args, **kwargs):
     return HttpResponse("Hello world!\n You are at: " + request.get_full_path_info())
+
 
 def custom_redirect_view(request, redirect_name, keep_GET_params=True, default_GET_params=None, url_args=None):
     GET_params = default_GET_params
@@ -21,8 +23,8 @@ def custom_redirect_view(request, redirect_name, keep_GET_params=True, default_G
 
     return utils.custom_redirect(redirect_name, *url_args, **GET_params)
 
-class MenuBaseMixin(ContextMixin):
 
+class MenuBaseMixin(ContextMixin):
     menu_items = []
     menu_item_info = None
 
@@ -31,11 +33,23 @@ class MenuBaseMixin(ContextMixin):
             raise ReferenceError("menu_item_info not set, with menu_items specified.")
 
         menu = {'left': [], 'right': []}
-        for item in self.menu_items:
-            menu[self.menu_item_info[item]['align']].append({
-                **self.menu_item_info[item],
-                'url': reverse(self.menu_item_info[item]['url_name'])
-            })
+        for items in self.menu_items:
+            if not isinstance(items, list):
+                items = [items]
+
+            for item in items:
+                info = self.menu_item_info[item]
+
+                render = info['user'] == 'any' \
+                         or (info['user'] == 'logged-in' and self.request.user.is_authenticated) \
+                         or (info['user'] == 'logged-out' and not self.request.user.is_authenticated)
+
+                if render:
+                    menu[info['align']].append({
+                        **info,
+                        'url': reverse(info['url_name'])
+                    })
+                    break
 
         context = {}
         if menu:
@@ -45,3 +59,23 @@ class MenuBaseMixin(ContextMixin):
 
 class MenuBaseView(MenuBaseMixin, TemplateView):
     pass
+
+
+class LoginView(MenuBaseMixin, auth_views.Login):
+    menu_item_info = utils.menu_item_info
+    menu_items = ['index', 'schema', 'bra-info', 'anmal-dig', 'kontakt']
+
+    default_redirect_url = reverse_lazy('fadderiet:index')
+    template_name = 'fadderiet/logga-in.html'
+    cred_login_url = reverse_lazy('fadderiet:logga-in:nollan')
+    cas_login_url = reverse_lazy('fadderiet:logga-in:fadder')
+
+
+class LoginCredentialsView(MenuBaseMixin, auth_views.LoginCred):
+    menu_item_info = utils.menu_item_info
+    menu_items = ['index', 'schema', 'bra-info', 'anmal-dig', 'kontakt']
+
+    template_name = 'fadderiet/login_cred.html'
+    default_redirect_url = reverse_lazy('fadderiet:index')
+
+    form_class = utils.make_crispy_form(auth_views.LoginCred.form_class, 'Logga in')

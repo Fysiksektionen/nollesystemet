@@ -4,6 +4,7 @@ chardet==3.0.4
 Django==3.0.5
 django-annoying==0.10.6
 django-collectionfield==0.0.4
+django-crispy-forms==1.9.0
 django-uniauth==1.2.2
 idna==2.9
 lxml==4.5.0

@@ -72,7 +72,7 @@ class Login(TemplateView):
         params = request.GET.copy()
         params.setdefault(REDIRECT_FIELD_NAME, next_url)
         get_params = params.urlencode(safe='/')
-        print(self.cas_login_url)
+
         kwargs.update({
             'cred_login_url': self.cred_login_url + ('?' + get_params if get_params else ''),
             'cas_login_url': self.cas_login_url + ('?' + get_params if get_params else '')

@@ -1,18 +1,13 @@
-from django.urls import include, path, reverse_lazy
+from django.urls import include, path
 
-import authentication.views as auth_views
 import fadderiet.utils as utils
 from . import views
 
 app_name = 'fadderiet'
 
 login_urls = ([
-    path('', auth_views.Login.as_view(default_redirect_url=reverse_lazy('fadderiet:index'),
-                                      template_name='fadderiet/logga-in.html',
-                                      cred_login_url=reverse_lazy('fadderiet:logga-in:nollan'),
-                                      cas_login_url=reverse_lazy('fadderiet:logga-in:fadder')),
-         name='index'),
-    path('nollan/', views.hello_world, name='nollan'),
+    path('', views.LoginView.as_view(), name='index'),
+    path('nollan/', views.LoginCredentialsView.as_view(), name='nollan'),
     path('fadder/', views.custom_redirect_view, kwargs={'redirect_name': 'fadderiet:logga-in:cas'},
          name='fadder'),
     path('cas/', views.hello_world, name='cas'),
@@ -32,14 +27,14 @@ my_pages_urls = ([
 urlpatterns = [
     path('', views.MenuBaseView.as_view(template_name='fadderiet/index.html',
                                         menu_item_info=utils.menu_item_info,
-                                        menu_items=['index', 'logga-in', 'anmal_dig', 'schema']),
+                                        menu_items=['index', 'schema', 'bra-info', 'anmal-dig', 'kontakt', ['mina-sidor', 'logga-in']]),
          name='index'),
     path('schema/', views.hello_world, name='schema'),
-    path('bra-info/', views.hello_world, name='bra_info'),
-    path('om-fadderiet/', views.hello_world, name='om_fadderiet'),
-    path('anmal-dig/', views.hello_world, name='anmal_dig'),
+    path('bra-info/', views.hello_world, name='bra-info'),
+    path('om-fadderiet/', views.hello_world, name='om-fadderiet'),
+    path('anmal-dig/', views.hello_world, name='anmal-dig'),
     path('kontakt/', views.hello_world, name='kontakt'),
-    path('mina-sidor/', views.hello_world, name='mina_sidor'),
+    path('mina-sidor/', views.hello_world, name='mina-sidor'),
     path('nolleenkaten/', views.hello_world, name='nolleenkaten'),
 
     path('logga-in/', include(login_urls, namespace='logga-in')),

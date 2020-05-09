@@ -1,0 +1,14 @@
+{% extends "fadderiet/base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+    <div class="row justify-content-center">
+        <div class="col-5">
+            <h2 class="p-3 text-center">Välkommen nØllan!</h2>
+            <hr class="mt-0 mb-4">
+            {% crispy form %}
+        </div>
+    </div>
+{% endblock %}
