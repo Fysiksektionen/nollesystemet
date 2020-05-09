@@ -15,22 +15,43 @@
         <title>Fadderiets hemsida</title>
     </head>
     <body>
-        <center>
-            <h1>
-                {% block title %}{% endblock %}
-            </h1>
-        </center>
-            <hr>
-            {% block menu %}
-                {% for menu_item in menu %}
-                    <a href="{{ menu_item.url }}">{{ menu_item.name }}</a>
-                {% endfor %}
-            {% endblock %}
-            <hr>
-        <center>
-            {% block content %}{% endblock %}
-        </center>
+        <div class="container">
+            <div id="header" class="container">
+                <div id="title-bar" class="container">
+                    <h1 class="p-4">{% block title %}{% endblock %}</h1>
+                </div>
+                <div id="menu-bar" class="container">
+                    {% block menu %}
+                        <div class="row">
+                            <div class="col-8 d-flex justify-content-start">
+                                <div class="d-inline-flex">
+                                    {% for menu_item in menu.left %}
+                                        <div class="p-3">
+                                            <a href="{{ menu_item.url }}">{{ menu_item.name }}</a>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div class="col-4 d-flex justify-content-end">
+                                <div class="d-inline-flex">
+                                    {% for menu_item in menu.right %}
+                                        <div class="p-3">
+                                            <a href="{{ menu_item.url }}">{{ menu_item.name }}</a>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endblock %}
+                </div>
+            </div>
+            <div id="content-main" class="container">
+                {% block content %}{% endblock %}
+            </div>
+            <div id="footer" class="container">
 
+            </div>
+        </div>
 
         <!-- Optional JavaScript -->
         <!-- jQuery first, then Popper.js, then Bootstrap JS -->

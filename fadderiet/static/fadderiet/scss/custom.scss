@@ -1,7 +1,8 @@
 
+$fadderiet: #009375;
 
 $theme-colors: (
-  "primary": #009375,
+  "primary": $fadderiet,
   "white": #ffffff,
   "black": #000000,
 );
@@ -10,3 +11,13 @@ $btn-active-darken-percentage: 0%;
 $btn-active-border-darken-percentage: 0%;
 
 @import "../../../../static/bootstrap/scss/bootstrap";
+
+#title-bar {
+    background-color: $fadderiet;
+}
+
+#menu-bar {
+    background-color: $secondary;
+}
+
+

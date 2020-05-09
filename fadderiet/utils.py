@@ -41,7 +41,7 @@ menu_item_info = {
     },
     'logga-in': {
         'name': 'Logga in',
-        'url_name': 'fadderiet:logga-in',
+        'url_name': 'fadderiet:logga-in:index',
         'align': 'right',
     },
 }
