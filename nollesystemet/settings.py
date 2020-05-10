@@ -133,6 +133,7 @@ CRISPY_TEMPLATE_PACK = 'bootstrap4'
 # Authentication settings
 AUTH_USER_MODEL = 'authentication.AuthUser'
 USER_PROFILE_MODEL = 'fohseriet.UserProfile'
+USER_PROFILE_SETUP_URL = reverse_lazy('fadderiet:mina-sidor:profil')
 
 AUTHENTICATION_BACKENDS = [
     'authentication.backends.MultipleGroupCategoriesBackend',

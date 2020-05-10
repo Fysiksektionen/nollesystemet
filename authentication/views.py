@@ -42,8 +42,7 @@ def _login_success_redirect(request, user, next_url='/', drop_params=None):
         profile_name = apps.get_model(user_model_name).auth_user.field.remote_field.name
         if not getattr(request.user, profile_name).has_set_profile:
             query_params[REDIRECT_FIELD_NAME] = next_url
-            next_url = reverse('authentication:update_user_profile',
-                               kwargs={'pk': getattr(request.user, profile_name).pk})
+            next_url = utils.get_setting('USER_PROFILE_SETUP_URL')
 
     if len(query_params) > 0:
         suffix = '?' + query_params.urlencode(safe='/')
