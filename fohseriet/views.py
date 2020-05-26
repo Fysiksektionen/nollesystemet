@@ -1,3 +1,6 @@
+import django.contrib.auth.views as django_auth_views
+
+import authentication.views as auth_views
 from .forms import *
 from .mixins import *
 
