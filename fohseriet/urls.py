@@ -12,9 +12,9 @@ login_urls = ([
 ], 'logga-in')
 
 happening_urls = ([
-    path('', views.HappeningListView.as_view(), name="happening-list"),
-    path('<int:pk>/', views.HappeningUpdateView.as_view(), name='happening-update'),
-    path('skapa-evenemang', views.HappeningCreateView.as_view(), name='create_happening'),
+    path('', views.HappeningListView.as_view(), name="lista"),
+    path('<int:pk>/', views.HappeningUpdateView.as_view(), name='uppdatera'),
+    path('skapa-evenemang', views.HappeningCreateView.as_view(), name='skapa'),
 ], 'evenemang')
 
 user_urls = ([

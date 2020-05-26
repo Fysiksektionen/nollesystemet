@@ -9,20 +9,28 @@ menu_item_info = {
     },
     'hantera-event': {
         'name': 'Hantera event',
-        'url_name': 'fohseriet:hantera-event',
+        'url_name': 'fohseriet:evenemang:lista',
         'align': 'left',
         'user': 'with-permission',
         'permissions' : {
-            'edit-event',
+            'logic': 'any',
+            'prems': [
+                'edit-event',
+            ]
         }
     },
     'hantera-andvandare': {
         'name': 'Hantera andvändare',
-        'url_name': 'fohseriet:hantera-andvandare',
+        'url_name': 'fohseriet:anvandare:index',
         'align': 'left',
         'user': 'with-permission',
         'permissions' : {
-            'edit-users',
+            'logic': 'any',
+            'prems': [
+                'fohseriet.edit_user_full',
+                'fohseriet.edit_user_administrator',
+                'fohseriet.edit_user_registrations',
+            ]
         }
     },
     'fadderiet': {
@@ -39,7 +47,7 @@ menu_item_info = {
     },
 
     'logga-in': {
-        'name': 'Logga ut',
+        'name': 'Logga in',
         'url_name': 'fohseriet:logga-in:index',
         'align': 'right',
         'user': 'logged-out',

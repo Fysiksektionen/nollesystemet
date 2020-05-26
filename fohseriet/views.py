@@ -1,14 +1,5 @@
-from django.urls import reverse_lazy
-import django.contrib.auth.views as django_auth_views
-from django.views.generic import TemplateView, UpdateView, ListView, CreateView
-
-import authentication.views as auth_views
-import fohseriet.utils as fohseriet_utils
-import utils.misc as utils_misc
-from utils.helper_views import MenuMixin
-
-from .mixins import *
 from .forms import *
+from .mixins import *
 
 
 class MenuView(MenuMixin, TemplateView):
@@ -39,7 +30,7 @@ class HappeningUpdateView(UpdateView, HappeningOptionsMixin):
     model = Happening
     fields = '__all__'
     template_name = 'fohseriet/evenemang/create_happening.html'
-    success_url = reverse_lazy('fohseriet:happening-list')
+    success_url = reverse_lazy('fohseriet:evenemang:lista')
 
     def get_context_data(self, **kwargs):
         context = super(HappeningUpdateView, self).get_context_data(**kwargs)
@@ -56,7 +47,7 @@ class HappeningUpdateView(UpdateView, HappeningOptionsMixin):
 
 class HappeningCreateView(CreateView, HappeningOptionsMixin):
     model = Happening
-    success_url = reverse_lazy('fohseriet:happening-list')
+    success_url = reverse_lazy('fohseriet:evenemang:lista')
     fields = '__all__'
     template_name = 'fohseriet/evenemang/create_happening.html'
 

@@ -12,6 +12,13 @@ class UserProfile(auth_models.UserProfile):
     contact_relation = models.CharField(max_length=100, blank=True)
     contact_phone_number = models.CharField(max_length=15, blank=True)
 
+    class Meta(auth_models.UserProfile.Meta):
+        permissions = [
+            ("edit_user_full", "Can do anything to a user"),
+            ("edit_user_administrator", "Can edit user but not authentication stuff"),
+            ("edit_user_registrations", "Can change a users registration"),
+        ]
+
 
 class Happening(models.Model):
     name = models.CharField(max_length=50, unique=True)
