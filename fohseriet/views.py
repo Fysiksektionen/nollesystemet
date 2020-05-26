@@ -1,14 +1,10 @@
-from .mixins import *
-import authentication.views as auth_views
-import fohseriet.utils as fohseriet_utils
-import utils.misc as utils_misc
-from utils.helper_views import MenuMixin
+from .forms import *
 from .mixins import *
 
 
 class MenuView(MenuMixin, TemplateView):
     menu_item_info = fohseriet_utils.menu_item_info
-    menu_items = ['index', 'hantera-event', 'hantera-andvandare', 'fadderiet', 'logga-ut']
+    menu_items = ['index', 'hantera-event', 'hantera-andvandare', 'fadderiet', ['logga-in', 'logga-ut']]
 
 
 class LoginView(MenuView, auth_views.Login):
@@ -33,7 +29,7 @@ class LoginCredentialsView(MenuView, auth_views.LoginCred):
 class HappeningUpdateView(UpdateView, HappeningOptionsMixin):
     model = Happening
     fields = '__all__'
-    template_name = 'fohseriet/create_happening.html'
+    template_name = 'fohseriet/evenemang/create_happening.html'
     success_url = reverse_lazy('fohseriet:happening-list')
 
     def get_context_data(self, **kwargs):
@@ -53,7 +49,7 @@ class HappeningCreateView(CreateView, HappeningOptionsMixin):
     model = Happening
     success_url = reverse_lazy('fohseriet:happening-list')
     fields = '__all__'
-    template_name = 'fohseriet/create_happening.html'
+    template_name = 'fohseriet/evenemang/create_happening.html'
 
     def get_context_data(self, **kwargs):
         context = super(HappeningCreateView, self).get_context_data(**kwargs)
@@ -70,4 +66,4 @@ class HappeningCreateView(CreateView, HappeningOptionsMixin):
 
 class HappeningListView(ListView):
     model = Happening
-    template_name = 'fohseriet/happening_list.html'
+    template_name = 'fohseriet/evenemang/happening_list.html'

@@ -1,4 +1,3 @@
-from django.contrib.auth.views import LoginView
 from django.urls import path, include
 
 import authentication.views as auth_views
@@ -7,12 +6,12 @@ from . import views
 app_name = 'fohseriet'
 
 login_urls = ([
-    path('', LoginView.as_view(), name='index'),
+    path('', views.LoginView.as_view(), name='index'),
     path('cred/', views.LoginCredentialsView.as_view(), name='cred'),
     path('cas/', auth_views.LoginCas.as_view(), name='cas'),
 ], 'logga-in')
 
-event_urls = ([
+happening_urls = ([
     path('', views.HappeningListView.as_view(), name="happening-list"),
     path('<int:pk>/', views.HappeningUpdateView.as_view(), name='happening-update'),
     path('skapa-evenemang', views.HappeningCreateView.as_view(), name='create_happening'),
@@ -28,6 +27,6 @@ urlpatterns = [
 
     path('logga-in/', include(login_urls)),
     path('logga-ut/', views.LogoutView.as_view(), name='logga-ut'),
-    path('evenemang/', include(event_urls)),
+    path('evenemang/', include(happening_urls)),
     path('anvandare/', include(user_urls)),
 ]

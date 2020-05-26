@@ -1,0 +1,19 @@
+{% extends "fohseriet/centerd.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}Logga in{% endblock %}
+
+{% block centered-content %}
+    <div class="errornote">
+        {% if request.GET.failed %}
+            Inloggning misslyckades!
+        {% endif %}
+    </div>
+
+    <h2 class="p-3 text-center">Vem är du?</h2>
+
+    <div class="d-flex justify-content-around">
+        <a href="{{ cred_login_url }}" class="btn btn-primary p-3 pr-5 pl-5 mr-3">Med inloggningsuppgifter</a>
+        <a href="{{ cas_login_url }}" class="btn btn-primary p-3 pr-5 pl-5 mr-3">Via KTH-inloggning</a>
+    </div>
+{% endblock %}

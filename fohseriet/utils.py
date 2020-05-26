@@ -37,4 +37,11 @@ menu_item_info = {
         'align': 'right',
         'user': 'logged-in',
     },
+
+    'logga-in': {
+        'name': 'Logga ut',
+        'url_name': 'fohseriet:logga-in:index',
+        'align': 'right',
+        'user': 'logged-out',
+    },
 }
