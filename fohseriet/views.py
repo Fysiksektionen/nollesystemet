@@ -1,19 +1,32 @@
-from django.http import HttpResponseRedirect
-from django.shortcuts import render, HttpResponse, redirect
-from django.urls import reverse, reverse_lazy
-from django.views import View
-from django.views.generic.list import ListView
-from django.views.generic.edit import UpdateView, CreateView
-from .forms import *
-from .models import *
+from .mixins import *
+import authentication.views as auth_views
+import fohseriet.utils as fohseriet_utils
+import utils.misc as utils_misc
+from utils.helper_views import MenuMixin
 from .mixins import *
 
-def index(request, *args, **kwargs):
-    template_name = 'fohseriet/index.html'
-    heading = 'Startsida för Föhseriets hemsida'
-    text = 'Det här är det som så småningom kommer att bli en förklarande text för hur hemsidan fungerar.'
-    return render(request, template_name, {'heading': heading, 'text': text})
 
+class MenuView(MenuMixin, TemplateView):
+    menu_item_info = fohseriet_utils.menu_item_info
+    menu_items = ['index', 'hantera-event', 'hantera-andvandare', 'fadderiet', 'logga-ut']
+
+
+class LoginView(MenuView, auth_views.Login):
+    default_redirect_url = reverse_lazy('fohseriet:index')
+    template_name = 'fohseriet/logga-in/index.html'
+    cred_login_url = reverse_lazy('fohseriet:logga-in:cred')
+    cas_login_url = reverse_lazy('fohseriet:logga-in:cas')
+
+
+class LogoutView(MenuView, django_auth_views.LogoutView):
+    template_name = 'fohseriet/utloggad.html'
+
+
+class LoginCredentialsView(MenuView, auth_views.LoginCred):
+    template_name = 'fohseriet/logga-in/cred.html'
+    default_redirect_url = reverse_lazy('fohseriet:index')
+
+    form_class = utils_misc.make_crispy_form(auth_views.LoginCred.form_class, 'Logga in')
 
 
 #This one needs to be updated to look more like the CreateView.
@@ -36,7 +49,6 @@ class HappeningUpdateView(UpdateView, HappeningOptionsMixin):
         return context
 
 
-
 class HappeningCreateView(CreateView, HappeningOptionsMixin):
     model = Happening
     success_url = reverse_lazy('fohseriet:happening-list')
@@ -54,7 +66,6 @@ class HappeningCreateView(CreateView, HappeningOptionsMixin):
             context['base_price_formset'] = GroupHappeningPropertiesFormset()
             context['extra_option_formset'] = ExtraOptionFormset()
         return context
-
 
 
 class HappeningListView(ListView):

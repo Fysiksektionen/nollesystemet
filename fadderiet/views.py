@@ -9,6 +9,7 @@ from django.views.generic import TemplateView
 import authentication.views as auth_views
 import fadderiet.forms as forms
 import fadderiet.utils as fadderiet_utils
+import utils.misc as utils_misc
 from utils.helper_views import MultipleObjectsUpdateView, MenuMixin
 
 
@@ -31,7 +32,7 @@ class LoginCredentialsView(MenuView, auth_views.LoginCred):
     template_name = 'fadderiet/logga-in/nollan.html'
     default_redirect_url = reverse_lazy('fadderiet:index')
 
-    form_class = fadderiet_utils.make_crispy_form(auth_views.LoginCred.form_class, 'Logga in')
+    form_class = utils_misc.make_crispy_form(auth_views.LoginCred.form_class, 'Logga in')
 
     extra_context = {
         'reset_password_url': reverse_lazy('fadderiet:aterstall-losenord:index'),
