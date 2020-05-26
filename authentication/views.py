@@ -71,7 +71,6 @@ class Login(TemplateView):
         params = request.GET.copy()
         params.setdefault(REDIRECT_FIELD_NAME, next_url)
         get_params = params.urlencode(safe='/')
-
         kwargs.update({
             'cred_login_url': self.cred_login_url + ('?' + get_params if get_params else ''),
             'cas_login_url': self.cas_login_url + ('?' + get_params if get_params else '')
@@ -113,8 +112,6 @@ class LoginCas(View):
             return _login_success_redirect(request, request.user, next_url)
 
         service_url = utils.get_service_url(request, next_url)
-        print(service_url)
-        print(str(utils.get_setting('CAS_SERVER_URL')))
         client = cas.CASClient(version=2, service_url=service_url, server_url=str(utils.get_setting('CAS_SERVER_URL')))
 
         # If a ticket was provided, attempt to authenticate with it
@@ -200,10 +197,10 @@ class AuthUserCreateView(FormView):
 
 class AuthUserUpdateView(UpdateView, LoginRequiredMixin, UserPassesTestMixin):
     """
-    AuthUser edit view. Does not allow password change. This can be done separately. 
+    AuthUser edit view. Does not allow password change. This can be done separately.
     Redirects to login if not authenticated or with permission.
     """
-    
+
     model = apps.get_model(utils.get_setting('AUTH_USER_MODEL'))
     fields = ['username', 'email']
     template_name_suffix = '_update_form'

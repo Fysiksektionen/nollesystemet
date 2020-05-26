@@ -1,8 +1,6 @@
-from urllib.parse import urlencode
-
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, QueryDict
 from django.urls import reverse
 
 menu_item_info = {
@@ -69,10 +67,12 @@ menu_item_info = {
 }
 
 
-def custom_redirect(url_name, *args, **kwargs):
+def custom_redirect(url_name, *args, query_dict=None, **kwargs):
     url = reverse(url_name, args=args)
-    params = urlencode(kwargs)
-    print(url + "?%s" % params)
+    if not query_dict:
+        query_dict = QueryDict()
+    query_dict.update(kwargs)
+    params = query_dict.urlencode(safe='/')
     return HttpResponseRedirect(url + "?%s" % params)
 
 

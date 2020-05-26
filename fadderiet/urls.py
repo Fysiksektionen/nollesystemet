@@ -21,12 +21,17 @@ password_reset_urls = ([
     path('klart/', views.PasswordResetCompleteView.as_view(), name='klart'),
 ], 'aterstall-losenord')
 
+password_change_urls = ([
+    path('', views.PasswordChangeView.as_view(), name='index'),
+    path('klart/', views.PasswordChangeDoneView.as_view(), name='klart'),
+], 'byt-losenord')
+
 my_pages_urls = ([
     path('profil/', views.ProfilePageView.as_view(), name='profil'),
 ], 'mina-sidor')
 
 urlpatterns = [
-    path('', views.MenuBaseView.as_view(template_name='fadderiet/index.html'),
+    path('', views.MenuView.as_view(template_name='fadderiet/index.html'),
          name='index'),
     path('schema/', helper_views.hello_world, name='schema'),
     path('bra-info/', helper_views.hello_world, name='bra-info'),
@@ -40,6 +45,6 @@ urlpatterns = [
     path('logga-ut/', views.LogoutView.as_view(), name='logga-ut'),
     path('registrera-dig/', views.RegisterView.as_view(), name='registrera-dig'),
     path('aterstall-losenord/', include(password_reset_urls)),
-    path('byt-losenord/', helper_views.hello_world, name='byt-losenord'),
+    path('byt-losenord/', include(password_change_urls)),
     path('mina-sidor/', include(my_pages_urls)),
 ]

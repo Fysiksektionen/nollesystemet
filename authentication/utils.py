@@ -66,6 +66,5 @@ def get_service_url(request, redirect_url=None):
     # The CAS server may have added the ticket as an extra query
     # parameter upon checking the credentials - ensure it is ignored
     query_params.pop('ticket', None)
-    print(query_params)
     service_url += '?' + urlencode(query_params)
     return service_url

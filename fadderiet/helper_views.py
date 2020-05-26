@@ -14,20 +14,19 @@ def hello_world(request, *args, **kwargs):
 
 
 def custom_redirect_view(request, redirect_name, keep_GET_params=True, default_GET_params=None, url_args=None):
-    GET_params = default_GET_params
-    if not default_GET_params:
-        GET_params = {}
-    GET_params.update(request.GET)
+    query_dict = request.GET.copy()
+    if default_GET_params:
+        query_dict.update(default_GET_params)
 
     if not url_args:
         url_args = []
-    if not keep_GET_params or not GET_params:
-        GET_params = {}
+    if not keep_GET_params:
+        query_dict = None
 
-    return utils.custom_redirect(redirect_name, *url_args, **GET_params)
+    return utils.custom_redirect(redirect_name, *url_args, query_dict=query_dict)
 
 
-class MenuBaseMixin(ContextMixin):
+class MenuMixin(ContextMixin):
     menu_items = []
     menu_item_info = None
 
@@ -52,6 +51,8 @@ class MenuBaseMixin(ContextMixin):
                         **info,
                         'url': reverse(info['url_name'])
                     })
+                    if menu[info['align']][-1]['url'] == self.request.path:
+                        menu[info['align']][-1]['classes'] = (info['classes'] + ' ' if 'classes' in info else '') + 'selected-menu-item'
                     break
 
         context = {}
@@ -60,9 +61,10 @@ class MenuBaseMixin(ContextMixin):
         return super().get_context_data(**kwargs, **context)
 
 
-class MenuBaseView(MenuBaseMixin, TemplateView):
+class MenuView(MenuMixin, TemplateView):
     menu_item_info = utils.menu_item_info
     menu_items = ['index', 'schema', 'bra-info', 'anmal-dig', 'kontakt', ['mina-sidor:profil', 'logga-in'], 'logga-ut']
+
 
 class MultipleObjectsUpdateView(UpdateView):
     model_list = None
@@ -121,8 +123,9 @@ class MultipleObjectsUpdateView(UpdateView):
 
         if self.make_forms_crispy:
             for form in form_list:
-                from crispy_forms.helper import FormHelper
-                setattr(form, 'helper', FormHelper())
+                if not hasattr(form, 'helper'):
+                    from crispy_forms.helper import FormHelper
+                    setattr(form, 'helper', FormHelper())
                 form.helper.form_tag = False
 
         return form_list
@@ -157,7 +160,7 @@ class MultipleObjectsUpdateView(UpdateView):
         forms = self.get_form()
         for form in forms:
             if not form.is_valid():
-                return self.form_invalid(form)
+                return self.form_invalid(forms)
 
         return self.form_valid(forms)
 
