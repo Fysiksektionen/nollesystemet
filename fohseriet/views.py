@@ -11,23 +11,26 @@ from .mixins import *
 from .forms import *
 
 
-class MenuView(MenuMixin, TemplateView):
+class FohserietMenuMixin(MenuMixin):
     menu_item_info = fohseriet_utils.menu_item_info
     menu_items = ['index', 'hantera-event', 'hantera-andvandare', 'fadderiet', ['logga-in', 'logga-ut']]
 
+class FohserietMenuView(FohserietMenuMixin, TemplateView):
+    pass
 
-class LoginView(MenuView, auth_views.Login):
+
+class LoginView(auth_views.Login, FohserietMenuMixin):
     default_redirect_url = reverse_lazy('fohseriet:index')
     template_name = 'fohseriet/logga-in/index.html'
     cred_login_url = reverse_lazy('fohseriet:logga-in:cred')
     cas_login_url = reverse_lazy('fohseriet:logga-in:cas')
 
 
-class LogoutView(MenuView, django_auth_views.LogoutView):
+class LogoutView(django_auth_views.LogoutView, FohserietMenuMixin):
     template_name = 'fohseriet/utloggad.html'
 
 
-class LoginCredentialsView(MenuView, auth_views.LoginCred):
+class LoginCredentialsView(auth_views.LoginCred, FohserietMenuMixin):
     template_name = 'fohseriet/logga-in/cred.html'
     default_redirect_url = reverse_lazy('fohseriet:index')
 
@@ -35,7 +38,7 @@ class LoginCredentialsView(MenuView, auth_views.LoginCred):
 
 
 #This one needs to be updated to look more like the CreateView.
-class HappeningUpdateView(UpdateView, HappeningOptionsMixin):
+class HappeningUpdateView(UpdateView, HappeningOptionsMixin, FohserietMenuMixin):
     model = Happening
     fields = '__all__'
     template_name = 'fohseriet/evenemang/create_happening.html'
@@ -54,7 +57,7 @@ class HappeningUpdateView(UpdateView, HappeningOptionsMixin):
         return context
 
 
-class HappeningCreateView(CreateView, HappeningOptionsMixin):
+class HappeningCreateView(CreateView, HappeningOptionsMixin, FohserietMenuMixin):
     model = Happening
     success_url = reverse_lazy('fohseriet:evenemang:lista')
     fields = '__all__'
@@ -73,6 +76,6 @@ class HappeningCreateView(CreateView, HappeningOptionsMixin):
         return context
 
 
-class HappeningListView(ListView):
+class HappeningListView(ListView, FohserietMenuMixin):
     model = Happening
     template_name = 'fohseriet/evenemang/happening_list.html'

@@ -18,12 +18,12 @@ happening_urls = ([
 ], 'evenemang')
 
 user_urls = ([
-    path('', views.MenuView.as_view(template_name='fohseriet/anvandare.html'), name="index"),
+    path('', views.FohserietMenuView.as_view(template_name='fohseriet/anvandare.html'), name="index"),
 ], 'anvandare')
 
 
 urlpatterns = [
-    path('', views.MenuView.as_view(template_name='fohseriet/index.html'), name='index'),
+    path('', views.FohserietMenuView.as_view(template_name='fohseriet/index.html'), name='index'),
 
     path('logga-in/', include(login_urls)),
     path('logga-ut/', views.LogoutView.as_view(), name='logga-ut'),
