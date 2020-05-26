@@ -1,8 +1,14 @@
+from django.urls import reverse_lazy
 import django.contrib.auth.views as django_auth_views
+from django.views.generic import TemplateView, UpdateView, ListView, CreateView
 
 import authentication.views as auth_views
-from .forms import *
+import fohseriet.utils as fohseriet_utils
+import utils.misc as utils_misc
+from utils.helper_views import MenuMixin
+
 from .mixins import *
+from .forms import *
 
 
 class MenuView(MenuMixin, TemplateView):
