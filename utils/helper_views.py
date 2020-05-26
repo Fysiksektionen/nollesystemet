@@ -2,11 +2,10 @@ from abc import abstractmethod
 
 from django.core.exceptions import ImproperlyConfigured
 from django.shortcuts import HttpResponse
-from django.urls import reverse
 from django.views.generic import UpdateView
-from django.views.generic.base import ContextMixin, TemplateView
+from django.views.generic.base import ContextMixin
 
-import fadderiet.utils as utils
+from utils.misc import *
 
 
 def hello_world(request, *args, **kwargs):
@@ -23,7 +22,7 @@ def custom_redirect_view(request, redirect_name, keep_GET_params=True, default_G
     if not keep_GET_params:
         query_dict = None
 
-    return utils.custom_redirect(redirect_name, *url_args, query_dict=query_dict)
+    return custom_redirect(redirect_name, *url_args, query_dict=query_dict)
 
 
 class MenuMixin(ContextMixin):
@@ -59,11 +58,6 @@ class MenuMixin(ContextMixin):
         if menu:
             context['menu'] = menu
         return super().get_context_data(**kwargs, **context)
-
-
-class MenuView(MenuMixin, TemplateView):
-    menu_item_info = utils.menu_item_info
-    menu_items = ['index', 'schema', 'bra-info', 'anmal-dig', 'kontakt', ['mina-sidor:profil', 'logga-in'], 'logga-ut']
 
 
 class MultipleObjectsUpdateView(UpdateView):

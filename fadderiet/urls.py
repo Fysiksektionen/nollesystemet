@@ -1,7 +1,7 @@
 from django.urls import include, path
 
 import authentication.views as auth_views
-from . import helper_views
+from utils import helper_views
 from . import views
 
 app_name = 'fadderiet'
