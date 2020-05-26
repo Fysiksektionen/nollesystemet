@@ -1,5 +1,7 @@
 from django.contrib import admin
+
 from .models import *
+
 
 @admin.register(DrinkOption)
 class DrinkOptionAdmin(admin.ModelAdmin):
@@ -39,9 +41,4 @@ class UserProfileAdmin(admin.ModelAdmin):
 
 @admin.register(Registration)
 class RegistrationAdmin(admin.ModelAdmin):
-    pass
-
-
-@admin.register(UserProfile)
-class UserProfileAdmin(admin.ModelAdmin):
     pass
