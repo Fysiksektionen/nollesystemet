@@ -35,10 +35,10 @@ menu_item_info = {
         'user': 'any',
     },
     'logga-ut': {
-        'name': 'Logga ut',
         'url_name': 'fohseriet:logga-ut',
         'align': 'right',
         'user': 'logged-in',
+        'template_content': "Logga ut ({{ request.user }})"
     },
 
     'logga-in': {

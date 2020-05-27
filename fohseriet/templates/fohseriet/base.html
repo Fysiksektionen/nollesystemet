@@ -28,7 +28,11 @@
                                     <div class="d-inline-flex">
                                         {% for menu_item in menu.left %}
                                             <div class="p-3 {{ menu_item.classes }}">
-                                                <a href="{{ menu_item.url }}">{{ menu_item.name }}</a>
+                                                {% if menu_item.template_content %}
+                                                    <a href="{{ menu_item.url }}">{{ menu_item.template_content }}</a>
+                                                {% else %}
+                                                    <a href="{{ menu_item.url }}">{{ menu_item.name }}</a>
+                                                {% endif %}
                                             </div>
                                         {% endfor %}
                                     </div>
@@ -37,7 +41,11 @@
                                     <div class="d-inline-flex">
                                         {% for menu_item in menu.right %}
                                             <div class="p-3 {{ menu_item.classes }}">
-                                                <a href="{{ menu_item.url }}">{{ menu_item.name }}</a>
+                                                {% if menu_item.template_content %}
+                                                    <a href="{{ menu_item.url }}">{{ menu_item.template_content }}</a>
+                                                {% else %}
+                                                    <a href="{{ menu_item.url }}">{{ menu_item.name }}</a>
+                                                {% endif %}
                                             </div>
                                         {% endfor %}
                                     </div>

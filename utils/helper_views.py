@@ -4,6 +4,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.shortcuts import HttpResponse
 from django.views.generic import UpdateView
 from django.views.generic.base import ContextMixin
+from django.template import Template, Context
 
 from utils.misc import *
 
@@ -30,6 +31,9 @@ class MenuMixin(ContextMixin):
     menu_item_info = None
 
     def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        print(context)
+
         if len(self.menu_items) > 0 and not self.menu_item_info:
             raise ReferenceError("menu_item_info not set, with menu_items specified.")
 
@@ -48,14 +52,14 @@ class MenuMixin(ContextMixin):
                         **info,
                         'url': reverse(info['url_name'])
                     })
+
                     if menu[info['align']][-1]['url'] == self.request.path:
                         menu[info['align']][-1]['classes'] = (info['classes'] + ' ' if 'classes' in info else '') + 'selected-menu-item'
                     break
 
-        context = {}
         if menu:
             context['menu'] = menu
-        return super().get_context_data(**kwargs, **context)
+        return context
 
     def check_if_to_render(self, info):
         if info['user'] == 'any':
@@ -86,6 +90,16 @@ class MenuMixin(ContextMixin):
             return render
 
         return False
+
+    def render_to_response(self, context, **response_kwargs):
+        if 'menu' in context:
+            for side in ['left', 'right']:
+                if side in context['menu']:
+                    for i, menu_item in enumerate(context['menu'][side]):
+                        if 'template_content' in menu_item:
+                            context['menu'][side][i]['template_content'] = Template(menu_item['template_content']).render(Context({**context, 'user': self.request.user, 'request': self.request}))
+
+        return super().render_to_response(context, **response_kwargs)
 
 
 class MultipleObjectsUpdateView(UpdateView):
