@@ -2,6 +2,7 @@ from django.db import models
 from django.core import exceptions
 from django.forms.fields import TypedMultipleChoiceField
 
+
 class MultipleStringChoiceField(models.CharField):
     def __init__(self, separator=",", **kwargs):
         self.separator = separator

@@ -43,7 +43,7 @@ class AuthUser(AbstractUser):
     auth_backend = MultipleStringChoiceField(separator=",", choices=None, max_length=150)
 
     # Remove standard group and add two new groups
-    user_group = models.ManyToManyField(UserGroup, blank=True)
+    user_group = models.ManyToManyField(UserGroup, blank=True, limit_choices_to={"is_external": False})
     nolle_group = models.ForeignKey(NolleGroup, blank=True, null=True, on_delete=models.SET_NULL)
     PERMISSION_GROUPS = ['user_group', 'nolle_group']  # Used by backend to determine what fields are group-references.
 
