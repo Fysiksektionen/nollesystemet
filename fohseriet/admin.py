@@ -21,12 +21,12 @@ class ExtraOptionInline(admin.TabularInline):
     extra = 1
 
 
-@admin.register(GroupHappeningProperties)
+@admin.register(GroupBasePrice)
 class GroupHappeningPropertiesAdmin(admin.ModelAdmin):
     pass
 
 class GroupHappeningPropertiesInline(admin.TabularInline):
-    model = GroupHappeningProperties
+    model = GroupBasePrice
     extra = 1
 
 

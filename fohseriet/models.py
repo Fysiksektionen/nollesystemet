@@ -39,7 +39,7 @@ class Happening(models.Model):
     editors = models.ManyToManyField(settings.AUTH_USER_MODEL)
 
 
-class GroupHappeningProperties(models.Model):
+class GroupBasePrice(models.Model):
     group = models.ForeignKey(auth_models.UserGroup, on_delete=models.CASCADE)
     happening = models.ForeignKey(Happening, on_delete=models.CASCADE)
     base_price = models.IntegerField()
@@ -58,7 +58,7 @@ class ExtraOption(models.Model):
 
 class Registration(models.Model):
     happening = models.ForeignKey(Happening, on_delete=models.CASCADE)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.USER_PROFILE_MODEL, on_delete=models.CASCADE)
     food_preference = models.CharField(max_length=50)
     drink_option = models.ForeignKey(DrinkOption, blank=True, null=True, on_delete=models.SET_NULL)
     extra_option = models.ManyToManyField(ExtraOption, blank=True)

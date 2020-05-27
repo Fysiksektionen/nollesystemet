@@ -24,7 +24,7 @@ DrinkOptionFormset = inlineformset_factory(
 
 GroupHappeningPropertiesFormset = inlineformset_factory(
     Happening,
-    GroupHappeningProperties,
+    GroupBasePrice,
     fields=['group', 'base_price'],
     extra=1,
     can_delete=False
