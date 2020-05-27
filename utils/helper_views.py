@@ -68,25 +68,24 @@ class MenuMixin(ContextMixin):
             return True
 
         if info['user'] == 'with-permission':
-            logic = info['permissions']['logic']
-            prems = info['permissions']['prems']
-
-            if logic == 'all':
-                for prem in prems:
-                    if not self.request.user.has_perm(prem):
-                        return False
+            render = True
+            for logic, prems in info['permissions'].items():
+                if logic == 'all':
+                    for prem in prems:
+                        if not self.request.user.has_perm(prem):
+                            render = False
+                elif logic == 'any':
+                    for prem in prems:
+                        if self.request.user.has_perm(prem):
+                            break
+                    else:
+                        render = False
                 else:
-                    return True
+                    raise Exception("Permissions can only contain keys 'any' or 'all', not %s" % logic)
 
-            elif logic == 'any':
-                for prem in prems:
-                    if self.request.user.has_perm(prem):
-                        return True
-                else:
-                    return False
+            return render
 
-            else:
-                raise Exception("Logic should be 'any' or 'all', not %s" % logic)
+        return False
 
 
 class MultipleObjectsUpdateView(UpdateView):

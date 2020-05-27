@@ -13,10 +13,7 @@ menu_item_info = {
         'align': 'left',
         'user': 'with-permission',
         'permissions' : {
-            'logic': 'any',
-            'prems': [
-                'edit-event',
-            ]
+            'any': ['edit_event']
         }
     },
     'hantera-andvandare': {
@@ -25,8 +22,7 @@ menu_item_info = {
         'align': 'left',
         'user': 'with-permission',
         'permissions' : {
-            'logic': 'any',
-            'prems': [
+            'any': [
                 'fohseriet.edit_user_info',
                 'fohseriet.edit_user_registrations',
             ]
