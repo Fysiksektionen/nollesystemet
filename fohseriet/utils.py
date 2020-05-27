@@ -27,8 +27,7 @@ menu_item_info = {
         'permissions' : {
             'logic': 'any',
             'prems': [
-                'fohseriet.edit_user_full',
-                'fohseriet.edit_user_administrator',
+                'fohseriet.edit_user_info',
                 'fohseriet.edit_user_registrations',
             ]
         }

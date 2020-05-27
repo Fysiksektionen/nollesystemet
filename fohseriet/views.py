@@ -5,6 +5,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 import django.contrib.auth.views as django_auth_views
 from django.views.generic import TemplateView, UpdateView, ListView, CreateView
+from braces.views import MultiplePermissionsRequiredMixin
+from django.contrib.auth.mixins import PermissionRequiredMixin
 
 import authentication.views as auth_views
 import fohseriet.utils as fohseriet_utils
@@ -98,9 +100,13 @@ class HappeningListView(ListView, FohserietMenuMixin):
 # ----------------------------- User handeling views ----------------------------- #
 # -------------------------------------------------------------------------------- #
 
-class UsersListView(ListView, FohserietMenuMixin):
+class UsersListView(LoginRequiredMixin, MultiplePermissionsRequiredMixin, FohserietMenuMixin, ListView):
     model = apps.get_model(settings.AUTH_USER_MODEL)
     template_name = 'fohseriet/anvandare/index.html'
+
+    permissions = {
+        "any": ("fohseriet.edit_user_info", "fohseriet.edit_user_registrations")
+    }
 
     extra_context = {
         'user_groups': apps.get_model('authentication.UserGroup').objects.filter(is_external=False),
@@ -108,14 +114,14 @@ class UsersListView(ListView, FohserietMenuMixin):
     }
 
 
-class UserUpdateView(LoginRequiredMixin, FohserietMenuMixin, helper_views.MultipleObjectsUpdateView):
+class UserUpdateView(LoginRequiredMixin, PermissionRequiredMixin, FohserietMenuMixin, helper_views.MultipleObjectsUpdateView):
     model_list = [apps.get_model(settings.USER_PROFILE_MODEL), apps.get_model(settings.AUTH_USER_MODEL)]
     form_class_list = [ProfileUpdateForm, AuthUserGroupsUpdateForm]
 
     template_name = 'fohseriet/anvandare/uppdatera.html'
     success_url = reverse_lazy('fohseriet:anvandare:index')
 
-    permission_denied_message = "Du har inte rättigheter till denna sida."
+    permission_required = 'fohseriet.edit_user_info'
 
     def get_objects(self):
         auth_user = apps.get_model(settings.AUTH_USER_MODEL).objects.get(pk=self.kwargs['pk'])

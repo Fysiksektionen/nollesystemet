@@ -55,6 +55,10 @@
 
 {% block extrascript %}
     <script>
+        {#$( document ).ready(function() {#}
+        {#    update_active_rows_table();#}
+        {# });#}
+
         $('#search-bar').on("keyup", function () {
             update_active_rows_table();
         });
