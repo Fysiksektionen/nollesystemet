@@ -30,17 +30,22 @@ my_pages_urls = ([
     path('profil/', views.ProfilePageView.as_view(), name='profil'),
 ], 'mina-sidor')
 
+happening_urls = ([
+    path('', views.HappeningListView.as_view(), name='index'),
+    path('<int:pk>/anmalan', helper_views.hello_world, name='anmalan'),
+], 'evenemang')
+
 urlpatterns = [
-    path('', views.MenuView.as_view(template_name='fadderiet/index.html'),
+    path('', views.FadderietMenuView.as_view(template_name='fadderiet/index.html'),
          name='index'),
     path('schema/', helper_views.hello_world, name='schema'),
     path('bra-info/', helper_views.hello_world, name='bra-info'),
     path('om-fadderiet/', helper_views.hello_world, name='om-fadderiet'),
-    path('anmal-dig/', helper_views.hello_world, name='anmal-dig'),
     path('kontakt/', helper_views.hello_world, name='kontakt'),
     path('mina-sidor/', helper_views.hello_world, name='mina-sidor'),
     path('nolleenkaten/', helper_views.hello_world, name='nolleenkaten'),
 
+    path('evenemang/', include(happening_urls)),
     path('logga-in/', include(login_urls)),
     path('logga-ut/', views.LogoutView.as_view(), name='logga-ut'),
     path('registrera-dig/', views.RegisterView.as_view(), name='registrera-dig'),

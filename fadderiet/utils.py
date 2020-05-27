@@ -28,9 +28,9 @@ menu_item_info = {
         'align': 'left',
         'user': 'any',
     },
-    'anmal-dig': {
-        'name': 'Anmäl dig',
-        'url_name': 'fadderiet:anmal-dig',
+    'evenemang': {
+        'name': 'Evenemang',
+        'url_name': 'fadderiet:evenemang:index',
         'align': 'left',
         'user': 'any',
     },
@@ -63,6 +63,7 @@ menu_item_info = {
         'url_name': 'fadderiet:logga-ut',
         'align': 'right',
         'user': 'logged-in',
+        'template_content': "Logga ut ({{ request.user }})",
     },
 }
 

@@ -24,8 +24,6 @@ class AuthUserManager(BaseUserManager):
         user_profile = apps.get_model(utils.get_setting('USER_PROFILE_MODEL'))(auth=user)
         user_profile.save()
 
-        print('Hej')
-
         return user
 
     def create_user(self, username, password=None, **extra_fields):

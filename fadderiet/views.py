@@ -4,31 +4,35 @@ from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, ListView
 
 import authentication.views as auth_views
 import fadderiet.forms as forms
 import fadderiet.utils as fadderiet_utils
 import utils.misc as utils_misc
-from utils.helper_views import MultipleObjectsUpdateView, MenuMixin
+import utils.helper_views as helper_views
+from fohseriet.models import Happening, Registration
 
 
-class MenuView(MenuMixin, TemplateView):
+class FadderietMenuMixin(helper_views.MenuMixin):
     menu_item_info = fadderiet_utils.menu_item_info
-    menu_items = ['index', 'schema', 'bra-info', 'anmal-dig', 'kontakt', ['mina-sidor:profil', 'logga-in'], 'logga-ut']
+    menu_items = ['index', 'schema', 'bra-info', 'om-fadderiet', 'evenemang', 'kontakt', 'mina-sidor', ['logga-in', 'logga-ut']]
 
-class LoginView(MenuView, auth_views.Login):
+class FadderietMenuView(FadderietMenuMixin, TemplateView):
+    pass
+
+class LoginView(FadderietMenuMixin, auth_views.Login):
     default_redirect_url = reverse_lazy('fadderiet:index')
     template_name = 'fadderiet/logga-in/index.html'
     cred_login_url = reverse_lazy('fadderiet:logga-in:nollan')
     cas_login_url = reverse_lazy('fadderiet:logga-in:fadder')
 
 
-class LogoutView(MenuView, django_auth_views.LogoutView):
+class LogoutView(FadderietMenuMixin, django_auth_views.LogoutView):
     template_name = 'fadderiet/utloggad.html'
 
 
-class LoginCredentialsView(MenuView, auth_views.LoginCred):
+class LoginCredentialsView(FadderietMenuMixin, auth_views.LoginCred):
     template_name = 'fadderiet/logga-in/nollan.html'
     default_redirect_url = reverse_lazy('fadderiet:index')
 
@@ -40,45 +44,42 @@ class LoginCredentialsView(MenuView, auth_views.LoginCred):
     }
 
 
-class RegisterView(MenuView, auth_views.AuthUserCreateView):
+class RegisterView(FadderietMenuMixin, auth_views.AuthUserCreateView):
     template_name = 'fadderiet/registrera-dig.html'
     success_url = reverse_lazy('fadderiet:logga-in:index')
 
     form_class = fadderiet_utils.make_crispy_form(auth_views.AuthUserCreateView.form_class, 'Registrera')
 
 
-class PasswordChangeView(MenuView, auth_views.PasswordChangeView):
+class PasswordChangeView(FadderietMenuMixin, auth_views.PasswordChangeView):
     success_url = reverse_lazy('authentication:password_change_done')
     template_name = 'fadderiet/byt-losenord/index.html'
     form_class = fadderiet_utils.make_crispy_form(auth_views.PasswordChangeView.form_class, submit_button='Byt lösenord')
 
-class PasswordChangeDoneView(MenuView, auth_views.PasswordChangeDoneView):
+class PasswordChangeDoneView(FadderietMenuMixin, auth_views.PasswordChangeDoneView):
     template_name = 'fadderiet/byt-losenord/klart.html'
 
-class PasswordResetView(MenuView, auth_views.PasswordResetView):
+class PasswordResetView(FadderietMenuMixin, auth_views.PasswordResetView):
     email_template_name = 'fadderiet/aterstall-losenord-epost.html'
     subject_template_name = 'fadderiet/aterstall-losenord-epost-amne.txt'
     success_url = reverse_lazy('fadderiet:aterstall-losenord:skickat')
     template_name = 'fadderiet/aterstall-losenord/index.html'
     form_class = fadderiet_utils.make_crispy_form(auth_views.PasswordResetView.form_class, submit_button='Återställ lösenord')
 
-class PasswordResetDoneView(MenuView, auth_views.PasswordResetDoneView):
+class PasswordResetDoneView(FadderietMenuMixin, auth_views.PasswordResetDoneView):
     template_name = 'fadderiet/aterstall-losenord/skickat.html'
 
-class PasswordResetConfirmView(MenuView, auth_views.PasswordResetConfirmView):
+class PasswordResetConfirmView(FadderietMenuMixin, auth_views.PasswordResetConfirmView):
     template_name = 'fadderiet/aterstall-losenord/lank.html'
     success_url = reverse_lazy('fadderiet:aterstall-losenord:klart')
     form_class = fadderiet_utils.make_crispy_form(auth_views.PasswordResetConfirmView.form_class, submit_button='Sätt nytt lösenord')
 
-class PasswordResetCompleteView(MenuView, auth_views.PasswordResetCompleteView):
+class PasswordResetCompleteView(FadderietMenuMixin, auth_views.PasswordResetCompleteView):
     template_name = 'fadderiet/aterstall-losenord/klart.html'
     extra_context = {'login_url': reverse_lazy('fadderiet:logga-in:index')}
 
 
-class ProfilePageView(LoginRequiredMixin, MenuMixin, MultipleObjectsUpdateView):
-    menu_item_info = MenuView.menu_item_info
-    menu_items = MenuView.menu_items
-
+class ProfilePageView(LoginRequiredMixin, FadderietMenuMixin, helper_views.MultipleObjectsUpdateView):
     model_list = [apps.get_model(settings.AUTH_USER_MODEL), apps.get_model(settings.USER_PROFILE_MODEL)]
     form_class_list = [forms.AuthUserUpdateForm, forms.ProfileUpdateForm]
 
@@ -101,3 +102,15 @@ class ProfilePageView(LoginRequiredMixin, MenuMixin, MultipleObjectsUpdateView):
             return self.request.GET[REDIRECT_FIELD_NAME]
         else:
             return super().get_success_url()
+
+
+class HappeningListView(LoginRequiredMixin, FadderietMenuMixin, ListView):
+    model = Happening
+    template_name = 'fadderiet/evenemang/index.html'
+
+    ordering = 'start_time'
+
+    def get_queryset(self):
+        self.queryset = Happening.objects.filter(user_groups__in=self.request.user.user_group.all()).filter(nolle_groups=self.request.user.nolle_group)
+        querryset = super().get_queryset()
+        return [{'happening': happening, 'is_registered': Registration.objects.filter(user=self.request.user.profile).filter(happening=happening).count() > 0} for happening in querryset]

@@ -7,7 +7,7 @@ import authentication.models as auth_models
 class UserProfile(auth_models.UserProfile):
     kth_id = models.CharField(max_length=20, blank=True)
     phone_number = models.CharField(max_length=15, blank=True)
-    food_preference = models.CharField(max_length=15, blank=True)
+    food_preference = models.CharField(max_length=150, blank=True)
     contact_name = models.CharField(max_length=100, blank=True)
     contact_relation = models.CharField(max_length=100, blank=True)
     contact_phone_number = models.CharField(max_length=15, blank=True)
@@ -56,10 +56,11 @@ class ExtraOption(models.Model):
     extra_option = models.CharField(max_length=30)
     price = models.IntegerField()
 
+
 class Registration(models.Model):
     happening = models.ForeignKey(Happening, on_delete=models.CASCADE)
     user = models.ForeignKey(settings.USER_PROFILE_MODEL, on_delete=models.CASCADE)
-    food_preference = models.CharField(max_length=50)
+    food_preference = models.CharField(max_length=150)
     drink_option = models.ForeignKey(DrinkOption, blank=True, null=True, on_delete=models.SET_NULL)
     extra_option = models.ManyToManyField(ExtraOption, blank=True)
     other = models.CharField(max_length=300)

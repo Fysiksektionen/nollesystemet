@@ -52,8 +52,18 @@ body {
   height: 100%;
 }
 
+#title-bar {
+  position: relative;
+  width: 100%;
+  height: 100px;
+}
+
 #site-title {
   color: #DDDDDD;
+  font-style: initial;
+  position: relative;
+  top: 35%;
+  left: 3%;
 }
 
 .masthead {

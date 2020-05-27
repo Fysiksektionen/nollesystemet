@@ -32,7 +32,6 @@ class MenuMixin(ContextMixin):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        print(context)
 
         if len(self.menu_items) > 0 and not self.menu_item_info:
             raise ReferenceError("menu_item_info not set, with menu_items specified.")

@@ -61,6 +61,12 @@ body {
   top: 35%;
 }
 
+#title-bar {
+  position: relative;
+  width: 100%;
+  height: 100px;
+}
+
 .masthead {
   margin-bottom: 2rem;
 }
