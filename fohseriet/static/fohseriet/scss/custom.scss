@@ -8,8 +8,8 @@ $theme-colors: (
   "black": #000000,
 );
 
-$btn-active-darken-percentage: 0%;
-$btn-active-border-darken-percentage: 0%;
+$btn-active-darken-percentage: 10%;
+$btn-active-border-darken-percentage: 15%;
 
 @import "../../../../static/bootstrap/scss/bootstrap";
 

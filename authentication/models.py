@@ -2,6 +2,7 @@ from annoying.fields import AutoOneToOneField
 from django.conf import settings
 from django.contrib.auth import get_backends
 from django.contrib.auth.models import Group, AbstractBaseUser, PermissionsMixin, AbstractUser
+from django.core import validators
 from django.db import models
 
 from .model_fields import MultipleStringChoiceField
@@ -46,9 +47,6 @@ class AuthUser(AbstractUser):
     nolle_group = models.ForeignKey(NolleGroup, blank=True, null=True, on_delete=models.SET_NULL)
     PERMISSION_GROUPS = ['user_group', 'nolle_group']  # Used by backend to determine what fields are group-references.
 
-    class Meta(AbstractUser.Meta):
-        permissions = [('can_add_kth_id_user', 'Can add a user for KTH-login')]
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         auth_backend_names = [backend.backend_name for backend in get_backends()
@@ -61,8 +59,8 @@ class AuthUser(AbstractUser):
 
     def clean(self):
         super().clean()
-        # kth_id_validator = validators.RegexValidator(regex="^u1.*$", message="You can not start a username with 'u1'.", inverse_match=True)
-        # kth_id_validator(getattr(self, self.USERNAME_FIELD))
+        kth_id_validator = validators.RegexValidator(regex="^u1.*$", message="You can not start a username with 'u1'.", inverse_match=True)
+        kth_id_validator(getattr(self, self.USERNAME_FIELD))
 
     def save(self, *args, **kwargs):
         self.full_clean()

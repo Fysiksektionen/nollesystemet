@@ -30,3 +30,7 @@ function deleteForm(buttonElement, formSelector, prefix){
         }
     }
 }
+
+function filter_table_with_id(tableId, searchValue) {
+
+}

@@ -116,3 +116,8 @@ body {
 .selected-menu-item {
   border-bottom: .5rem solid white;
 }
+
+#user-table {
+    border-collapse: separate;
+    border-spacing: 20px 20px;
+}

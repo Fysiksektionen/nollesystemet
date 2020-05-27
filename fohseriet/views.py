@@ -1,22 +1,31 @@
+import app as app
+from django.apps import apps
+from django.contrib.auth import REDIRECT_FIELD_NAME
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 import django.contrib.auth.views as django_auth_views
 from django.views.generic import TemplateView, UpdateView, ListView, CreateView
 
 import authentication.views as auth_views
 import fohseriet.utils as fohseriet_utils
+import utils.helper_views as helper_views
 import utils.misc as utils_misc
-from utils.helper_views import MenuMixin
-
+from fadderiet.forms import ProfileUpdateForm
 from .mixins import *
 from .forms import *
 
 
-class FohserietMenuMixin(MenuMixin):
+class FohserietMenuMixin(helper_views.MenuMixin):
     menu_item_info = fohseriet_utils.menu_item_info
     menu_items = ['index', 'hantera-event', 'hantera-andvandare', 'fadderiet', ['logga-in', 'logga-ut']]
 
 class FohserietMenuView(FohserietMenuMixin, TemplateView):
     pass
+
+
+# -------------------------------------------------------------------------------- #
+# --------------------------------- Login views ---------------------------------- #
+# -------------------------------------------------------------------------------- #
 
 
 class LoginView(auth_views.Login, FohserietMenuMixin):
@@ -36,6 +45,10 @@ class LoginCredentialsView(auth_views.LoginCred, FohserietMenuMixin):
 
     form_class = utils_misc.make_crispy_form(auth_views.LoginCred.form_class, 'Logga in')
 
+
+# -------------------------------------------------------------------------------- #
+# ------------------------------- Happening views -------------------------------- #
+# -------------------------------------------------------------------------------- #
 
 #This one needs to be updated to look more like the CreateView.
 class HappeningUpdateView(UpdateView, HappeningOptionsMixin, FohserietMenuMixin):
@@ -79,3 +92,37 @@ class HappeningCreateView(CreateView, HappeningOptionsMixin, FohserietMenuMixin)
 class HappeningListView(ListView, FohserietMenuMixin):
     model = Happening
     template_name = 'fohseriet/evenemang/happening_list.html'
+
+
+# -------------------------------------------------------------------------------- #
+# ----------------------------- User handeling views ----------------------------- #
+# -------------------------------------------------------------------------------- #
+
+class UsersListView(ListView, FohserietMenuMixin):
+    model = apps.get_model(settings.AUTH_USER_MODEL)
+    template_name = 'fohseriet/anvandare/index.html'
+
+    extra_context = {
+        'user_groups': apps.get_model('authentication.UserGroup').objects.filter(is_external=False),
+        'nolle_groups': apps.get_model('authentication.NolleGroup').objects.all()
+    }
+
+
+class UserUpdateView(LoginRequiredMixin, FohserietMenuMixin, helper_views.MultipleObjectsUpdateView):
+    model_list = [apps.get_model(settings.USER_PROFILE_MODEL), apps.get_model(settings.AUTH_USER_MODEL)]
+    form_class_list = [ProfileUpdateForm, AuthUserGroupsUpdateForm]
+
+    template_name = 'fohseriet/anvandare/uppdatera.html'
+    success_url = reverse_lazy('fohseriet:anvandare:index')
+
+    permission_denied_message = "Du har inte rättigheter till denna sida."
+
+    def get_objects(self):
+        auth_user = apps.get_model(settings.AUTH_USER_MODEL).objects.get(pk=self.kwargs['pk'])
+        return auth_user.profile, auth_user
+
+    def get_success_url(self):
+        if REDIRECT_FIELD_NAME in self.request.GET:
+            return self.request.GET[REDIRECT_FIELD_NAME]
+        else:
+            return super().get_success_url()

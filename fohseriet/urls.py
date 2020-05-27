@@ -18,7 +18,8 @@ happening_urls = ([
 ], 'evenemang')
 
 user_urls = ([
-    path('', views.FohserietMenuView.as_view(template_name='fohseriet/anvandare.html'), name="index"),
+    path('', views.UsersListView.as_view(template_name='fohseriet/anvandare/index.html'), name="index"),
+    path('<int:pk>/', views.UserUpdateView.as_view(), name='uppdatera'),
 ], 'anvandare')
 
 
