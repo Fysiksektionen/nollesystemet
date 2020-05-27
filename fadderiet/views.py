@@ -2,9 +2,9 @@ import django.contrib.auth.views as django_auth_views
 from django.apps import apps
 from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin
 from django.urls import reverse_lazy
-from django.views.generic import TemplateView, ListView
+from django.views.generic import TemplateView, ListView, UpdateView
 
 import authentication.views as auth_views
 import fadderiet.forms as forms
@@ -16,7 +16,7 @@ from fohseriet.models import Happening, Registration
 
 class FadderietMenuMixin(helper_views.MenuMixin):
     menu_item_info = fadderiet_utils.menu_item_info
-    menu_items = ['index', 'schema', 'bra-info', 'om-fadderiet', 'evenemang', 'kontakt', 'mina-sidor', ['logga-in', 'logga-ut']]
+    menu_items = ['index', 'schema', 'bra-info', 'om-fadderiet', 'evenemang', 'kontakt', 'mina-sidor:profil', ['logga-in', 'logga-ut']]
 
 class FadderietMenuView(FadderietMenuMixin, TemplateView):
     pass
@@ -114,3 +114,53 @@ class HappeningListView(LoginRequiredMixin, FadderietMenuMixin, ListView):
         self.queryset = Happening.objects.filter(user_groups__in=self.request.user.user_group.all()).filter(nolle_groups=self.request.user.nolle_group)
         querryset = super().get_queryset()
         return [{'happening': happening, 'is_registered': Registration.objects.filter(user=self.request.user.profile).filter(happening=happening).count() > 0} for happening in querryset]
+
+
+class RegistrationView(LoginRequiredMixin, UserPassesTestMixin, FadderietMenuMixin, UpdateView):
+    model = Registration
+    form_class = forms.RegistrationForm
+    template_name = 'fadderiet/evenemang/anmalan.html'
+
+    success_url = reverse_lazy('fadderiet:evenemang:index')
+
+    def test_func(self):
+        happening = Happening.objects.get(pk=self.kwargs['pk'])
+        return happening in Happening.objects.filter(user_groups__in=self.request.user.user_group.all()).filter(nolle_groups=self.request.user.nolle_group)
+
+    def get_form_class(self):
+        return utils_misc.make_crispy_form(super().get_form_class(), submit_button='Skicka')
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs.update({
+            'happening': Happening.objects.get(pk=self.kwargs['pk']),
+            'user': self.request.user.profile
+        })
+        return kwargs
+
+    def get_initial(self):
+        if self.request.user.profile.food_preference:
+            self.initial.update({'food_preference': self.request.user.profile.food_preference})
+        return super().get_initial()
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class=None)
+        if self.object is not None:
+            for field_name in form.fields:
+                form.fields[field_name].disabled = True
+            form.helper.inputs.pop()
+        return form
+
+    def get_object(self, queryset=None):
+        happening = Happening.objects.get(pk=self.kwargs['pk'])
+        try:
+            return Registration.objects.get(user=self.request.user.profile, happening=happening)
+        except Registration.DoesNotExist:
+            return None
+
+    def get_context_data(self, **kwargs):
+        dynamic_extra_context = {
+            'happening': Happening.objects.get(pk=self.kwargs['pk'])
+        }
+        kwargs.update(**dynamic_extra_context)
+        return super().get_context_data(**kwargs)

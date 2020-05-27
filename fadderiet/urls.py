@@ -32,7 +32,7 @@ my_pages_urls = ([
 
 happening_urls = ([
     path('', views.HappeningListView.as_view(), name='index'),
-    path('<int:pk>/anmalan', helper_views.hello_world, name='anmalan'),
+    path('<int:pk>/anmalan', views.RegistrationView.as_view(), name='anmalan'),
 ], 'evenemang')
 
 urlpatterns = [

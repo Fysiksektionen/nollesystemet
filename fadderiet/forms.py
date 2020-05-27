@@ -1,10 +1,11 @@
 import django.forms as forms
 from crispy_forms.bootstrap import UneditableField
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Fieldset, Field, Row, Column, HTML
+from crispy_forms.layout import Layout, Fieldset, Field, Row, Column, HTML, Submit
 from django.apps import apps
 from django.conf import settings
 
+from fohseriet.models import Registration, DrinkOption, ExtraOption
 from utils.forms import ExtendedMetaModelForm
 
 
@@ -18,7 +19,6 @@ class AuthUserUpdateForm(ExtendedMetaModelForm):
             model.USERNAME_FIELD: {
                 'disabled': True,
                 'label': 'Användarnamn',
-                'help_texts': '',
             },
             'email': {
                 'label': 'Epostadress',
@@ -119,3 +119,50 @@ class ProfileUpdateForm(ExtendedMetaModelForm):
         if self.instance.auth_user.user_group.filter(name='nØllan').exists():
             self.fields.pop('kth_id')
             self.helper.layout.fields[0].fields[1].fields[1].pop(0)
+
+
+class RegistrationForm(ExtendedMetaModelForm):
+    class Meta:
+        model = Registration
+        fields = ['food_preference', 'drink_option', 'extra_option', 'other']
+
+        field_args = {
+            'food_preference': {
+                'label': 'Specialkost',
+                'required': False,
+                'help_text': 'Om du har ',
+            },
+            'drink_option': {
+                'label': 'Dryck',
+                'required': False,
+            },
+            'extra_option': {
+                'label': 'Extra val',
+                'required': False,
+            },
+            'other': {
+                'label': 'Övrigt',
+                'required': False,
+            },
+        }
+
+    def __init__(self, happening=None, user=None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.happening = happening
+        self.user = user
+        if happening is None:
+            raise Exception('Registration form must be given a happening')
+        if user is None:
+            raise Exception('Registration form must be given a user')
+
+        self.fields['drink_option'].querryset = DrinkOption.objects.filter(happening=happening)
+        if len(self.fields['drink_option'].querryset) > 0:
+            self.fields['drink_option'].required = True
+        self.fields['extra_option'].querryset = ExtraOption.objects.filter(happening=happening)
+
+    def save(self, commit=True):
+        self.instance.happening = self.happening
+        self.instance.user = self.user
+        return super().save(commit)
+
