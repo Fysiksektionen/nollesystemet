@@ -13,7 +13,8 @@ login_urls = ([
 
 happening_urls = ([
     path('', views.HappeningListView.as_view(), name="lista"),
-    path('<int:pk>/', views.HappeningUpdateView.as_view(), name='uppdatera'),
+    path('<int:pk>/uppdatera/', views.HappeningUpdateView.as_view(), name='uppdatera'),
+    path('<int:pk>/anmalda', views.HappeningRegisteredListView.as_view(), name='anmalda'),
     path('skapa/', views.HappeningUpdateView.as_view(), name='skapa'),
 ], 'evenemang')
 

@@ -45,11 +45,17 @@ class Happening(models.Model):
             ("edit_happening", "Can edit/create happenings"),
         ]
 
+    def __str__(self):
+        return str(self.name)
+
 
 class GroupBasePrice(models.Model):
     group = models.ForeignKey(auth_models.UserGroup, on_delete=models.CASCADE)
     happening = models.ForeignKey(Happening, on_delete=models.CASCADE)
     base_price = models.IntegerField()
+
+    def __str__(self):
+        return str(self.group) + " (" + str(self.base_price) + "kr)"
 
 
 class DrinkOption(models.Model):
@@ -57,11 +63,17 @@ class DrinkOption(models.Model):
     drink = models.CharField(max_length=30)
     price = models.IntegerField()
 
+    def __str__(self):
+        return str(self.drink) + " (" + str(self.price) + "kr)"
+
 
 class ExtraOption(models.Model):
     happening = models.ForeignKey(Happening, on_delete=models.CASCADE)
     extra_option = models.CharField(max_length=30)
     price = models.IntegerField()
+
+    def __str__(self):
+        return str(self.extra_option) + " (" + str(self.price) + "kr)"
 
 
 class Registration(models.Model):
@@ -72,3 +84,5 @@ class Registration(models.Model):
     extra_option = models.ManyToManyField(ExtraOption, blank=True)
     other = models.CharField(max_length=300)
 
+    def __str__(self):
+        return str(self.user) + " anmäld till " + str(self.happening)

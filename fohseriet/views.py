@@ -67,7 +67,37 @@ class HappeningListView(LoginRequiredMixin, PermissionRequiredMixin, FohserietMe
                  'user_can_edit': self.request.user.profile in happening.editors.all()} for happening in querryset]
 
 
-class HappeningUpdateView(UserPassesTestMixin, HappeningOptionsMixin, FohserietMenuMixin, UpdateView):
+class HappeningRegisteredListView(LoginRequiredMixin, UserPassesTestMixin, FohserietMenuMixin, ListView):
+    model = Registration
+    template_name = 'fohseriet/evenemang/anmalda.html'
+
+    ordering = 'user__first_name'
+
+    extra_context = {
+        'user_groups': apps.get_model('authentication.UserGroup').objects.filter(is_external=False),
+        'nolle_groups': apps.get_model('authentication.NolleGroup').objects.all()
+    }
+
+    def test_func(self):
+        return self.request.user.has_perm(
+            'fohseriet.edit_happening') and self.request.user.profile in Happening.objects.get(
+            pk=self.kwargs['pk']).editors.all()
+
+    def get_queryset(self):
+        self.queryset = Registration.objects.filter(happening=Happening.objects.get(pk=self.kwargs['pk']))
+        querryset = super().get_queryset()
+        return querryset
+        # return [{'happening': happening,
+        #          'user_can_edit': self.request.user.profile in happening.editors.all()} for happening in querryset]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'happening': Happening.objects.get(pk=self.kwargs['pk'])
+        })
+        return context
+
+class HappeningUpdateView(LoginRequiredMixin, UserPassesTestMixin, HappeningOptionsMixin, FohserietMenuMixin, UpdateView):
     model = Happening
     form_class = HappeningForm
 
