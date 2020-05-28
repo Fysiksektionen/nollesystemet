@@ -12,7 +12,7 @@ import authentication.views as auth_views
 import fohseriet.utils as fohseriet_utils
 import utils.helper_views as helper_views
 import utils.misc as utils_misc
-from fadderiet.forms import ProfileUpdateForm
+from fadderiet.forms import ProfileUpdateForm, RegistrationForm
 from .mixins import *
 from .forms import *
 
@@ -79,21 +79,22 @@ class HappeningRegisteredListView(LoginRequiredMixin, UserPassesTestMixin, Fohse
     }
 
     def test_func(self):
-        return self.request.user.has_perm(
+        return (self.request.user.has_perm(
             'fohseriet.edit_happening') and self.request.user.profile in Happening.objects.get(
-            pk=self.kwargs['pk']).editors.all()
+            pk=self.kwargs['pk']).editors.all()) or self.request.user.is_superuser
 
     def get_queryset(self):
         self.queryset = Registration.objects.filter(happening=Happening.objects.get(pk=self.kwargs['pk']))
         querryset = super().get_queryset()
         return querryset
-        # return [{'happening': happening,
-        #          'user_can_edit': self.request.user.profile in happening.editors.all()} for happening in querryset]
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context.update({
-            'happening': Happening.objects.get(pk=self.kwargs['pk'])
+            'happening': Happening.objects.get(pk=self.kwargs['pk']),
+            'user_can_edit_registrations': self.request.user.has_perm(
+                'fohseriet.edit_user_registration') or self.request.user.profile in Happening.objects.get(
+                pk=self.kwargs['pk']).editors.all()
         })
         return context
 
@@ -105,7 +106,9 @@ class HappeningUpdateView(LoginRequiredMixin, UserPassesTestMixin, HappeningOpti
     template_name = 'fohseriet/evenemang/redigera.html'
 
     def test_func(self):
-        return self.request.user.has_perm('fohseriet.edit_happening') and self.request.user.profile in Happening.objects.get(pk=self.kwargs['pk']).editors.all() if 'pk' in self.kwargs else True
+        return self.request.user.has_perm(
+            'fohseriet.edit_user_registration') or (self.request.user.profile in Happening.objects.get(
+            pk=self.kwargs['pk']).editors.all() if 'pk' in self.kwargs else True)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -164,3 +167,38 @@ class UserUpdateView(LoginRequiredMixin, PermissionRequiredMixin, FohserietMenuM
             return self.request.GET[REDIRECT_FIELD_NAME]
         else:
             return super().get_success_url()
+
+# -------------------------------------------------------------------------------- #
+# ------------------------------ Registration views ------------------------------ #
+# -------------------------------------------------------------------------------- #
+
+class RegistrationUpdateView(LoginRequiredMixin, UserPassesTestMixin, FohserietMenuMixin, UpdateView):
+    model = Registration
+    form_class = RegistrationForm
+    template_name = 'fohseriet/anmalan/uppdatera.html'
+
+    success_url = reverse_lazy('fohseriet:index')
+
+    def test_func(self):
+        return self.request.user.has_perm(
+            'fohseriet.edit_user_registration') or self.request.user.profile in Registration.objects.get(
+            pk=self.kwargs['pk']).happening.editors.all()
+
+    def get_form_class(self):
+        return utils_misc.make_crispy_form(super().get_form_class(), submit_button='Spara')
+
+    def get_initial(self):
+        if self.request.user.profile.food_preference:
+            self.initial.update({'food_preference': self.request.user.profile.food_preference})
+        return super().get_initial()
+
+    def get_object(self, queryset=None):
+        try:
+            return Registration.objects.get(pk=self.kwargs['pk'])
+        except Registration.DoesNotExist:
+            return None
+
+    def get_success_url(self):
+        if REDIRECT_FIELD_NAME in self.request.GET:
+            self.success_url = self.request.GET[REDIRECT_FIELD_NAME]
+        return super().get_success_url()

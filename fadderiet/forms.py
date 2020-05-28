@@ -149,17 +149,19 @@ class RegistrationForm(ExtendedMetaModelForm):
     def __init__(self, happening=None, user=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.happening = happening
-        self.user = user
-        if happening is None:
-            raise Exception('Registration form must be given a happening')
-        if user is None:
-            raise Exception('Registration form must be given a user')
+        if self.instance:
+            self.happening = self.instance.happening
+            self.user = self.instance.user
+        else:
+            self.happening = happening
+            self.user = user
+            if self.happening is None or self.user is None:
+                raise Exception('Registration form must be given an instance or both a happening and a user.')
 
-        self.fields['drink_option'].querryset = DrinkOption.objects.filter(happening=happening)
+        self.fields['drink_option'].querryset = DrinkOption.objects.filter(happening=self.happening)
         if len(self.fields['drink_option'].querryset) > 0:
             self.fields['drink_option'].required = True
-        self.fields['extra_option'].querryset = ExtraOption.objects.filter(happening=happening)
+        self.fields['extra_option'].querryset = ExtraOption.objects.filter(happening=self.happening)
 
     def save(self, commit=True):
         self.instance.happening = self.happening

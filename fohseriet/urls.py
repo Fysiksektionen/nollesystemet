@@ -14,15 +14,18 @@ login_urls = ([
 happening_urls = ([
     path('', views.HappeningListView.as_view(), name="lista"),
     path('<int:pk>/uppdatera/', views.HappeningUpdateView.as_view(), name='uppdatera'),
-    path('<int:pk>/anmalda', views.HappeningRegisteredListView.as_view(), name='anmalda'),
+    path('<int:pk>/anmalda/', views.HappeningRegisteredListView.as_view(), name='anmalda'),
     path('skapa/', views.HappeningUpdateView.as_view(), name='skapa'),
 ], 'evenemang')
 
 user_urls = ([
-    path('', views.UsersListView.as_view(template_name='fohseriet/anvandare/index.html'), name="index"),
+    path('', views.UsersListView.as_view(), name="index"),
     path('<int:pk>/', views.UserUpdateView.as_view(), name='uppdatera'),
 ], 'anvandare')
 
+registration_urls = ([
+    path('<int:pk>/', views.RegistrationUpdateView.as_view(), name="index"),
+], 'anmalan')
 
 urlpatterns = [
     path('', views.FohserietMenuView.as_view(template_name='fohseriet/index.html'), name='index'),
@@ -31,4 +34,5 @@ urlpatterns = [
     path('logga-ut/', views.LogoutView.as_view(), name='logga-ut'),
     path('evenemang/', include(happening_urls)),
     path('anvandare/', include(user_urls)),
+    path('anmalan/', include(registration_urls)),
 ]

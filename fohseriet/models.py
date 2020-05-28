@@ -16,7 +16,7 @@ class UserProfile(auth_models.UserProfile):
     class Meta(auth_models.UserProfile.Meta):
         permissions = [
             ("edit_user_info", "Can edit user but not authentication stuff"),
-            ("edit_user_registrations", "Can change a users registration"),
+            ("edit_user_registration", "Can change any user registration"),
         ]
 
 

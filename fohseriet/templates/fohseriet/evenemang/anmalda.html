@@ -38,6 +38,13 @@
                         <td>{{ registration_item.user.first_name }} {{ registration_item.user.last_name }}</td>
                         <td id="nolle-group">{% if registration_item.user.auth_user.nolle_group %}{{ registration_item.user.auth_user.nolle_group.name }}{% else %}–{% endif %}</td>
                         <td id="user-group" hidden>{% if registration_item.user.auth_user.user_group.all %}{{ registration_item.user.auth_user.user_group.all|join:", " }}{% else %}–{% endif %}</td>
+                        <td>
+                            {% if user_can_edit_registrations %}
+                                <a class="btn btn-primary" href="{% url 'fohseriet:anmalan:index' registration_item.pk %}?next={{ request.path|urlencode }}">
+                                    Redigera anmälan
+                                </a>
+                            {% endif %}
+                        </td>
                     </tr>
                 {% endfor %}
           </tbody>
