@@ -59,7 +59,7 @@ class HappeningForm(ExtendedMetaModelForm):
             ),
             HTML("<hr>"),
             Fieldset("Anmälningsinformation",
-                     Field('name'),
+                     Row(Column(Field('name'), css_class="col-6")),
                      Field('description'),
                      Row(
                          Column(Field('start_time')),

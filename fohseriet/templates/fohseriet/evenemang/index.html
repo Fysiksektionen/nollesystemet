@@ -5,6 +5,12 @@
 {% endblock %}
 
 {% block content %}
+    <div class="pb-3">
+        <a class="btn btn-primary" href="{% url 'fohseriet:evenemang:skapa' %}">
+            Skapa evenemang
+        </a>
+    </div>
+
     {% if object_list %}
         <table class="table table-dark" id="user-table">
             <thead class="thead-dark">
