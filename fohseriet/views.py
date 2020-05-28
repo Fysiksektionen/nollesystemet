@@ -1,7 +1,7 @@
 import app as app
 from django.apps import apps
 from django.contrib.auth import REDIRECT_FIELD_NAME
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.urls import reverse_lazy
 import django.contrib.auth.views as django_auth_views
 from django.views.generic import TemplateView, UpdateView, ListView, CreateView
@@ -52,48 +52,50 @@ class LoginCredentialsView(auth_views.LoginCred, FohserietMenuMixin):
 # ------------------------------- Happening views -------------------------------- #
 # -------------------------------------------------------------------------------- #
 
-#This one needs to be updated to look more like the CreateView.
-class HappeningUpdateView(UpdateView, HappeningOptionsMixin, FohserietMenuMixin):
+class HappeningListView(LoginRequiredMixin, PermissionRequiredMixin, FohserietMenuMixin, ListView):
     model = Happening
-    fields = '__all__'
-    template_name = 'fohseriet/evenemang/create_happening.html'
+    template_name = 'fohseriet/evenemang/index.html'
+
+    ordering = 'start_time'
+
+    permission_required = 'fohseriet.edit_happening'
+
+    def get_queryset(self):
+        self.queryset = Happening.objects.all()
+        querryset = super().get_queryset()
+        return [{'happening': happening,
+                 'user_can_edit': self.request.user.profile in happening.editors.all()} for happening in querryset]
+
+
+class HappeningUpdateView(UserPassesTestMixin, HappeningOptionsMixin, FohserietMenuMixin, UpdateView):
+    model = Happening
+    form_class = HappeningForm
+
     success_url = reverse_lazy('fohseriet:evenemang:lista')
+    template_name = 'fohseriet/evenemang/redigera.html'
+
+    def test_func(self):
+        return self.request.user.has_perm('fohseriet.edit_happening') and self.request.user.profile in Happening.objects.get(pk=self.kwargs['pk']).editors.all() if 'pk' in self.kwargs else True
 
     def get_context_data(self, **kwargs):
-        context = super(HappeningUpdateView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
+        formset_kwargs = {}
+
         if self.request.POST:
-            context['drink_option_formset'] = DrinkOptionFormset(self.request.POST)
-            context['base_price_formset'] = GroupHappeningPropertiesFormset(self.request.POST)
-            context['extra_option_formset'] = ExtraOptionFormset(self.request.POST)
-        else:
-            context['drink_option_formset'] = DrinkOptionFormset()
-            context['base_price_formset'] = GroupHappeningPropertiesFormset()
-            context['extra_option_formset'] = ExtraOptionFormset()
+            formset_kwargs['data'] = self.request.POST
+        if self.object:
+            formset_kwargs['instance'] = self.object
+
+        context['drink_option_formset'] = DrinkOptionFormset(**formset_kwargs)
+        context['base_price_formset'] = GroupBasePriceFormset(**formset_kwargs)
+        context['extra_option_formset'] = ExtraOptionFormset(**formset_kwargs)
+
         return context
 
-
-class HappeningCreateView(CreateView, HappeningOptionsMixin, FohserietMenuMixin):
-    model = Happening
-    success_url = reverse_lazy('fohseriet:evenemang:lista')
-    fields = '__all__'
-    template_name = 'fohseriet/evenemang/create_happening.html'
-
-    def get_context_data(self, **kwargs):
-        context = super(HappeningCreateView, self).get_context_data(**kwargs)
-        if self.request.POST:
-            context['drink_option_formset'] = DrinkOptionFormset(self.request.POST)
-            context['base_price_formset'] = GroupHappeningPropertiesFormset(self.request.POST)
-            context['extra_option_formset'] = ExtraOptionFormset(self.request.POST)
-        else:
-            context['drink_option_formset'] = DrinkOptionFormset()
-            context['base_price_formset'] = GroupHappeningPropertiesFormset()
-            context['extra_option_formset'] = ExtraOptionFormset()
-        return context
-
-
-class HappeningListView(ListView, FohserietMenuMixin):
-    model = Happening
-    template_name = 'fohseriet/evenemang/happening_list.html'
+    def get_object(self, queryset=None):
+        if 'pk' not in self.kwargs:
+            return None
+        return super().get_object(queryset=queryset)
 
 
 # -------------------------------------------------------------------------------- #

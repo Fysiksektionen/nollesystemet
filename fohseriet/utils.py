@@ -13,7 +13,7 @@ menu_item_info = {
         'align': 'left',
         'user': 'with-permission',
         'permissions' : {
-            'any': ['edit_event']
+            'any': ['fohseriet.edit_happening']
         }
     },
     'hantera-andvandare': {

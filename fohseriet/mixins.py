@@ -1,7 +1,8 @@
 from .views import *
 from .models import *
+from .forms import *
 
-class HappeningOptionsMixin():
+class HappeningOptionsMixin:
     def get_form(self, form_class=None):
         if form_class is None:
             form_class = self.get_form_class()

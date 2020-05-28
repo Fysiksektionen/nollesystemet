@@ -61,7 +61,7 @@ ROOT_URLCONF = 'nollesystemet.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'venv/lib/python3.8/site-packages/')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

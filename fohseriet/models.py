@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.db import models
+from django.db.models import Q
 
 import authentication.models as auth_models
 
@@ -31,12 +32,18 @@ class Happening(models.Model):
     user_groups = models.ManyToManyField(auth_models.UserGroup, related_name="happening_user_group")
     nolle_groups = models.ManyToManyField(auth_models.NolleGroup, related_name="happening_nolle_group")
 
-    has_base_price = models.BooleanField(default=False)
     food = models.BooleanField(default=True)
-    cost_for_drinks = models.BooleanField(default=False)
-    cost_for_extras = models.BooleanField(default=False)
 
-    editors = models.ManyToManyField(settings.AUTH_USER_MODEL)
+    editors = models.ManyToManyField(settings.USER_PROFILE_MODEL,
+                                     limit_choices_to=((
+                                             Q(auth_user__user_group__permissions__codename='edit_happening') |
+                                             Q(auth_user__user_permissions__codename='edit_happening')
+                                     )))
+
+    class Meta(auth_models.UserProfile.Meta):
+        permissions = [
+            ("edit_happening", "Can edit/create happenings"),
+        ]
 
 
 class GroupBasePrice(models.Model):

@@ -14,7 +14,7 @@ login_urls = ([
 happening_urls = ([
     path('', views.HappeningListView.as_view(), name="lista"),
     path('<int:pk>/', views.HappeningUpdateView.as_view(), name='uppdatera'),
-    path('skapa/', views.HappeningCreateView.as_view(), name='skapa'),
+    path('skapa/', views.HappeningUpdateView.as_view(), name='skapa'),
 ], 'evenemang')
 
 user_urls = ([
