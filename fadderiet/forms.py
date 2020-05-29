@@ -176,6 +176,9 @@ class RegistrationForm(ExtendedMetaModelForm):
         if len(self.fields['extra_option'].queryset) == 0:
             self.fields.pop('extra_option')
 
+        if not self.happening.food:
+            self.fields.pop('food_preference')
+
     def save(self, commit=True):
         self.instance.happening = self.happening
         self.instance.user = self.user

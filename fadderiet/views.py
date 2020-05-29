@@ -147,7 +147,7 @@ class RegistrationView(LoginRequiredMixin, UserPassesTestMixin, FadderietMenuMix
         form = super().get_form(form_class=None)
         if self.object is not None:
             for field_name in form.fields:
-                form.fields[field_name].disabled = True
+                form.fields[field_name].widget.attrs['disabled'] = True
             form.helper.inputs.pop()
         return form
 

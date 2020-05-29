@@ -85,8 +85,8 @@ class HappeningForm(ExtendedMetaModelForm):
                      Row(
                          Column(Field('start_time')),
                          Column(Field('end_time'))
-                     )
-
+                     ),
+                     Field('food'),
             )
         )
 
