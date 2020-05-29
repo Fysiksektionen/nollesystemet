@@ -8,7 +8,7 @@ app_name = 'fohseriet'
 login_urls = ([
     path('', views.LoginView.as_view(), name='index'),
     path('cred/', views.LoginCredentialsView.as_view(), name='cred'),
-    path('cas/', auth_views.LoginCas.as_view(), name='cas'),
+    path('cas/', auth_views.login.LoginCas.as_view(), name='cas'),
 ], 'logga-in')
 
 happening_urls = ([

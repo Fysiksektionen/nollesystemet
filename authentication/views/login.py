@@ -35,13 +35,13 @@ def _login_success_redirect(request, user, next_url='/', drop_params=None):
         del query_params[REDIRECT_FIELD_NAME]
 
     # If user profile is used in this build
-    user_model_name = utils2.get_setting('USER_PROFILE_MODEL')
+    user_model_name = utils.get_setting('USER_PROFILE_MODEL')
     if user_model_name:
         # If user profile is not set up
         profile_name = apps.get_model(user_model_name).auth_user.field.remote_field.name
         if not getattr(request.user, profile_name).has_set_profile:
             query_params[REDIRECT_FIELD_NAME] = next_url
-            next_url = utils2.get_setting('USER_PROFILE_SETUP_URL')
+            next_url = utils.get_setting('USER_PROFILE_SETUP_URL')
 
     if len(query_params) > 0:
         suffix = '?' + query_params.urlencode(safe='/')
@@ -61,7 +61,7 @@ class Login(TemplateView):
 
     def get(self, request, *args, **kwargs):
         # Determine redirect url from GET-params or from calling url
-        next_url = utils2.get_redirect_url(request, default_url=self.default_redirect_url)
+        next_url = utils.get_redirect_url(request, default_url=self.default_redirect_url)
 
         # If the user is already authenticated, proceed to next page
         if request.user.is_authenticated:
@@ -104,14 +104,14 @@ class LoginCas(View):
         next_url = request.GET.get(REDIRECT_FIELD_NAME)
 
         if not next_url:
-            next_url = utils2.get_redirect_url(request, default_url=self.default_redirect_url, use_referer=True)
+            next_url = utils.get_redirect_url(request, default_url=self.default_redirect_url, use_referer=True)
 
         # If the user is already authenticated, proceed to next page
         if request.user.is_authenticated:
             return _login_success_redirect(request, request.user, next_url)
 
-        service_url = utils2.get_service_url(request, next_url)
-        client = cas.CASClient(version=2, service_url=service_url, server_url=str(utils2.get_setting('CAS_SERVER_URL')))
+        service_url = utils.get_service_url(request, next_url)
+        client = cas.CASClient(version=2, service_url=service_url, server_url=str(utils.get_setting('CAS_SERVER_URL')))
 
         # If a ticket was provided, attempt to authenticate with it
         if ticket:

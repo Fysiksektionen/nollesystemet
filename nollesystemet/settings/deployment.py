@@ -15,7 +15,7 @@ import os
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 from django.urls import reverse_lazy
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
 # Quick-start development settings - unsuitable for production
@@ -25,7 +25,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'xb6-3)%wyspw@2*4rd^$a!@56ixbwq4g+2721(2)ica-r8_1#8'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = []
 
@@ -62,7 +62,7 @@ ROOT_URLCONF = 'nollesystemet.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'venv/lib/python3.8/site-packages/')],
+        'DIRS': [os.path.join(BASE_DIR, 'venv/lib/python3.8/../../venv/lib/python3.8/site-packages/')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -85,7 +85,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'OPTIONS': {
-            'read_default_file': 'config_files/db_info.cnf',
+            'read_default_file': os.path.join(os.path.dirname(__file__), 'config_files/db_info.cnf')
         }
     }
 }
@@ -95,15 +95,9 @@ DATABASES = {
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
-    # {
-    #     'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    # },
     {
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
     },
-    # {
-    #     'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    # },
     {
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
@@ -129,7 +123,7 @@ STATIC_URL = '/static/'
 STATIC_ROOT = 'staticfiles/'
 
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),
+    os.path.join(BASE_DIR, 'static/'),
 ]
 
 # Crispy settings
@@ -153,7 +147,7 @@ LOGIN_URL = reverse_lazy('fadderiet:logga-in:index')
 
 #Email setup
 def get_email_info(filename):
-    with open(filename) as f:
+    with open(os.path.join(os.path.dirname(__file__), filename)) as f:
         content = f.read().splitlines()
     options = {}
     for line in content:

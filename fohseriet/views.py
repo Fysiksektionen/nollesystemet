@@ -30,7 +30,7 @@ class FohserietMenuView(FohserietMenuMixin, TemplateView):
 # -------------------------------------------------------------------------------- #
 
 
-class LoginView(auth_views.Login, FohserietMenuMixin):
+class LoginView(auth_views.login.Login, FohserietMenuMixin):
     default_redirect_url = reverse_lazy('fohseriet:index')
     template_name = 'fohseriet/logga-in/index.html'
     cred_login_url = reverse_lazy('fohseriet:logga-in:cred')
@@ -41,11 +41,11 @@ class LogoutView(django_auth_views.LogoutView, FohserietMenuMixin):
     template_name = 'fohseriet/utloggad.html'
 
 
-class LoginCredentialsView(auth_views.LoginCred, FohserietMenuMixin):
+class LoginCredentialsView(auth_views.login.LoginCred, FohserietMenuMixin):
     template_name = 'fohseriet/logga-in/cred.html'
     default_redirect_url = reverse_lazy('fohseriet:index')
 
-    form_class = utils_misc.make_crispy_form(auth_views.LoginCred.form_class, 'Logga in')
+    form_class = utils_misc.make_crispy_form(auth_views.login.LoginCred.form_class, 'Logga in')
 
 
 # -------------------------------------------------------------------------------- #

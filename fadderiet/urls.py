@@ -11,7 +11,7 @@ login_urls = ([
     path('nollan/', views.LoginCredentialsView.as_view(), name='nollan'),
     path('fadder/', helper_views.custom_redirect_view, kwargs={'redirect_name': 'fadderiet:logga-in:cas'},
          name='fadder'),
-    path('cas/', auth_views.LoginCas.as_view(), name='cas'),
+    path('cas/', auth_views.login.LoginCas.as_view(), name='cas'),
 ], 'logga-in')
 
 password_reset_urls = ([

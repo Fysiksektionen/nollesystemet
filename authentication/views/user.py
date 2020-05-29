@@ -24,7 +24,7 @@ class AuthUserUpdateView(UpdateView, LoginRequiredMixin, UserPassesTestMixin):
     Redirects to login if not authenticated or with permission.
     """
 
-    model = apps.get_model(utils2.get_setting('AUTH_USER_MODEL'))
+    model = apps.get_model(utils.get_setting('AUTH_USER_MODEL'))
     fields = ['username', 'email']
     template_name_suffix = '_update_form'
 
@@ -41,7 +41,7 @@ class AuthUserUpdateView(UpdateView, LoginRequiredMixin, UserPassesTestMixin):
 
     def get_login_url(self):
         if not self.request.user.is_authenticated:
-            return utils2.get_setting('LOGIN_URL') + '?' + REDIRECT_FIELD_NAME + "=" + \
+            return utils.get_setting('LOGIN_URL') + '?' + REDIRECT_FIELD_NAME + "=" + \
                    reverse('authentication:update_auth_user', kwargs={'pk': self.kwargs['pk']})
         else:
             return _login_success_redirect(self.request,
@@ -54,7 +54,7 @@ class UserProfileUpdateView(UpdateView, LoginRequiredMixin, UserPassesTestMixin)
     Redirects to login if not authenticated or with permission.
     """
 
-    model = apps.get_model(utils2.get_setting('USER_PROFILE_MODEL'))
+    model = apps.get_model(utils.get_setting('USER_PROFILE_MODEL'))
     fields = [field.name for field in model._meta.get_fields() if field.name not in ['has_set_profile', 'auth_user']]
     template_name_suffix = '_update_form'
 
@@ -71,7 +71,7 @@ class UserProfileUpdateView(UpdateView, LoginRequiredMixin, UserPassesTestMixin)
 
     def get_login_url(self):
         if not self.request.user.is_authenticated:
-            return utils2.get_setting('LOGIN_URL') + '?' + REDIRECT_FIELD_NAME + "=" + \
+            return utils.get_setting('LOGIN_URL') + '?' + REDIRECT_FIELD_NAME + "=" + \
                    reverse('authentication:update_auth_user', kwargs={'pk': self.kwargs['pk']})
         else:
             return _login_success_redirect(self.request,
