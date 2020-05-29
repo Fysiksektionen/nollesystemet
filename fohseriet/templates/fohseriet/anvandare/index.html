@@ -37,12 +37,17 @@
           <tbody id="user-table-body">
                 {% for user_item in object_list %}
                     <tr class="">
-                        <td>{{ user_item.profile.first_name }} {{ user_item.profile.last_name }}</td>
-                        <td id="nolle-group">{% if user.nolle_group %}{{ user_item.nolle_group.name }}{% else %}–{% endif %}</td>
-                        <td>{{ user_item.email }}</td>
-                        <td>{{ user_item.profile.phone_number }}</td>
-                        <td id="user-group">{{ user_item.user_group.all|join:", " }}</td>
-                        <td><a class="btn btn-primary" href="{% url 'fohseriet:anvandare:uppdatera' user_item.profile.pk %}">Redigera</a></td>
+                        <td>{{ user_item.first_name }} {{ user_item.last_name }}</td>
+                        <td id="nolle-group">{% if user_item.auth_user.nolle_group %}{{ user_item.auth_user.nolle_group.name }}{% else %}–{% endif %}</td>
+                        <td>{{ user_item.auth_user.email }}</td>
+                        <td>{{ user_item.phone_number }}</td>
+                        <td id="user-group">{{ user_item.auth_user.user_group.all|join:", " }}</td>
+                        {% if user_can_edit_user_info %}
+                            <td><a class="btn btn-primary" href="{% url 'fohseriet:anvandare:redigera' user_item.pk %}?next={{ request.path|urlencode }}">Redigera</a></td>
+                        {% endif %}
+                        {% if user_can_edit_registrations %}
+                            <td><a class="btn btn-primary" href="{% url 'fohseriet:anvandare:anmalningar' user_item.pk %}">Se anmälningar</a></td>
+                        {% endif %}
                     </tr>
                 {% endfor %}
           </tbody>

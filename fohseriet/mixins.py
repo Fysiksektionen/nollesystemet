@@ -7,8 +7,6 @@ class HappeningOptionsMixin:
         if form_class is None:
             form_class = self.get_form_class()
         form = super().get_form(form_class)
-        form.fields['start_time'].widget = forms.SelectDateWidget()
-        form.fields['end_time'].widget = forms.SelectDateWidget()
         return form
 
     def form_valid(self, form):
@@ -17,6 +15,7 @@ class HappeningOptionsMixin:
         base_price_formset = context['base_price_formset']
         extra_option_formset = context['extra_option_formset']
         if drink_option_formset.is_valid() and base_price_formset.is_valid() and extra_option_formset.is_valid():
+            print("in")
             response = super().form_valid(form)
 
             drink_option_formset.instance = self.object

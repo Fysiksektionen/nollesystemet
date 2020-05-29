@@ -24,7 +24,6 @@ menu_item_info = {
         'permissions' : {
             'any': [
                 'fohseriet.edit_user_info',
-                'fohseriet.edit_user_registrations',
             ]
         }
     },

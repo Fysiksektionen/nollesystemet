@@ -5,6 +5,10 @@
 {% endblock %}
 
 {% block content %}
+    <a class="btn btn-primary mt-3 mb-3" href="{{ back_url }}">
+        Tillbaka
+    </a>
+
     <div id="filter-elements">
         <input class="form-control p-2" id="search-bar" type="text" placeholder="Sök användare...">
         <div class="p-2" id="user-groups">
@@ -40,7 +44,7 @@
                         <td id="user-group" hidden>{% if registration_item.user.auth_user.user_group.all %}{{ registration_item.user.auth_user.user_group.all|join:", " }}{% else %}–{% endif %}</td>
                         <td>
                             {% if user_can_edit_registrations %}
-                                <a class="btn btn-primary" href="{% url 'fohseriet:anmalan:index' registration_item.pk %}?next={{ request.path|urlencode }}">
+                                <a class="btn btn-primary" href="{% url 'fohseriet:anmalan:redigera' registration_item.pk %}?next={{ request.path|urlencode }}">
                                     Redigera anmälan
                                 </a>
                             {% endif %}
@@ -50,7 +54,7 @@
           </tbody>
         </table>
     {% else %}
-        Systemet har inga evenemang
+        Evenemanget har inga anmälda
     {% endif %}
 {% endblock %}
 

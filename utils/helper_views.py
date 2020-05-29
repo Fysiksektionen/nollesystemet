@@ -1,5 +1,6 @@
 from abc import abstractmethod
 
+from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.core.exceptions import ImproperlyConfigured
 from django.shortcuts import HttpResponse
 from django.views.generic import UpdateView
@@ -99,6 +100,14 @@ class MenuMixin(ContextMixin):
                             context['menu'][side][i]['template_content'] = Template(menu_item['template_content']).render(Context({**context, 'user': self.request.user, 'request': self.request}))
 
         return super().render_to_response(context, **response_kwargs)
+
+
+class RedirectToGETArgMixin:
+    def get_success_url(self):
+        if REDIRECT_FIELD_NAME in self.request.GET:
+            self.success_url = self.request.GET[REDIRECT_FIELD_NAME]
+        print(self.success_url)
+        return super().get_success_url()
 
 
 class MultipleObjectsUpdateView(UpdateView):

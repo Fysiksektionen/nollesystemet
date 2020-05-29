@@ -3,12 +3,15 @@
 {% load crispy_forms_filters %}
 
 {% block title %}
-    Anmälan: {{ happening.name }}
+    Redigera anmälan
 {% endblock %}
 
 {% block content %}
+    <h3>Anmälan till {{ object.happening.name }} för {{ object.user }}</h3>
+
     <div class="col-8">
-        {{ happening.description }}
+        {{ object.happening.description }}
+        <hr>
         {% crispy form %}
     </div>
 {% endblock %}

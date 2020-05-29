@@ -13,18 +13,19 @@ login_urls = ([
 
 happening_urls = ([
     path('', views.HappeningListView.as_view(), name="lista"),
-    path('<int:pk>/uppdatera/', views.HappeningUpdateView.as_view(), name='uppdatera'),
+    path('<int:pk>/redigera/', views.HappeningUpdateView.as_view(), name='redigera'),
     path('<int:pk>/anmalda/', views.HappeningRegisteredListView.as_view(), name='anmalda'),
     path('skapa/', views.HappeningUpdateView.as_view(), name='skapa'),
 ], 'evenemang')
 
 user_urls = ([
     path('', views.UsersListView.as_view(), name="index"),
-    path('<int:pk>/', views.UserUpdateView.as_view(), name='uppdatera'),
+    path('<int:pk>/redigera/', views.UserUpdateView.as_view(), name='redigera'),
+    path('<int:pk>/anmalningar/', views.UserRegistrationsListView.as_view(), name='anmalningar'),
 ], 'anvandare')
 
 registration_urls = ([
-    path('<int:pk>/', views.RegistrationUpdateView.as_view(), name="index"),
+    path('<int:pk>/redigera/', views.RegistrationUpdateView.as_view(), name="redigera"),
 ], 'anmalan')
 
 urlpatterns = [

@@ -35,7 +35,7 @@
                         </td>
                         <td>
                             {% if list_item.user_can_edit %}
-                                <a class="btn btn-primary" href="{% url 'fohseriet:evenemang:uppdatera' list_item.happening.pk %}">
+                                <a class="btn btn-primary" href="{% url 'fohseriet:evenemang:redigera' list_item.happening.pk %}?next={{ request.path|urlencode }}">
                                     Redigera
                                 </a>
                             {% endif %}

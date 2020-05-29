@@ -5,7 +5,7 @@ from crispy_forms.layout import Layout, Fieldset, Field, Row, Column, HTML, Subm
 from django.apps import apps
 from django.conf import settings
 
-from fohseriet.models import Registration, DrinkOption, ExtraOption
+from fohseriet.models import Registration, DrinkOption, ExtraOption, Happening
 from utils.forms import ExtendedMetaModelForm
 
 
@@ -130,7 +130,7 @@ class RegistrationForm(ExtendedMetaModelForm):
             'food_preference': {
                 'label': 'Specialkost',
                 'required': False,
-                'help_text': 'Om du har ',
+                'help_text': 'Om du har fyllt i speckost i din profil ser du det här. ',
             },
             'drink_option': {
                 'label': 'Dryck',
@@ -139,6 +139,7 @@ class RegistrationForm(ExtendedMetaModelForm):
             'extra_option': {
                 'label': 'Extra val',
                 'required': False,
+                'widget': forms.CheckboxSelectMultiple(),
             },
             'other': {
                 'label': 'Övrigt',
@@ -155,13 +156,18 @@ class RegistrationForm(ExtendedMetaModelForm):
         else:
             self.happening = happening
             self.user = user
-            if self.happening is None or self.user is None:
-                raise Exception('Registration form must be given an instance or both a happening and a user.')
+        if self.happening is None or self.user is None:
+            raise Exception('Registration form must be given an instance or both a happening and a user.')
 
-        self.fields['drink_option'].querryset = DrinkOption.objects.filter(happening=self.happening)
-        if len(self.fields['drink_option'].querryset) > 0:
+        self.fields['drink_option'].queryset = self.happening.drinkoption_set.all()
+        if len(self.fields['drink_option'].queryset) > 0:
             self.fields['drink_option'].required = True
-        self.fields['extra_option'].querryset = ExtraOption.objects.filter(happening=self.happening)
+        else:
+            self.fields.pop('drink_option')
+
+        self.fields['extra_option'].queryset = self.happening.extraoption_set.all()
+        if len(self.fields['extra_option'].queryset) == 0:
+            self.fields.pop('extra_option')
 
     def save(self, commit=True):
         self.instance.happening = self.happening

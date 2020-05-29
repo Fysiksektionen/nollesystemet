@@ -25,9 +25,11 @@ class HappeningForm(ExtendedMetaModelForm):
             },
             'start_time': {
                 'label': 'Start-tid',
+                'widget': forms.SelectDateWidget(),
             },
             'end_time': {
                 'label': 'Slut-tid',
+                'widget': forms.SelectDateWidget(),
             },
             'takes_registration': {
                 'label': 'Kräver anmälan',
@@ -53,9 +55,14 @@ class HappeningForm(ExtendedMetaModelForm):
         super().__init__(*args, **kwargs)
 
         self.helper = FormHelper()
+        self.helper.form_tag = False
         self.helper.layout = Layout(
             Fieldset("Systeminfo",
-                     Field('editors')
+                     Field('editors'),
+                     Row(
+                         Column(Field('user_groups')),
+                         Column(Field('nolle_groups'))
+                     ),
             ),
             HTML("<hr>"),
             Fieldset("Anmälningsinformation",
@@ -146,12 +153,13 @@ DrinkOptionFormset = inlineformset_factory(
     DrinkOption,
     form=DrinkOptionForm,
     extra=1,
-    can_delete=False)
+    can_delete=False
+)
 
 GroupBasePriceFormset = inlineformset_factory(
     Happening,
     GroupBasePrice,
-    form = GroupBasePriceForm,
+    form=GroupBasePriceForm,
     extra=1,
     can_delete=False
 )
