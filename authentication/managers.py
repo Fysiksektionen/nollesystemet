@@ -21,7 +21,7 @@ class AuthUserManager(BaseUserManager):
         user.set_password(password)
         user.save(using=self._db)
 
-        user_profile = apps.get_model(utils.get_setting('USER_PROFILE_MODEL'))(auth=user)
+        user_profile = apps.get_model(utils2.get_setting('USER_PROFILE_MODEL'))(auth=user)
         user_profile.save()
 
         return user

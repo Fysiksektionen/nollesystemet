@@ -49,7 +49,7 @@ class CASBackend(ModelBackend):
 
         # Attempt to verify the ticket with the institution's CAS server
         client = CASClient(version=2, service_url=service,
-                           server_url=str(utils.get_setting('CAS_SERVER_URL')))
+                           server_url=str(utils2.get_setting('CAS_SERVER_URL')))
         username, attributes, pgtiou = client.verify_ticket(ticket)
 
         # Add the attributes returned by the CAS server to the session
