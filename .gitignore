@@ -1,4 +1,4 @@
 /venv/
-/nollesystemet/settings/config_files/db_info.cnf
-/nollesystemet/settings/config_files/mail.cnf
+/project_administration/settings/config_files/db_info.cnf
+/project_administration/settings/config_files/mail.cnf
 /node_modules/

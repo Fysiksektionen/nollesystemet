@@ -57,7 +57,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
 ]
 
-ROOT_URLCONF = 'nollesystemet.urls'
+ROOT_URLCONF = 'project_administration.urls'
 
 TEMPLATES = [
     {
@@ -75,7 +75,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'nollesystemet.wsgi.application'
+WSGI_APPLICATION = 'project_administration.wsgi.application'
 
 
 # Database
