@@ -29,7 +29,6 @@ class FohserietMenuView(FohserietMenuMixin, TemplateView):
 # --------------------------------- Login views ---------------------------------- #
 # -------------------------------------------------------------------------------- #
 
-
 class LoginView(auth_views.login.Login, FohserietMenuMixin):
     default_redirect_url = reverse_lazy('fohseriet:index')
     template_name = 'fohseriet/logga-in/index.html'
