@@ -6,6 +6,7 @@ from django.forms.widgets import Textarea
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Fieldset, Field, Row, Column, HTML, Button
 
+from authentication.models import NolleGroup, UserGroup
 from fohseriet.models import *
 from utils.forms import ExtendedMetaModelForm
 
@@ -39,9 +40,13 @@ class HappeningForm(ExtendedMetaModelForm):
             },
             'user_groups': {
                 'label': 'Välkomna grupper',
+                'widget': forms.CheckboxSelectMultiple(),
+                'queryset': UserGroup.objects.all().exclude(name__in=['Administratör', 'Arrangör'])
             },
             'nolle_groups': {
                 'label': 'Välkomna nØllegrupper',
+                'widget': forms.CheckboxSelectMultiple(),
+                'help_text': "Välj alla för att välkomna alla grupper."
             },
             'food': {
                 'label': 'Serverar mat',
@@ -52,6 +57,15 @@ class HappeningForm(ExtendedMetaModelForm):
         }
 
     def __init__(self, *args, **kwargs):
+        if 'instance' not in kwargs or not kwargs['instance'] or not kwargs['instance'].pk:
+            initial = {
+                'user_groups': UserGroup.objects.filter(name__in=['nØllan', 'Fadder']),
+                'nolle_groups': NolleGroup.objects.all()
+            }
+            if 'initial' in kwargs:
+                initial.update(kwargs['initial'])
+            kwargs['initial'] = initial
+
         super().__init__(*args, **kwargs)
 
         self.helper = FormHelper()
@@ -179,9 +193,12 @@ class AuthUserGroupsUpdateForm(ExtendedMetaModelForm):
         field_args = {
             'user_group': {
                 'label': 'Användartyp',
+                'widget': forms.CheckboxSelectMultiple(),
             },
             'nolle_group': {
                 'label': 'nØllegrupp',
+                'widget': forms.RadioSelect(),
+                'empty_label': None,
             },
         }
 

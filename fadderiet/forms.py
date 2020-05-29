@@ -4,6 +4,8 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Fieldset, Field, Row, Column, HTML, Submit
 from django.apps import apps
 from django.conf import settings
+from django.db.models.fields.related_descriptors import ForwardManyToOneDescriptor
+from django.forms import widgets
 
 from fohseriet.models import Registration, DrinkOption, ExtraOption, Happening
 from utils.forms import ExtendedMetaModelForm
@@ -135,6 +137,8 @@ class RegistrationForm(ExtendedMetaModelForm):
             'drink_option': {
                 'label': 'Dryck',
                 'required': False,
+                'widget': forms.RadioSelect(),
+                'empty_label': None,
             },
             'extra_option': {
                 'label': 'Extra val',
@@ -144,18 +148,21 @@ class RegistrationForm(ExtendedMetaModelForm):
             'other': {
                 'label': 'Övrigt',
                 'required': False,
+                'widget': widgets.Textarea(attrs={'rows': 4}),
             },
         }
 
     def __init__(self, happening=None, user=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        if self.instance:
-            self.happening = self.instance.happening
+        try:
+            instance_is_filled = self.instance.user is not None and self.instance.happening is not None
             self.user = self.instance.user
-        else:
-            self.happening = happening
+            self.happening = self.instance.happening
+        except:
             self.user = user
+            self.happening = happening
+
         if self.happening is None or self.user is None:
             raise Exception('Registration form must be given an instance or both a happening and a user.')
 

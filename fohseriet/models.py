@@ -55,7 +55,7 @@ class GroupBasePrice(models.Model):
     base_price = models.IntegerField()
 
     def __str__(self):
-        return str(self.group) + " (" + str(self.base_price) + "kr)"
+        return "%s (+%d kr)" % (self.group, self.base_price)
 
 
 class DrinkOption(models.Model):
@@ -64,7 +64,7 @@ class DrinkOption(models.Model):
     price = models.IntegerField()
 
     def __str__(self):
-        return str(self.drink) + " (" + str(self.price) + "kr)"
+        return "%s (+%d kr)" % (self.drink, self.price)
 
 
 class ExtraOption(models.Model):
@@ -73,7 +73,7 @@ class ExtraOption(models.Model):
     price = models.IntegerField()
 
     def __str__(self):
-        return str(self.extra_option) + " (" + str(self.price) + "kr)"
+        return "%s (+%d kr)" % (self.extra_option, self.price)
 
 
 class Registration(models.Model):
@@ -85,4 +85,7 @@ class Registration(models.Model):
     other = models.CharField(max_length=300)
 
     def __str__(self):
-        return str(self.user) + " anmäld till " + str(self.happening)
+        try:
+            return str(self.user) + " anmäld till " + str(self.happening)
+        except:
+            return super().__str__()
