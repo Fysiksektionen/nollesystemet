@@ -19,10 +19,10 @@ class Happening(models.Model):
     food = models.BooleanField(default=True)
 
     editors = models.ManyToManyField(settings.USER_PROFILE_MODEL,
-                                     limit_choices_to=((
-                                             Q(auth_user__user_group__permissions__codename='edit_happening') |
-                                             Q(auth_user__user_permissions__codename='edit_happening')
-                                     )))
+                                     limit_choices_to=(
+                                         Q(auth_user__user_group__permissions__codename='edit_happening') |
+                                         Q(auth_user__user_permissions__codename='edit_happening')
+                                     ))
 
     class Meta(auth_models.UserProfile.Meta):
         permissions = [
