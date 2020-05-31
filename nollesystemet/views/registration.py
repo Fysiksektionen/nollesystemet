@@ -2,9 +2,6 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.urls import reverse_lazy
 from django.views.generic import UpdateView
 
-import utils.misc as utils_misc
-import utils.helper_views as helper_views
-
 import nollesystemet.models as models
 import nollesystemet.forms as forms
 import nollesystemet.mixins as mixins
@@ -22,7 +19,7 @@ class RegistrationView(LoginRequiredMixin, UserPassesTestMixin, mixins.Fadderiet
         return happening in models.Happening.objects.filter(user_groups__in=self.request.user.user_group.all()).filter(nolle_groups=self.request.user.nolle_group)
 
     def get_form_class(self):
-        return utils_misc.make_crispy_form(super().get_form_class(), submit_button='Skicka')
+        return forms.make_crispy_form(super().get_form_class(), submit_button='Skicka')
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -59,7 +56,7 @@ class RegistrationView(LoginRequiredMixin, UserPassesTestMixin, mixins.Fadderiet
         kwargs.update(**dynamic_extra_context)
         return super().get_context_data(**kwargs)
 
-class RegistrationUpdateView(LoginRequiredMixin, UserPassesTestMixin, mixins.FohserietMenuMixin, helper_views.RedirectToGETArgMixin, UpdateView):
+class RegistrationUpdateView(LoginRequiredMixin, UserPassesTestMixin, mixins.FohserietMenuMixin, mixins.RedirectToGETArgMixin, UpdateView):
     model = models.Registration
     form_class = forms.RegistrationForm
     template_name = 'fohseriet/anmalan/redigera.html'
@@ -72,7 +69,7 @@ class RegistrationUpdateView(LoginRequiredMixin, UserPassesTestMixin, mixins.Foh
             pk=self.kwargs['pk']).happening.editors.all()
 
     def get_form_class(self):
-        return utils_misc.make_crispy_form(super().get_form_class(), submit_button='Spara')
+        return forms.make_crispy_form(super().get_form_class(), submit_button='Spara')
 
     def get_object(self, queryset=None):
         try:

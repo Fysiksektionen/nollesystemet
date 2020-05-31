@@ -26,7 +26,7 @@ registration_urls = ([
     path('<int:pk>/redigera/', views.RegistrationUpdateView.as_view(), name="redigera"),
 ], 'anmalan')
 
-urlpatterns = ([
+fohseriet_urls = ([
     path('', views.misc.FohserietMenuView.as_view(template_name='fohseriet/index.html'), name='index'),
 
     path('logga-in/', include(login_urls)),

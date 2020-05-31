@@ -2,8 +2,8 @@ import django.contrib.auth.views as django_auth_views
 from django.urls import reverse_lazy
 
 import authentication.views as auth_views
-import utils.misc as utils_misc
 
+import nollesystemet.forms as forms
 import nollesystemet.utils as utils
 import nollesystemet.mixins as mixins
 
@@ -34,14 +34,14 @@ class LoginCredentialsViewFohseriet(auth_views.login.LoginCred, mixins.Fohseriet
     template_name = 'fohseriet/logga-in/cred.html'
     default_redirect_url = reverse_lazy('fohseriet:index')
 
-    form_class = utils_misc.make_crispy_form(auth_views.login.LoginCred.form_class, 'Logga in')
+    form_class = forms.make_crispy_form(auth_views.login.LoginCred.form_class, 'Logga in')
 
 
 class LoginCredentialsViewFadderiet(mixins.FadderietMenuMixin, auth_views.login.LoginCred):
     template_name = 'fadderiet/logga-in/nollan.html'
     default_redirect_url = reverse_lazy('fadderiet:index')
 
-    form_class = utils_misc.make_crispy_form(auth_views.login.LoginCred.form_class, 'Logga in')
+    form_class = forms.make_crispy_form(auth_views.login.LoginCred.form_class, 'Logga in')
 
     extra_context = {
         'reset_password_url': reverse_lazy('fadderiet:aterstall-losenord:index'),

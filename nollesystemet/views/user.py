@@ -5,13 +5,14 @@ from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMix
 from django.urls import reverse_lazy, reverse
 from django.views.generic import ListView
 
-import utils.helper_views as helper_views
 
 import nollesystemet.models as models
 import nollesystemet.forms as forms
 import nollesystemet.mixins as mixins
+from .misc import MultipleObjectsUpdateView
 
-class ProfilePageView(LoginRequiredMixin, mixins.FadderietMenuMixin, helper_views.MultipleObjectsUpdateView):
+
+class ProfilePageView(LoginRequiredMixin, mixins.FadderietMenuMixin, MultipleObjectsUpdateView):
     model_list = [apps.get_model(settings.AUTH_USER_MODEL), apps.get_model(settings.USER_PROFILE_MODEL)]
     form_class_list = [forms.AuthUserUpdateForm, forms.ProfileUpdateForm]
 
@@ -58,7 +59,7 @@ class UsersListView(LoginRequiredMixin, PermissionRequiredMixin, mixins.Fohserie
         return context
 
 
-class UserUpdateView(LoginRequiredMixin, PermissionRequiredMixin, mixins.FohserietMenuMixin, helper_views.RedirectToGETArgMixin, helper_views.MultipleObjectsUpdateView):
+class UserUpdateView(LoginRequiredMixin, PermissionRequiredMixin, mixins.FohserietMenuMixin, mixins.RedirectToGETArgMixin, MultipleObjectsUpdateView):
     model_list = [models.UserProfile, apps.get_model(settings.AUTH_USER_MODEL)]
     form_class_list = [forms.ProfileUpdateForm, forms.AuthUserGroupsUpdateForm]
 

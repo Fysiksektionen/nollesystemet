@@ -2,7 +2,6 @@ from django.apps import apps
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin, PermissionRequiredMixin
 from django.urls import reverse_lazy, reverse
 from django.views.generic import UpdateView, ListView
-import utils.helper_views as helper_views
 
 import nollesystemet.models as models
 import nollesystemet.forms as forms
@@ -67,7 +66,7 @@ class HappeningRegisteredListView(LoginRequiredMixin, UserPassesTestMixin, mixin
         })
         return context
 
-class HappeningUpdateView(LoginRequiredMixin, UserPassesTestMixin, mixins.HappeningOptionsMixin, mixins.FohserietMenuMixin, helper_views.RedirectToGETArgMixin, UpdateView):
+class HappeningUpdateView(LoginRequiredMixin, UserPassesTestMixin, mixins.HappeningOptionsMixin, mixins.FohserietMenuMixin, mixins.RedirectToGETArgMixin, UpdateView):
     model = models.Happening
     form_class = forms.HappeningForm
 

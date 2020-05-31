@@ -6,10 +6,9 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Fieldset, Field, Row, Column, HTML
 
 from authentication.models import NolleGroup, UserGroup
-from utils.forms import ExtendedMetaModelForm
 
 from nollesystemet.models import Happening, DrinkOption, ExtraOption, GroupBasePrice
-from nollesystemet.forms.misc import get_formset_form_helper
+from .misc import get_formset_form_helper, ExtendedMetaModelForm
 
 class HappeningForm(ExtendedMetaModelForm):
     class Meta:

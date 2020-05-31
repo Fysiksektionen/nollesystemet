@@ -7,7 +7,7 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Fieldset, Field, Row, Column, HTML
 
 from nollesystemet.models import UserProfile
-from utils.forms import ExtendedMetaModelForm
+from .misc import ExtendedMetaModelForm
 
 
 class AuthUserUpdateForm(ExtendedMetaModelForm):
