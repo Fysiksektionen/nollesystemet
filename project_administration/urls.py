@@ -18,8 +18,7 @@ from django.urls import include, path
 admin.autodiscover()
 
 urlpatterns = [
-    path('fohseriet/', include('fohseriet.urls')),
-    path('fadderiet/', include('fadderiet.urls')),
+    path('', include('nollesystemet.urls')),
     path('admin/', admin.site.urls),
     path('auth/', include('authentication.urls')),
 ]

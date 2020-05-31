@@ -4,7 +4,6 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Fieldset, Field, Row, Column, HTML, Submit
 from django.apps import apps
 from django.conf import settings
-from django.db.models.fields.related_descriptors import ForwardManyToOneDescriptor
 from django.forms import widgets
 
 from fohseriet.models import Registration, DrinkOption, ExtraOption, Happening

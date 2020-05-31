@@ -1,0 +1,10 @@
+{% extends "fadderiet/centerd.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}Registrera dig{% endblock %}
+
+{% block centered-content %}
+    <h2 class="p-3 text-center">Välkommen nØllan!</h2>
+    <hr class="mt-0 mb-4">
+    {% crispy form %}
+{% endblock %}

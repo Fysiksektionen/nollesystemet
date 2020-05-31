@@ -1,0 +1,111 @@
+{% extends "fohseriet/base.html" %}
+
+
+{% block title %}Användare{% endblock %}
+
+
+{% block content %}
+    {% if object_list %}
+        <div id="filter-elements">
+            <input class="form-control p-2" id="search-bar" type="text" placeholder="Sök användare...">
+            <div class="p-2" id="user-groups">
+                {% for group in user_groups %}
+                    <button type="button" class="btn btn-primary active active-button" data-toggle="button" aria-pressed="true" autocomplete="off" data-group-name="{{ group.name }}" data-column-id="user-group">
+                        {{ group.name }}
+                    </button>
+                {% endfor %}
+            </div>
+            <div class="p-2" id="nolle-groups">
+                {% for group in nolle_groups %}
+                    <button type="button" class="btn btn-primary active active-button" data-toggle="button" aria-pressed="true" autocomplete="off" data-group-name="{{ group.name }}" data-column-id="nolle-group">
+                        {{ group.name }}
+                    </button>
+                {% endfor %}
+            </div>
+        </div>
+
+        <table class="table table-dark" id="user-table">
+            <thead class="thead-dark">
+                <tr>
+                    <th scope="col">Namn</th>
+                    <th scope="col">nØllegrupp</th>
+                    <th scope="col">E-postadress</th>
+                    <th scope="col">Telefonnummer</th>
+                    <th scope="col">Användargrupp</th>
+                </tr>
+          </thead>
+          <tbody id="user-table-body">
+                {% for user_item in object_list %}
+                    <tr class="">
+                        <td>{{ user_item.first_name }} {{ user_item.last_name }}</td>
+                        <td id="nolle-group">{% if user_item.auth_user.nolle_group %}{{ user_item.auth_user.nolle_group.name }}{% else %}–{% endif %}</td>
+                        <td>{{ user_item.auth_user.email }}</td>
+                        <td>{{ user_item.phone_number }}</td>
+                        <td id="user-group">{{ user_item.auth_user.user_group.all|join:", " }}</td>
+                        {% if user_can_edit_user_info %}
+                            <td><a class="btn btn-primary" href="{% url 'fohseriet:anvandare:redigera' user_item.pk %}?next={{ request.path|urlencode }}">Redigera</a></td>
+                        {% endif %}
+                        {% if user_can_edit_registrations %}
+                            <td><a class="btn btn-primary" href="{% url 'fohseriet:anvandare:anmalningar' user_item.pk %}">Se anmälningar</a></td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+          </tbody>
+        </table>
+    {% else %}
+        Systemet har inga användare
+    {% endif %}
+
+{% endblock %}
+
+{% block extrascript %}
+    <script>
+        {#$( document ).ready(function() {#}
+        {#    update_active_rows_table();#}
+        {# });#}
+
+        $('#search-bar').on("keyup", function () {
+            update_active_rows_table();
+        });
+
+        $('#filter-elements button').click(function () {
+            $(this).toggleClass('active-button');
+            update_active_rows_table();
+        });
+
+        function check_all_button_constraints(buttonList, rowElement) {
+            var tempBool = false;
+            for (var i = 0; i < buttonList.length; ++i) {
+                var buttonElement = buttonList[i];
+                var groupName = buttonElement.dataset.groupName;
+                var columnId = '#' + buttonElement.dataset.columnId;
+                var isActive = $(buttonElement).hasClass('active-button');
+                var containsGroup = $(rowElement.find(columnId)[0]).text().indexOf(groupName) > -1;
+                if (isActive && containsGroup) {
+                    tempBool = true;
+                }
+            }
+            return tempBool;
+        }
+
+        function update_active_rows_table() {
+            var tableId = '#user-table-body';
+            var searchValue = $('#search-bar').val().toLowerCase();
+            var should_be_active = new Array($(tableId + " tr").length);
+            for (var i = 0; i < should_be_active.length; ++i) { should_be_active[i] = true; }
+
+            var nolle_group_buttons = $('#nolle-groups button');
+            var user_group_buttons = $('#user-groups button');
+
+            $(tableId + " tr").filter(function (index, element) {
+                $(element).show();
+                if (!(($(this).text().toLowerCase().indexOf(searchValue) > -1) &&
+                      check_all_button_constraints(nolle_group_buttons, $(this)) &&
+                      check_all_button_constraints(user_group_buttons, $(this)))) {
+                    $(element).hide();
+                }
+
+            });
+        }
+    </script>
+{% endblock %}

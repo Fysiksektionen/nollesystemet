@@ -39,11 +39,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'compressor',
     'crispy_forms',
-    'authentication.apps.AuthenticationAppConfig',
-    'fohseriet',
-    'fadderiet',
+    'authentication',
+    'nollesystemet',
 ]
 
 MIDDLEWARE = [
@@ -131,7 +129,7 @@ CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 # Authentication settings
 AUTH_USER_MODEL = 'authentication.AuthUser'
-USER_PROFILE_MODEL = 'fohseriet.UserProfile'
+USER_PROFILE_MODEL = 'nollesystemet.UserProfile'
 USER_PROFILE_SETUP_URL = reverse_lazy('fadderiet:mina-sidor:profil')
 
 AUTHENTICATION_BACKENDS = [

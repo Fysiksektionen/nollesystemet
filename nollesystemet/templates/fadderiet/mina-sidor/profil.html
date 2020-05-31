@@ -1,0 +1,17 @@
+{% extends 'fadderiet/base.html' %}
+{% load crispy_forms_tags %}
+{% load crispy_forms_filters %}
+
+{% block title %}Min profil{% endblock %}
+
+{% block content %}
+    <div class="col-6">
+        <form method="post" class="pt-5">
+            {% csrf_token %}
+            {% for f in form %}
+                {% crispy f %}
+            {% endfor %}
+            <input type="submit" value="Spara" class="btn btn-primary">
+        </form>
+    </div>
+{% endblock %}
