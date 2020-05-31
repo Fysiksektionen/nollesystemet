@@ -1,9 +1,10 @@
+import json
+
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.template import Template, Context
 from django.urls import reverse
 from django.views.generic.base import ContextMixin
-
-import nollesystemet.utils as utils
+from django.contrib.staticfiles import finders
 
 
 class HappeningOptionsMixin:
@@ -35,22 +36,31 @@ class HappeningOptionsMixin:
 
 
 class MenuMixin(ContextMixin):
-    menu_items = []
-    menu_item_info = None
+    menu_items_static_file = None
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        if len(self.menu_items) > 0 and not self.menu_item_info:
-            raise ReferenceError("menu_item_info not set, with menu_items specified.")
+        menu_items = None
+        order = None
+        try:
+            with open(finders.find(self.menu_items_static_file)) as json_file:
+                data = json.load(json_file)
+                order = data['order']
+                menu_items = data['menu_items']
+        except:
+            raise FileNotFoundError("menu_items_static_file not set or not able to be read.")
+
+        if not order or not menu_items:
+            raise SyntaxError("order or menu_items not found in file %s" % finders.find(self.menu_items_static_file))
 
         menu = {'left': [], 'right': []}
-        for items in self.menu_items:
+        for items in order:
             if not isinstance(items, list):
                 items = [items]
 
             for item in items:
-                info = self.menu_item_info[item]
+                info = menu_items[item]
 
                 render = self.check_if_to_render(info)
 
@@ -117,10 +127,8 @@ class RedirectToGETArgMixin:
 
 
 class FohserietMenuMixin(MenuMixin):
-    menu_item_info = utils.menu_item_info_fohseriet
-    menu_items = ['index', 'hantera-event', 'hantera-andvandare', 'fadderiet', ['logga-in', 'logga-ut']]
+    menu_items_static_file = 'fohseriet/resources/menu_info.json'
 
 
 class FadderietMenuMixin(MenuMixin):
-    menu_item_info = utils.menu_item_info_fadderiet
-    menu_items = ['index', 'schema', 'bra-info', 'om-fadderiet', 'evenemang', 'kontakt', 'mina-sidor:profil', ['logga-in', 'logga-ut']]
+    menu_items_static_file = 'fadderiet/resources/menu_info.json'
