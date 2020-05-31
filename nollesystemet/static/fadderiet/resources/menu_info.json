@@ -1,5 +1,5 @@
 {
-    "order": ["index", "schema", "bra-info", "om-fadderiet", "evenemang", "kontakt", "mina-sidor:profil", ["logga-in", "logga-ut"]]
+    "order": ["index", "schema", "bra-info", "om-fadderiet", "evenemang", "kontakt", "mina-sidor:profil", ["logga-in", "logga-ut"]],
     "menu_items": {
         "index": {
             "name": "Hem",
@@ -63,4 +63,4 @@
             "template_content": "Logga ut ({{ request.user }})"
         }
     }
-},
+}
