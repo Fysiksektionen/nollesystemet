@@ -1,3 +1,3 @@
-from . import user
-from . import happening
-from . import registration
+from .user import *
+from .happening import *
+from .registration import *

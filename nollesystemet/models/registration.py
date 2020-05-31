@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.db import models
-from nollesystemet.models.happening import Happening, DrinkOption, ExtraOption
+from nollesystemet.models import Happening, DrinkOption, ExtraOption
 
 
 class Registration(models.Model):

@@ -8,7 +8,7 @@ from crispy_forms.layout import Layout, Fieldset, Field, Row, Column, HTML
 from authentication.models import NolleGroup, UserGroup
 from utils.forms import ExtendedMetaModelForm
 
-from nollesystemet.models.happening import Happening, DrinkOption, ExtraOption, GroupBasePrice
+from nollesystemet.models import Happening, DrinkOption, ExtraOption, GroupBasePrice
 from nollesystemet.forms.misc import get_formset_form_helper
 
 class HappeningForm(ExtendedMetaModelForm):

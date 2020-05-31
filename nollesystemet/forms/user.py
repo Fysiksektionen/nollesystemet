@@ -6,7 +6,7 @@ from crispy_forms.bootstrap import UneditableField
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Fieldset, Field, Row, Column, HTML
 
-from nollesystemet.models.user import UserProfile
+from nollesystemet.models import UserProfile
 from utils.forms import ExtendedMetaModelForm
 
 

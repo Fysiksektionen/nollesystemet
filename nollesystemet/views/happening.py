@@ -10,18 +10,18 @@ import nollesystemet.mixins as mixins
 
 
 class HappeningListViewFadderiet(LoginRequiredMixin, mixins.FadderietMenuMixin, ListView):
-    model = models.happening.Happening
+    model = models.Happening
     template_name = 'fadderiet/evenemang/index.html'
 
     ordering = 'start_time'
 
     def get_queryset(self):
-        self.queryset = models.happening.Happening.objects.filter(user_groups__in=self.request.user.user_group.all()).filter(nolle_groups=self.request.user.nolle_group)
+        self.queryset = models.Happening.objects.filter(user_groups__in=self.request.user.user_group.all()).filter(nolle_groups=self.request.user.nolle_group)
         querryset = super().get_queryset()
-        return [{'happening': happening, 'is_registered': models.registration.Registration.objects.filter(user=self.request.user.profile).filter(happening=happening).count() > 0} for happening in querryset]
+        return [{'happening': happening, 'is_registered': models.Registration.objects.filter(user=self.request.user.profile).filter(happening=happening).count() > 0} for happening in querryset]
 
 class HappeningListViewFohseriet(LoginRequiredMixin, PermissionRequiredMixin, mixins.FohserietMenuMixin, ListView):
-    model = models.happening.Happening
+    model = models.Happening
     template_name = 'fohseriet/evenemang/index.html'
 
     ordering = 'start_time'
@@ -29,14 +29,14 @@ class HappeningListViewFohseriet(LoginRequiredMixin, PermissionRequiredMixin, mi
     permission_required = 'fohseriet.edit_happening'
 
     def get_queryset(self):
-        self.queryset = models.happening.Happening.objects.all()
+        self.queryset = models.Happening.objects.all()
         querryset = super().get_queryset()
         return [{'happening': happening,
                  'user_can_edit': self.request.user.profile in happening.editors.all()} for happening in querryset]
 
 
 class HappeningRegisteredListView(LoginRequiredMixin, UserPassesTestMixin, mixins.FohserietMenuMixin, ListView):
-    model = models.registration.Registration
+    model = models.Registration
     template_name = 'fohseriet/evenemang/anmalda.html'
 
     ordering = 'user__first_name'
@@ -48,27 +48,27 @@ class HappeningRegisteredListView(LoginRequiredMixin, UserPassesTestMixin, mixin
 
     def test_func(self):
         return (self.request.user.has_perm(
-            'fohseriet.edit_happening') and self.request.user.profile in models.happening.Happening.objects.get(
+            'fohseriet.edit_happening') and self.request.user.profile in models.Happening.objects.get(
             pk=self.kwargs['pk']).editors.all()) or self.request.user.is_superuser
 
     def get_queryset(self):
-        self.queryset = models.registration.Registration.objects.filter(happening=models.happening.Happening.objects.get(pk=self.kwargs['pk']))
+        self.queryset = models.Registration.objects.filter(happening=models.Happening.objects.get(pk=self.kwargs['pk']))
         querryset = super().get_queryset()
         return querryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context.update({
-            'happening': models.happening.Happening.objects.get(pk=self.kwargs['pk']),
+            'happening': models.Happening.objects.get(pk=self.kwargs['pk']),
             'user_can_edit_registrations': self.request.user.has_perm(
-                'fohseriet.edit_user_registration') or self.request.user.profile in models.happening.Happening.objects.get(
+                'fohseriet.edit_user_registration') or self.request.user.profile in models.Happening.objects.get(
                 pk=self.kwargs['pk']).editors.all(),
             'back_url': reverse('fohseriet:evenemang:lista'),
         })
         return context
 
 class HappeningUpdateView(LoginRequiredMixin, UserPassesTestMixin, mixins.HappeningOptionsMixin, mixins.FohserietMenuMixin, helper_views.RedirectToGETArgMixin, UpdateView):
-    model = models.happening.Happening
+    model = models.Happening
     form_class = forms.HappeningForm
 
     success_url = reverse_lazy('fohseriet:evenemang:lista')
@@ -76,7 +76,7 @@ class HappeningUpdateView(LoginRequiredMixin, UserPassesTestMixin, mixins.Happen
 
     def test_func(self):
         return self.request.user.has_perm(
-            'fohseriet.edit_user_registration') or (self.request.user.profile in models.happening.Happening.objects.get(
+            'fohseriet.edit_user_registration') or (self.request.user.profile in models.Happening.objects.get(
             pk=self.kwargs['pk']).editors.all() if 'pk' in self.kwargs else True)
 
     def get_context_data(self, **kwargs):

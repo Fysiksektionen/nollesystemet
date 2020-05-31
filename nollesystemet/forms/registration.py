@@ -1,7 +1,7 @@
 import django.forms as forms
 from django.forms import widgets
 
-from nollesystemet.models.registration import Registration
+from nollesystemet.models import Registration
 from utils.forms import ExtendedMetaModelForm
 
 

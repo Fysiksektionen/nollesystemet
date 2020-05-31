@@ -11,15 +11,15 @@ import nollesystemet.mixins as mixins
 
 
 class RegistrationView(LoginRequiredMixin, UserPassesTestMixin, mixins.FadderietMenuMixin, UpdateView):
-    model = models.registration.Registration
+    model = models.Registration
     form_class = forms.RegistrationForm
     template_name = 'fadderiet/evenemang/anmalan.html'
 
     success_url = reverse_lazy('fadderiet:evenemang:index')
 
     def test_func(self):
-        happening = models.happening.Happening.objects.get(pk=self.kwargs['pk'])
-        return happening in models.happening.Happening.objects.filter(user_groups__in=self.request.user.user_group.all()).filter(nolle_groups=self.request.user.nolle_group)
+        happening = models.Happening.objects.get(pk=self.kwargs['pk'])
+        return happening in models.Happening.objects.filter(user_groups__in=self.request.user.user_group.all()).filter(nolle_groups=self.request.user.nolle_group)
 
     def get_form_class(self):
         return utils_misc.make_crispy_form(super().get_form_class(), submit_button='Skicka')
@@ -27,7 +27,7 @@ class RegistrationView(LoginRequiredMixin, UserPassesTestMixin, mixins.Fadderiet
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs.update({
-            'happening': models.happening.Happening.objects.get(pk=self.kwargs['pk']),
+            'happening': models.Happening.objects.get(pk=self.kwargs['pk']),
             'user': self.request.user.profile
         })
         return kwargs
@@ -46,21 +46,21 @@ class RegistrationView(LoginRequiredMixin, UserPassesTestMixin, mixins.Fadderiet
         return form
 
     def get_object(self, queryset=None):
-        happening = models.happening.Happening.objects.get(pk=self.kwargs['pk'])
+        happening = models.Happening.objects.get(pk=self.kwargs['pk'])
         try:
-            return models.registration.Registration.objects.get(user=self.request.user.profile, happening=happening)
-        except models.registration.Registration.DoesNotExist:
+            return models.Registration.objects.get(user=self.request.user.profile, happening=happening)
+        except models.Registration.DoesNotExist:
             return None
 
     def get_context_data(self, **kwargs):
         dynamic_extra_context = {
-            'happening': models.happening.Happening.objects.get(pk=self.kwargs['pk'])
+            'happening': models.Happening.objects.get(pk=self.kwargs['pk'])
         }
         kwargs.update(**dynamic_extra_context)
         return super().get_context_data(**kwargs)
 
 class RegistrationUpdateView(LoginRequiredMixin, UserPassesTestMixin, mixins.FohserietMenuMixin, helper_views.RedirectToGETArgMixin, UpdateView):
-    model = models.registration.Registration
+    model = models.Registration
     form_class = forms.RegistrationForm
     template_name = 'fohseriet/anmalan/redigera.html'
 
@@ -68,7 +68,7 @@ class RegistrationUpdateView(LoginRequiredMixin, UserPassesTestMixin, mixins.Foh
 
     def test_func(self):
         return self.request.user.has_perm(
-            'fohseriet.edit_user_registration') or self.request.user.profile in models.registration.Registration.objects.get(
+            'fohseriet.edit_user_registration') or self.request.user.profile in models.Registration.objects.get(
             pk=self.kwargs['pk']).happening.editors.all()
 
     def get_form_class(self):
@@ -76,6 +76,6 @@ class RegistrationUpdateView(LoginRequiredMixin, UserPassesTestMixin, mixins.Foh
 
     def get_object(self, queryset=None):
         try:
-            return models.registration.Registration.objects.get(pk=self.kwargs['pk'])
-        except models.registration.Registration.DoesNotExist:
+            return models.Registration.objects.get(pk=self.kwargs['pk'])
+        except models.Registration.DoesNotExist:
             return None

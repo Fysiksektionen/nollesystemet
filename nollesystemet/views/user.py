@@ -52,14 +52,14 @@ class UsersListView(LoginRequiredMixin, PermissionRequiredMixin, mixins.Fohserie
         context.update({
             'user_can_edit_user_info': self.request.user.has_perm('fohseriet.edit_user_info'),
             'user_can_edit_registrations': self.request.user.has_perm(
-                'fohseriet.edit_user_registration') or models.happening.Happening.objects.filter(
+                'fohseriet.edit_user_registration') or models.Happening.objects.filter(
                 editors=self.request.user.profile.pk).count() > 0
         })
         return context
 
 
 class UserUpdateView(LoginRequiredMixin, PermissionRequiredMixin, mixins.FohserietMenuMixin, helper_views.RedirectToGETArgMixin, helper_views.MultipleObjectsUpdateView):
-    model_list = [models.user.UserProfile, apps.get_model(settings.AUTH_USER_MODEL)]
+    model_list = [models.UserProfile, apps.get_model(settings.AUTH_USER_MODEL)]
     form_class_list = [forms.ProfileUpdateForm, forms.AuthUserGroupsUpdateForm]
 
     template_name = 'fohseriet/anvandare/redigera.html'
@@ -72,7 +72,7 @@ class UserUpdateView(LoginRequiredMixin, PermissionRequiredMixin, mixins.Fohseri
         return auth_user.profile, auth_user
 
 class UserRegistrationsListView(LoginRequiredMixin, PermissionRequiredMixin, mixins.FohserietMenuMixin, ListView):
-    model = models.registration.Registration
+    model = models.Registration
     template_name = 'fohseriet/anvandare/anmalningar.html'
 
     permission_required = 'fohseriet.edit_user_info'
@@ -83,7 +83,7 @@ class UserRegistrationsListView(LoginRequiredMixin, PermissionRequiredMixin, mix
 
     def get_queryset(self):
         try:
-            self.queryset = models.registration.Registration.objects.filter(user=models.user.UserProfile.objects.get(pk=self.kwargs['pk']))
+            self.queryset = models.Registration.objects.filter(user=models.UserProfile.objects.get(pk=self.kwargs['pk']))
             return [{'registration': registration, 'user_can_edit': self.query_test_func(registration)} for registration
                     in super().get_queryset()]
         except:
@@ -92,7 +92,7 @@ class UserRegistrationsListView(LoginRequiredMixin, PermissionRequiredMixin, mix
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context.update({
-            'user_of_registrations': models.user.UserProfile.objects.get(pk=self.kwargs['pk']),
+            'user_of_registrations': models.UserProfile.objects.get(pk=self.kwargs['pk']),
             'back_url': reverse('fohseriet:anvandare:index'),
         })
         return context
