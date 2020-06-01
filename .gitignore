@@ -1,4 +1,5 @@
 /venv/
 /project_administration/settings/config_files/db_info.cnf
+/project_administration/settings/config_files/db_info_debug.cnf
 /project_administration/settings/config_files/mail.cnf
 /node_modules/
