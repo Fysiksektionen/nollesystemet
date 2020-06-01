@@ -1,4 +1,5 @@
 import json
+import re
 
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.template import Template, Context
@@ -70,7 +71,9 @@ class MenuMixin(ContextMixin):
                         'url': reverse(info['url_name'])
                     })
 
-                    if menu[info['align']][-1]['url'] == self.request.path:
+                    if not 'selected_url_regex' in info:
+                        info['selected_url_regex'] = '.*'
+                    if re.search(menu[info['align']][-1]['url'] + info['selected_url_regex'], self.request.path):
                         menu[info['align']][-1]['classes'] = (info['classes'] + ' ' if 'classes' in info else '') + 'selected-menu-item'
                     break
 
@@ -114,7 +117,9 @@ class MenuMixin(ContextMixin):
                 if side in context['menu']:
                     for i, menu_item in enumerate(context['menu'][side]):
                         if 'template_content' in menu_item:
-                            context['menu'][side][i]['template_content'] = Template(menu_item['template_content']).render(Context({**context, 'user': self.request.user, 'request': self.request}))
+                            context['menu'][side][i]['label'] = Template(menu_item['template_content']).render(Context({**context, 'user': self.request.user, 'request': self.request}))
+                        else:
+                            context['menu'][side][i]['label'] = menu_item['name']
 
         return super().render_to_response(context, **response_kwargs)
 

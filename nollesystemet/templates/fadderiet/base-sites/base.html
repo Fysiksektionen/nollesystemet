@@ -1,0 +1,27 @@
+{% extends "common/sites/base.html" %}
+{% load static %}
+
+{% block metatitle %}Fadderiets hemsida{% endblock %}
+
+{% block extrastyle %}
+    <link rel="stylesheet" href={% static "fadderiet/scss/basestyle.css" %}>
+{% endblock %}
+
+{% block menu %}
+    <div id="menu-bar" class="flex-row d-flex p-2 bg-primary" style="height: 100px;">
+        <div id="logo-container" class="p-1">
+            <a href="{% url "fadderiet:index" %}">
+                <img id="logo-img" src="{% static "fadderiet/resources/fadderiet_logo.png" %}" alt="Fadderiets logga" style="display: block; max-width:100px; max-height:100%; width: auto; height: auto;">
+            </a>
+        </div>
+        <div id="menu-container" class="flex-grow-1 p-1 align-content-center m-auto">
+            {% include "common/elements/menu-items.html" with menu=menu only %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block footer %}
+    <div id="footer-container" class="flex-row d-flex p-4 bg-secondary">
+        {% include "fadderiet/elements/footer.html" %}
+    </div>
+{% endblock %}

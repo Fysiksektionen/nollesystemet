@@ -1,9 +1,30 @@
-{% extends "fohseriet/base.html" %}
+{% extends "fohseriet/base-sites/base-content.html" %}
+
+{% load static %}
 
 {% block title %}
-    Index
+    Hej Faddder.
 {% endblock %}
 
-{% block content %}
-    Index
+{% block content-spanning %}
+    <div class="center-cropped" style="height: 700px;">
+        <img src="{% static "fohseriet/resources/fohseriet_ovalkommen.jpg" %}" alt="" />
+    </div>
+{% endblock %}
+
+{% block content-indented %}
+    <p>
+        Som vi har väntat på att få träffa er! Det är vi som är det Flytande fadderiet och vi, tillsammans med närmare hundra snälla faddrar, kommer ta hand om er under mottagningen. Mottagningen är två händelsefulla innan veckor innan själva skolan börjar där ni kommer få lära er bra saker att kunna inför era år på KTH och framförallt lära känna dem du kommer dela dina år med. Det kommer att vara lekar, tävlingar, föreläsningar och en och annan fest; dessutom kommer du få möjligheten att leta reda på dina borttappade mattekunskaper.
+    </p>
+    <p>
+        Nästan allt under mottagningen är frivilligt, kolla schemat för att se vad som inte är det. Det finns dock ingen anledning till att missa något. Vi har förberett mottagningen sedan i vintras för att göra den så bra som den någonsin kan vara, eller ja... åtminstone lååångt bättre än väntat. De allra flesta studenterna brukar minnas mottagningen som den roligaste delen av sin tid på KTH och om det är nånting man ångrar så är det aktiviteterna man missade.
+    </p>
+    <p>
+        För att göra det lite enklare att vara med under mottagningen så har vi satt ihop en liten lista med bra tips som du kan hitta här på hemsidan. Här på hemsidan kan du även hitta schemat för mottagningen, lite bra info inför skolstart, bra tips om man ska skaffa bostad och viktigast av allt: här på hemsidan kan du fylla i nØlleenkäten. Med hjälp av den kan vi se till att göra mottagningen så lite dålig och så mycket bra som möjligt för alla.
+    </p>
+    <p>
+        Simma lugnt!
+        <br>
+        Leo, Ebba och Johan
+    </p>
 {% endblock %}

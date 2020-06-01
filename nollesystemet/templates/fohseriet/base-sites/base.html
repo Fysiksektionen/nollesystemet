@@ -1,0 +1,27 @@
+{% extends "common/sites/base.html" %}
+{% load static %}
+
+{% block metatitle %}Föhseriets hemsida{% endblock %}
+
+{% block extrastyle %}
+    <link rel="stylesheet" href={% static "fohseriet/scss/basestyle.css" %}>
+{% endblock %}
+
+{% block menu %}
+    <div id="menu-bar" class="flex-row d-flex p-2 bg-secondary" style="height: 100px;">
+        <div id="logo-container" class="p-1">
+            <a href="{% url "fohseriet:index" %}">
+                <img id="logo-img" src="{% static "fohseriet/resources/fohseriet_logo.png" %}" alt="Föhseriets logga" style="display: block; max-width:100px; max-height:100%; width: auto; height: auto;">
+            </a>
+        </div>
+        <div id="menu-container" class="flex-grow-1 p-1 align-content-center m-auto">
+            {% include "common/elements/menu-items.html" with menu=menu only %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block footer %}
+    <div id="footer-container" class="flex-row d-flex p-4 bg-secondary">
+{#        {% include "fohseriet/elements/footer.html" %}#}
+    </div>
+{% endblock %}

@@ -1,0 +1,21 @@
+{% block menu %}
+    {% if menu %}
+        <div class="d-flex flex-row">
+            <div class="d-flex justify-content-start">
+                {% for menu_item in menu.left %}
+                    <div class="mx-3 py-1 {{ menu_item.classes }} menu-item">
+                        <a href="{{ menu_item.url }}">{{ menu_item.label }}</a>
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="d-flex justify-content-end flex-grow-1">
+                {% for menu_item in menu.right %}
+                    <div class="mx-3 py-1 {{ menu_item.classes }} menu-item">
+                        <a href="{{ menu_item.url }}">{{ menu_item.label }}</a>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+    {% endif %}
+{% endblock %}

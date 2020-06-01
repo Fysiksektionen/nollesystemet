@@ -1,42 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
-    {% load static tags %}
-    <head>
-        <!-- Required meta tags -->
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+{% load static tags %}
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-        <!-- Bootstrap CSS -->
-        <link rel="stylesheet" href={% static "scss/basestyle.css" %}>
+    {% block extrastyle %}{% endblock %}
 
-        {% block extrastyle %}{% endblock %}
+    <title>
+        {% block metatitle %}{% endblock %}
+    </title>
+</head>
+<body>
+<div class="container-fluid d-flex p-0 flex-column" style="min-height: 100vh">
+    <div id="menu" class="container-fluid p-0">
+        {% block menu %}{% endblock %}
+    </div>
+    <div id="content" class="flex-grow-1">
+        {% block content %}{% endblock %}
+    </div>
+    <div id="footer">
+        {% block footer %}{% endblock %}
+    </div>
+</div>
 
-        <title>
-            {% block metatitle %}{% endblock %}
-        </title>
-    </head>
-    <body>
-        <div class="container">
-            <div id="header" class="container">
-                <div id="title-bar">
-                    <img src="{% block bannerimage %}{% endblock %}" id="title-bar-banner">
-                    <h3 id="site-title">{% block sitetitle %}{% endblock %}</h3>
-                </div>
-                {% include "common/elements/menu-bar.html" with menu=menu only %}
-            </div>
-            <div id="content-main" class="container">
-                {% block content %}{% endblock %}
-            </div>
-            <div id="footer" class="container">
-                {% block footer %}{% endblock %}
-            </div>
-        </div>
 
-        <!-- Optional JavaScript -->
-        <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-        <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
-        <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
-        <script src="{% static 'bootstrap/js/bootstrap.js' %}"></script>
-        {% block extrascript %}{% endblock %}
-    </body>
+<!-- Optional JavaScript -->
+<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+<script src="{% static 'bootstrap/js/bootstrap.js' %}"></script>
+{% block extrascript %}{% endblock %}
+</body>
 </html>

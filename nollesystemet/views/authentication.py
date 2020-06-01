@@ -25,7 +25,7 @@ class LogoutViewFohseriet(django_auth_views.LogoutView, mixins.FohserietMenuMixi
     template_name = 'fohseriet/utloggad.html'
 
 
-class LogoutView(mixins.FadderietMenuMixin, django_auth_views.LogoutView):
+class LogoutViewFadderiet(mixins.FadderietMenuMixin, django_auth_views.LogoutView):
     template_name = 'fadderiet/utloggad.html'
 
 

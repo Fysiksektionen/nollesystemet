@@ -44,7 +44,7 @@ fadderiet_urls = ([
 
     path('evenemang/', include(happening_urls)),
     path('logga-in/', include(login_urls)),
-    path('logga-ut/', views.authentication.LogoutView.as_view(), name='logga-ut'),
+    path('logga-ut/', views.authentication.LogoutViewFadderiet.as_view(), name='logga-ut'),
     path('registrera-dig/', views.authentication.RegisterView.as_view(), name='registrera-dig'),
     path('aterstall-losenord/', include(password_reset_urls)),
     path('byt-losenord/', include(password_change_urls)),

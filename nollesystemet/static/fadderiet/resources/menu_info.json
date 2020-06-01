@@ -1,5 +1,5 @@
 {
-    "order": ["index", "schema", "bra-info", "om-fadderiet", "evenemang", "kontakt", "mina-sidor:profil", ["logga-in", "logga-ut"]],
+    "order": ["schema", "bra-info", "om-fadderiet", "evenemang", "kontakt", "fohseriet", "mina-sidor:profil", ["logga-in", "logga-ut"]],
     "menu_items": {
         "index": {
             "name": "Hem",
@@ -61,6 +61,12 @@
             "align": "right",
             "user": "logged-in",
             "template_content": "Logga ut ({{ request.user }})"
+        },
+        "fohseriet": {
+            "name": "Föhseriet",
+            "url_name": "fohseriet:index",
+            "align": "left",
+            "user": "any"
         }
     }
 }

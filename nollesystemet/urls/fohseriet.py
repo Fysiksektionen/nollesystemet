@@ -30,7 +30,7 @@ fohseriet_urls = ([
     path('', views.misc.FohserietMenuView.as_view(template_name='fohseriet/index.html'), name='index'),
 
     path('logga-in/', include(login_urls)),
-    path('logga-ut/', views.authentication.LogoutView.as_view(), name='logga-ut'),
+    path('logga-ut/', views.authentication.LogoutViewFohseriet.as_view(), name='logga-ut'),
     path('evenemang/', include(happening_urls)),
     path('anvandare/', include(user_urls)),
     path('anmalan/', include(registration_urls)),
