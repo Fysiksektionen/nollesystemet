@@ -5,6 +5,9 @@ TMP_PATH = os.path.abspath(os.path.join(PROJECT_ROOT, 'tmp'))
 DEBUG = TEMPLATE_DEBUG = True
 SECRET = '42'
 
+if 'debug_toolbar' not in INSTALLED_APPS:
+    INSTALLED_APPS += ('debug_toolbar',)
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
@@ -20,6 +23,4 @@ ALLOWED_HOSTS = (
     '192.168.0.1',
 )
 
-if 'debug_toolbar' not in INSTALLED_APPS:
-    INSTALLED_APPS += ('debug_toolbar',)
-
+CAS_SERVER_URL = "http://localhost:3004"

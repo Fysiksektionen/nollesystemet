@@ -111,6 +111,7 @@ class LoginCas(View):
             return _login_success_redirect(request, request.user, next_url)
 
         service_url = utils.get_service_url(request, next_url)
+        print(str(utils.get_setting('CAS_SERVER_URL')))
         client = cas.CASClient(version=2, service_url=service_url, server_url=str(utils.get_setting('CAS_SERVER_URL')))
 
         # If a ticket was provided, attempt to authenticate with it
