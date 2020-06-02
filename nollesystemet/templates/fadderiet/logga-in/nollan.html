@@ -1,15 +1,18 @@
 {% extends "fadderiet/base-sites/centerd.html" %}
 {% load crispy_forms_tags %}
 
-{% block title %}Login{% endblock %}
+{% block title-centered %}Logga in{% endblock %}
 
 {% block centered-content %}
-    <h2 class="p-3 text-center">Välkommen nØllan!</h2>
-    <hr class="mt-0 mb-4">
-    {% crispy form %}
+    <h2 class="p-3 text-center my-3">Välkommen nØllan!</h2>
+    <div class="row justify-content-center">
+        <div class="col-4">
+            {% crispy form %}
+        </div>
+    </div>
     <div class="text-center">
         <p>
-            Har du glömt ditt användarnamn eller lösenord? </br>
+            Har du glömt ditt användarnamn eller lösenord? <br>
             Klicka <a href="{{ reset_password_url }}" class="">här</a> för att återställa det.
         </p>
         <p>

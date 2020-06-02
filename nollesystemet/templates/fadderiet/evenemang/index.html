@@ -1,34 +1,29 @@
-{% extends "fadderiet/base-sites/base.html" %}
+{% extends "fadderiet/base-sites/base-content.html" %}
 
 {% block title %}
     Evenemang
 {% endblock %}
 
-{% block content %}
+{% block content-indented %}
     {% if object_list %}
-        <table class="table table-dark" id="user-table">
-            <thead class="thead-dark">
-                <tr>
-                    <th scope="col">Evenemang</th>
-                    <th scope="col">Datum</th>
-                    <th scope="col">Tid</th>
-                </tr>
-            </thead>
+        <table class="table table-list">
             <tbody id="user-table-body">
-                {% for list_item in object_list %}
-                    <tr class="">
-                        <td>{{ list_item.happening.name }}</td>
-                        <td>{{ list_item.happening.start_time|date }}</td>
-                        <td>{{ list_item.happening.start_time|time }} - {{ list_item.happening.end_time|time }}</td>
-                        <td><a class="btn btn-primary" href="{% url 'fadderiet:evenemang:anmalan' list_item.happening.pk %}">
+            {% for list_item in object_list %}
+                <tr>
+                    <td>{{ list_item.happening.name }}</td>
+                    <td>{{ list_item.happening.start_time|date }}</td>
+                    <td>{{ list_item.happening.start_time|time }} - {{ list_item.happening.end_time|time }}</td>
+                    <td>
+                        <a class="btn btn-primary" href="{% url 'fadderiet:evenemang:anmalan' list_item.happening.pk %}">
                             {% if list_item.is_registered %}
                                 Se anmälan
                             {% else %}
                                 Anmäl dig
                             {% endif %}
-                        </a></td>
-                    </tr>
-                {% endfor %}
+                        </a>
+                    </td>
+                </tr>
+            {% endfor %}
             </tbody>
         </table>
     {% else %}

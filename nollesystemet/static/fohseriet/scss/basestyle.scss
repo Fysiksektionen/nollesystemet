@@ -1,29 +1,48 @@
 
-$fohseriet: #A8960F;
-$fohseriet_secondary: #000000;
-$background-gray: #1d1d1d;
+$fohseriet: #b6a543;
+$fohseriet-secondary: #000000;
+$background: #1d1d1d;
+$chill-white: #c5c5c5;
 
 $theme-colors: (
         "primary": $fohseriet,
-        "secondary": $fohseriet_secondary,
-        "background-gray": $background-gray,
+        "secondary": $fohseriet-secondary,
+        "background-gray": $background,
         "white": #ffffff,
         "black": #000000,
 );
 
-@import "../../../../static/bootstrap/scss/bootstrap";
+@import "../../scss/basestyle";
 
 
 body{
   min-height: 100vh;
   background-size: 100%;
-  background: $background-gray;
+  background: $background;
 }
 
 #menu-container {
-  a {
-    color: $white;
+  .menu-item {
+    a {
+      color: $chill-white;
+      &:hover {
+        color: $white;
+        //border-bottom: 1px solid white;
+      }
+      font-weight: bolder;
+      font-size: 1.1rem;
+    }
   }
+  .selected-menu-item {
+    a {
+      color: $white;
+    }
+  }
+
+}
+
+#content {
+  color: $white;
 }
 
 #footer {
@@ -41,3 +60,50 @@ body{
     transform: translateY(-50%);
   }
 }
+
+$table-row-rounding-radious: 10px;
+
+.table-list {
+  background: $background;
+  margin-top: 20px;
+  margin-bottom: 20px;
+
+  border-collapse: separate;
+  border-spacing: 0 10px;
+  tr {
+    border: hidden;
+    td:first-child, th:first-child {
+      font-weight: bold;
+      -moz-border-radius-topleft: $table-row-rounding-radious;
+      -moz-border-radius-bottomleft: $table-row-rounding-radious;
+      -webkit-border-top-left-radius: $table-row-rounding-radious;
+      -webkit-border-bottom-left-radius: $table-row-rounding-radious;
+    }
+    td:last-child, th:last-child {
+      -moz-border-radius-topright: $table-row-rounding-radious;
+      -moz-border-radius-bottomright: $table-row-rounding-radious;
+      -webkit-border-top-right-radius: $table-row-rounding-radious;
+      -webkit-border-bottom-right-radius: $table-row-rounding-radious;
+    }
+  }
+  th, td {
+    border: hidden;
+  }
+
+  thead {
+    tr {
+      background: $black;
+      color: $chill-white;
+    }
+    th {
+      border-bottom: none ;
+    }
+  }
+  tbody {
+    tr {
+      background: $chill-white;
+      color: $black
+    }
+  }
+}
+

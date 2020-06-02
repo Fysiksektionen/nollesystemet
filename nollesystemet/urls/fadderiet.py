@@ -35,10 +35,10 @@ happening_urls = ([
 fadderiet_urls = ([
     path('', views.misc.FadderietMenuView.as_view(template_name='fadderiet/index.html'),
          name='index'),
-    path('schema/', views.hello_world, name='schema'),
-    path('bra-info/', views.hello_world, name='bra-info'),
-    path('om-fadderiet/', views.hello_world, name='om-fadderiet'),
-    path('kontakt/', views.hello_world, name='kontakt'),
+    path('schema/', views.FadderietMenuView.as_view(template_name="fadderiet/schema.html"), name='schema'),
+    path('bra-info/', views.FadderietMenuView.as_view(template_name="fadderiet/bra-info.html"), name='bra-info'),
+    path('om-fadderiet/', views.FadderietMenuView.as_view(template_name="fadderiet/om-fadderiet.html"), name='om-fadderiet'),
+    path('kontakt/', views.FadderietMenuView.as_view(template_name="fadderiet/kontakt.html"), name='kontakt'),
     path('mina-sidor/', views.hello_world, name='mina-sidor'),
     path('nolleenkaten/', views.hello_world, name='nolleenkaten'),
 

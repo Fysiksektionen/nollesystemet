@@ -1,4 +1,4 @@
-{% extends 'fadderiet/base-sites/base.html' %}
+{% extends 'fadderiet/base-sites/left-col-template.html' %}
 {% load crispy_forms_tags %}
 {% load crispy_forms_filters %}
 
@@ -6,9 +6,8 @@
     Anmälan: {{ happening.name }}
 {% endblock %}
 
-{% block content %}
-    <div class="col-6">
-        {{ happening.description }}
-        {% crispy form %}
-    </div>
+{% block content-left-col %}
+    {{ object.happening.description }}
+    <hr>
+    {% crispy form %}
 {% endblock %}

@@ -1,10 +1,10 @@
-{% extends "fohseriet/base-sites/base.html" %}
+{% extends "fohseriet/base-sites/base-content.html" %}
 
 {% block title %}
     Anmälda till {{ happening.name }}
 {% endblock %}
 
-{% block content %}
+{% block content-indented %}
     <a class="btn btn-primary mt-3 mb-3" href="{{ back_url }}">
         Tillbaka
     </a>
@@ -28,14 +28,7 @@
     </div>
 
     {% if object_list %}
-        <table class="table table-dark" id="">
-            <thead class="thead-dark">
-                <tr>
-                    <th scope="col">Namn</th>
-                    <th scope="col">nØllegrupp</th>
-                    <th scope="col" hidden>Användartyp</th>
-                </tr>
-          </thead>
+        <table class="table table-list" id="">
           <tbody id="user-table-body">
                 {% for registration_item in object_list %}
                     <tr class="">
@@ -59,10 +52,8 @@
 {% endblock %}
 
 {% block extrascript %}
+    {{ block.super }}
     <script>
-        {#$( document ).ready(function() {#}
-        {#    update_active_rows_table();#}
-        {# });#}
 
         $('#search-bar').on("keyup", function () {
             update_active_rows_table();

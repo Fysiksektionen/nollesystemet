@@ -1,7 +1,7 @@
 {% extends "fadderiet/base-sites/centerd.html" %}
 {% load crispy_forms_tags %}
 
-{% block title %}Logga in{% endblock %}
+{% block title-centered %}Logga in{% endblock %}
 
 {% block centered-content %}
     <div class="errornote">
@@ -10,10 +10,12 @@
         {% endif %}
     </div>
 
-    <h2 class="p-3 text-center">Vem är du?</h2>
+    <h2 class="p-3 text-center my-3">Vem är du?</h2>
 
-    <div class="d-flex justify-content-around">
-        <a href="{{ cred_login_url }}" class="btn btn-primary p-3 pr-5 pl-5 mr-3">nØllan</a>
-        <a href="{{ cas_login_url }}" class="btn btn-primary p-3 pr-5 pl-5 mr-3">Fadder</a>
+    <div class="row justify-content-center text-center">
+        <div class="col-6 d-inline-flex justify-content-around">
+            <a href="{{ cred_login_url }}" class="btn btn-primary col-5 py-3">nØllan</a>
+            <a href="{{ cas_login_url }}" class="btn btn-primary col-5 py-3">Fadder</a>
+        </div>
     </div>
 {% endblock %}

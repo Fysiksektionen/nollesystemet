@@ -1,4 +1,4 @@
-{% extends 'fohseriet/base-sites/base.html' %}
+{% extends 'fohseriet/base-sites/left-col-template.html' %}
 {% load crispy_forms_tags %}
 {% load crispy_forms_filters %}
 
@@ -6,12 +6,10 @@
     Redigera anmälan
 {% endblock %}
 
-{% block content %}
+{% block content-left-col %}
     <h3>Anmälan till {{ object.happening.name }} för {{ object.user }}</h3>
 
-    <div class="col-8">
-        {{ object.happening.description }}
-        <hr>
-        {% crispy form %}
-    </div>
+    {{ object.happening.description }}
+    <hr>
+    {% crispy form %}
 {% endblock %}

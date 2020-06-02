@@ -1,10 +1,13 @@
 {% extends "fohseriet/base-sites/centerd.html" %}
 {% load crispy_forms_tags %}
 
-{% block title %}Login{% endblock %}
+{% block title-centered %}Logga in{% endblock %}
 
 {% block centered-content %}
-    <h2 class="p-3 text-center">Visa dig värdig.</h2>
-    <hr class="mt-0 mb-4">
-    {% crispy form %}
+    <h2 class="p-3 text-center my-3">Visa dig värdig.</h2>
+    <div class="row justify-content-center">
+        <div class="col-4">
+            {% crispy form %}
+        </div>
+    </div>
 {% endblock %}

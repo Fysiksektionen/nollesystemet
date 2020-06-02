@@ -2,6 +2,7 @@
 $fadderiet: #069080;
 $fadderiet_secondary: #3b5351;
 $background-gray: #DEDEDE;
+$background: #FFFFFF;
 
 $theme-colors: (
         "primary": $fadderiet,
@@ -12,6 +13,10 @@ $theme-colors: (
 );
 
 @import "../../scss/basestyle";
+
+body {
+  background: $background;
+}
 
 #menu-container {
   a {
@@ -30,4 +35,49 @@ $theme-colors: (
 
 #footer {
   color: $white;
+}
+
+$table-row-rounding-radious: 10px;
+
+.table-list {
+  margin-top: 20px;
+  margin-bottom: 20px;
+
+  border-collapse: separate;
+  border-spacing: 0 10px;
+  tr {
+    border: hidden;
+    td:first-child, th:first-child {
+      font-weight: bold;
+      -moz-border-radius-topleft: $table-row-rounding-radious;
+      -moz-border-radius-bottomleft: $table-row-rounding-radious;
+      -webkit-border-top-left-radius: $table-row-rounding-radious;
+      -webkit-border-bottom-left-radius: $table-row-rounding-radious;
+    }
+    td:last-child, th:last-child {
+      -moz-border-radius-topright: $table-row-rounding-radious;
+      -moz-border-radius-bottomright: $table-row-rounding-radious;
+      -webkit-border-top-right-radius: $table-row-rounding-radious;
+      -webkit-border-bottom-right-radius: $table-row-rounding-radious;
+    }
+  }
+  th, td {
+    border: hidden;
+  }
+
+  thead {
+    tr {
+      background: $fadderiet;
+      color: $white;
+    }
+    th {
+      border-bottom: none ;
+    }
+  }
+  tbody {
+    tr {
+      background: $fadderiet_secondary;
+      color: $white;
+    }
+  }
 }

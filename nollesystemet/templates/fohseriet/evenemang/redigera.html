@@ -1,4 +1,4 @@
-{% extends 'fohseriet/base-sites/base.html' %}
+{% extends 'fohseriet/base-sites/left-col-template.html' %}
 {% load crispy_forms_tags %}
 {% load crispy_forms_filters %}
 
@@ -10,70 +10,69 @@
     {% endif %}
 {% endblock %}
 
-{% block content %}
-    <div class="col-8">
-        <form method="post">
-            {% csrf_token %}
-            {{ form.errors }}
-            {{ form.non_field_errors }}
-            {% crispy form %}
+{% block content-left-col %}
+    <form method="post">
+        {% csrf_token %}
+        {{ form.errors }}
+        {{ form.non_field_errors }}
+        {% crispy form %}
 
-            <hr>
+        <hr>
 
-            <h3>Baspris</h3>
-            {{ base_price_formset.management_form }}
-            {% for base_price_form in base_price_formset %}
-                <div class="base-price pb-1">
-                    {{ base_price_form.errors }}
-                    {{ base_price_form.non_field_errors }}
-                    {% for hidden in base_price_form.hidden_fields %}
-                        {{ hidden }}
-                    {% endfor %}
-                    {% crispy base_price_form %}
-                </div>
-            {% endfor %}
-            <button type="button" class="btn btn-success" id="add-base-price">Lägg till fler</button>
+        <h3>Baspris</h3>
+        {{ base_price_formset.management_form }}
+        {% for base_price_form in base_price_formset %}
+            <div class="base-price pb-1">
+                {{ base_price_form.errors }}
+                {{ base_price_form.non_field_errors }}
+                {% for hidden in base_price_form.hidden_fields %}
+                    {{ hidden }}
+                {% endfor %}
+                {% crispy base_price_form %}
+            </div>
+        {% endfor %}
+        <button type="button" class="btn btn-success" id="add-base-price">Lägg till fler</button>
 
-            <hr>
+        <hr>
 
-            <h3>Dryck</h3>
-            {{ drink_option_formset.management_form }}
-            {% for drink_option_form in drink_option_formset %}
-                <div class="drink-option pb-1">
-                    {{ drink_option_form.errors }}
-                    {{ drink_option_form.non_field_errors }}
-                    {% for hidden in drink_option_form.hidden_fields %}
-                        {{ hidden }}
-                    {% endfor %}
-                    {% crispy drink_option_form %}
-                </div>
-            {% endfor %}
-            <button type="button" class="btn btn-success" id="add-drink-option">Lägg till fler</button>
+        <h3>Dryck</h3>
+        {{ drink_option_formset.management_form }}
+        {% for drink_option_form in drink_option_formset %}
+            <div class="drink-option pb-1">
+                {{ drink_option_form.errors }}
+                {{ drink_option_form.non_field_errors }}
+                {% for hidden in drink_option_form.hidden_fields %}
+                    {{ hidden }}
+                {% endfor %}
+                {% crispy drink_option_form %}
+            </div>
+        {% endfor %}
+        <button type="button" class="btn btn-success" id="add-drink-option">Lägg till fler</button>
 
-            <hr>
+        <hr>
 
-            <h3>Extraval</h3>
-            {{ extra_option_formset.management_form }}
-            {% for extra_option_form in extra_option_formset %}
-                <div class="extra-option pb-1">
-                    {{ extra_option_form.errors }}
-                    {{ extra_option_form.non_field_errors }}
-                    {% for hidden in extra_option_form.hidden_fields %}
-                        {{ hidden }}
-                    {% endfor %}
-                    {% crispy extra_option_form %}
-                </div>
-            {% endfor %}
-            <button type="button" class="btn btn-success" id="add-extra-option">Lägg till fler</button>
+        <h3>Extraval</h3>
+        {{ extra_option_formset.management_form }}
+        {% for extra_option_form in extra_option_formset %}
+            <div class="extra-option pb-1">
+                {{ extra_option_form.errors }}
+                {{ extra_option_form.non_field_errors }}
+                {% for hidden in extra_option_form.hidden_fields %}
+                    {{ hidden }}
+                {% endfor %}
+                {% crispy extra_option_form %}
+            </div>
+        {% endfor %}
+        <button type="button" class="btn btn-success" id="add-extra-option">Lägg till fler</button>
 
-            <hr>
+        <hr>
 
-            <button type="submit" class="btn btn-primary mt-4 mb-4" value="Spara">Spara</button>
-        </form>
-    </div>
+        <button type="submit" class="btn btn-primary mt-4 mb-4" value="Spara">Spara</button>
+    </form>
 {% endblock %}
 
 {% block extrascript %}
+    {{ block.super }}
     <script>
         $('#add-base-price').click(function () {
             cloneForm('div.base-price:last', 'grouphappeningproperties_set');

@@ -7,7 +7,7 @@ import nollesystemet.forms as forms
 import nollesystemet.mixins as mixins
 
 
-class LoginViewFohseriet(auth_views.login.Login, mixins.FohserietMenuMixin):
+class LoginViewFohseriet(mixins.FohserietMenuMixin, auth_views.login.Login):
     default_redirect_url = reverse_lazy('fohseriet:index')
     template_name = 'fohseriet/logga-in/index.html'
     cred_login_url = reverse_lazy('fohseriet:logga-in:cred')
@@ -21,15 +21,15 @@ class LoginViewFadderiet(mixins.FadderietMenuMixin, auth_views.login.Login):
     cas_login_url = reverse_lazy('fadderiet:logga-in:fadder')
 
 
-class LogoutViewFohseriet(django_auth_views.LogoutView, mixins.FohserietMenuMixin):
-    template_name = 'fohseriet/utloggad.html'
+class LogoutViewFohseriet(mixins.FohserietMenuMixin, django_auth_views.LogoutView):
+    next_page = reverse_lazy('fohseriet:index')
 
 
 class LogoutViewFadderiet(mixins.FadderietMenuMixin, django_auth_views.LogoutView):
     template_name = 'fadderiet/utloggad.html'
 
 
-class LoginCredentialsViewFohseriet(auth_views.login.LoginCred, mixins.FohserietMenuMixin):
+class LoginCredentialsViewFohseriet(mixins.FohserietMenuMixin, auth_views.login.LoginCred):
     template_name = 'fohseriet/logga-in/cred.html'
     default_redirect_url = reverse_lazy('fohseriet:index')
 

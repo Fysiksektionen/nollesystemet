@@ -1,17 +1,16 @@
-{% extends 'fohseriet/base-sites/base.html' %}
+{% extends 'fohseriet/base-sites/left-col-template.html' %}
 {% load crispy_forms_tags %}
 {% load crispy_forms_filters %}
 
 {% block title %}Redigera användare{% endblock %}
 
-{% block content %}
-    <div class="col-8">
-        <form method="post" class="pt-5">
-            {% csrf_token %}
-            {% for f in form %}
-                {% crispy f %}
-            {% endfor %}
-            <input type="submit" value="Spara" class="btn btn-primary">
-        </form>
-    </div>
+{% block content-left-col %}
+    <h3 style="font-style: italic;">{{ object.0.first_name }} {{ object.0.last_name }}</h3>
+    <form method="post" class="pt-5">
+        {% csrf_token %}
+        {% for f in form %}
+            {% crispy f %}
+        {% endfor %}
+        <input type="submit" value="Spara" class="btn btn-primary">
+    </form>
 {% endblock %}
