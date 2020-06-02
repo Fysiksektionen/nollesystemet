@@ -1,7 +1,10 @@
+from django.conf import settings
+
 
 class PageCallStackMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
+        self.stack_size = settings.PAGE_CALL_STACK_SIZE
         # One-time configuration and initialization.
 
     def __call__(self, request):
@@ -17,7 +20,7 @@ class PageCallStackMiddleware:
             if len(page_call_stack) >= 3 and page_call_stack[-1] == page_call_stack[-3]:
                 page_call_stack = page_call_stack[:-2]
 
-            while len(page_call_stack) > 10:
+            while len(page_call_stack) > self.stack_size:
                 page_call_stack.pop(0)
 
             request.session['page_call_stack'] = page_call_stack

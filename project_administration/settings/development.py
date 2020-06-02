@@ -24,3 +24,6 @@ ALLOWED_HOSTS = (
 )
 
 CAS_SERVER_URL = "http://localhost:3004"
+
+PAGE_CALL_STACK_SIZE = 10
+

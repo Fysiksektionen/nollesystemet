@@ -198,3 +198,6 @@ def get_email_info(filename):
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST, EMAIL_USE_TLS, EMAIL_PORT, EMAIL_HOST_USER, EMAIL_HOST_PASSWORD = get_email_info('config_files/mail.cnf')
 
+
+PAGE_CALL_STACK_SIZE = 5
+
