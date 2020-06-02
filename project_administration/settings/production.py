@@ -49,6 +49,7 @@ MIDDLEWARE = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
+    'nollesystemet.middleware.PageCallStackMiddleware',
 )
 
 # Templates

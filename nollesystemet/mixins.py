@@ -137,3 +137,29 @@ class FohserietMenuMixin(MenuMixin):
 
 class FadderietMenuMixin(MenuMixin):
     menu_items_static_file = 'fadderiet/resources/menu_info.json'
+
+
+class BackUrlMixin:
+    default_back_url = None
+    accepted_back_urls = None
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        last_url = self.request.session.get('last_url', None)
+        back_url = self.default_back_url
+        if last_url:
+            if self.accepted_back_urls:
+                if last_url in self.accepted_back_urls:
+                    back_url = last_url
+            else:
+                back_url = last_url
+
+        if back_url:
+            context.update({
+                'back_url': reverse('fohseriet:evenemang:lista'),
+            })
+
+        return context
+
+

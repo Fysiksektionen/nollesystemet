@@ -47,8 +47,6 @@ class RegistrationForm(ExtendedMetaModelForm):
         self.observing_user = observing_user
         self.is_new = self.instance.pk is None
 
-        print(self.editable)
-
         self.update_field_querysets()
         self.update_nonused_fields()
         if not self.editable:
