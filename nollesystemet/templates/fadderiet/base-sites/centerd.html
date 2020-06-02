@@ -4,7 +4,9 @@
     <div class="d-flex justify-content-center">
         <div class="d-flex flex-column flex-fill justify-content-center mb-5">
             <h1 class="my-5 text-center">{% block title-centered %}{% endblock %}</h1>
-            {% block centered-content %}{% endblock %}
+            <div class="d-flex flex-column flex-fill justify-content-center">
+                {% block centered-content %}{% endblock %}
+            </div>
         </div>
     </div>
 {% endblock %}

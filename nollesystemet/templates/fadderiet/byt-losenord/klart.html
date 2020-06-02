@@ -1,10 +1,7 @@
-{% extends "fadderiet/base-sites/centerd.html" %}
-{% block title %}Password change done{% endblock %}
+{% extends "fadderiet/base-sites/centered-col-4.html" %}
+{% block title-centered %}Byt lösenord{% endblock %}
 
-{% block centered-content %}
-
-    <p>The change was successful. To check the result you may logout and log in aging with the new password.</p>
-
-    <a href="{{ login_url }}" class="btn btn-primary">Home</a>
-
+{% block centered-content-col-4 %}
+    <p>Lösenordet byttes. Du kan kontrolera bytet genom att logga ut och logga in igen.</p>
+    <a href="{{ login_url }}" class="btn btn-primary">Logga in</a>
 {% endblock %}

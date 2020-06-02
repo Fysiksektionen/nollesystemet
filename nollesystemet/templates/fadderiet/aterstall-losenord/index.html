@@ -1,13 +1,10 @@
-{% extends "fadderiet/base-sites/centerd.html" %}
+{% extends "fadderiet/base-sites/centered-col-4.html" %}
 {% load crispy_forms_tags %}
 
-{% block title %}Reset password{% endblock %}
+{% block title-centered %}Återställ lösenord{% endblock %}
 
-{% block centered-content %}
-
-<p>Forgotten your password? Enter your email address below, and we’ll email instructions for setting a new one.</p>
-
+{% block centered-content-col-4 %}
+    <p class="text-center">Har du glömt ditt lösenord? <br> Fyll i den mejladdress du använt på sidan så skickar vi instruktioner för att återställa lösenordet.</p>
     {% crispy form %}
-
 {% endblock %}
 

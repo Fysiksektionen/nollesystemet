@@ -1,0 +1,10 @@
+{% extends "fadderiet/base-sites/centerd.html" %}
+{% load crispy_forms_tags %}
+
+{% block centered-content %}
+    <div class="d-flex justify-content-center">
+        <div class="d-flex flex-column col-4">
+            {% block centered-content-col-4 %}{% endblock %}
+        </div>
+    </div>
+{% endblock %}

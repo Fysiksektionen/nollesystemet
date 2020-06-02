@@ -1,15 +1,13 @@
-{% extends "fadderiet/base-sites/centerd.html" %}
+{% extends "fadderiet/base-sites/centered-col-4.html" %}
 {% load crispy_forms_tags %}
 
 {% block title-centered %}Logga in{% endblock %}
 
-{% block centered-content %}
+{% block centered-content-col-4 %}
     <h2 class="p-3 text-center my-3">Välkommen nØllan!</h2>
-    <div class="row justify-content-center">
-        <div class="col-4">
-            {% crispy form %}
-        </div>
-    </div>
+
+    {% crispy form %}
+
     <div class="text-center">
         <p>
             Har du glömt ditt användarnamn eller lösenord? <br>

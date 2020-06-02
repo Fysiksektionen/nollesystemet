@@ -1,17 +1,13 @@
-{% extends "fadderiet/base-sites/centerd.html" %}
+{% extends "fadderiet/base-sites/centered-col-4.html" %}
 {% load crispy_forms_tags %}
-{% block title %}Reset password{% endblock %}
 
-{% block centered-content %}
+{% block title-centered %}Återställ lösenord{% endblock %}
 
+{% block centered-content-col-4 %}
     {% if validlink %}
-
-        <p>Please enter your new password twice so we can verify you typed it in correctly.</p>
-
+        <p>Fyll i ditt nya lösenord två gånger för verifikation.</p>
         {% crispy form %}
-
     {% else %}
-        <p>The password reset link was invalid, possibly because it has already been used.  Please request a new password reset.</p>
+        <p>Lösenordslänken är ogiltig. Eventuellt är den redan använd. Be om en ny länk <a href="{% url 'fadderiet:aterstall-losenord:index' %}">här</a>.</p>
     {% endif %}
-
 {% endblock %}

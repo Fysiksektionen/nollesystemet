@@ -1,11 +1,10 @@
-{% extends "fadderiet/base-sites/centerd.html" %}
+{% extends "fadderiet/base-sites/centered-col-4.html" %}
 {% load crispy_forms_tags %}
 
-{% block title %}Change password{% endblock %}
+{% block title-centered %}Byt lösenord{% endblock %}
 
-{% block centered-content %}
-
-    <p>Please enter your old password, for security’s sake, and then enter your new password twice so we can verify you typed it in correctly.</p>
+{% block centered-content-col-4 %}
+    <p>Fyll i ditt gamla lösenord samt ditt nya lösenord två gånger.</p>
 
     {% crispy form %}
 
