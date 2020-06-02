@@ -15,3 +15,5 @@ class UserProfile(auth_models.UserProfile):
             ("edit_user_info", "Can edit user but not authentication stuff"),
             ("edit_user_registration", "Can change any user registration"),
         ]
+
+

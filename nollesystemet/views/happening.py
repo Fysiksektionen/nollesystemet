@@ -25,7 +25,7 @@ class HappeningListViewFohseriet(LoginRequiredMixin, PermissionRequiredMixin, mi
 
     ordering = 'start_time'
 
-    permission_required = 'fohseriet.edit_happening'
+    permission_required = 'nollesystemet.edit_happening'
 
     def get_queryset(self):
         self.queryset = models.Happening.objects.all()
@@ -45,10 +45,16 @@ class HappeningRegisteredListView(LoginRequiredMixin, UserPassesTestMixin, mixin
         'nolle_groups': apps.get_model('authentication.NolleGroup').objects.all()
     }
 
+    def setup(self, request, *args, **kwargs):
+        super().setup(request, *args, **kwargs)
+        try:
+            self.happening = models.Happening.objects.get(pk=self.kwargs['pk'])
+        except models.Happening.DoesNotExist:
+            self.raise_exception = True
+            self.handle_no_permission()
+
     def test_func(self):
-        return (self.request.user.has_perm(
-            'fohseriet.edit_happening') and self.request.user.profile in models.Happening.objects.get(
-            pk=self.kwargs['pk']).editors.all()) or self.request.user.is_superuser
+        return self.happening.user_can_edit_happening(self.request.user.profile)
 
     def get_queryset(self):
         self.queryset = models.Registration.objects.filter(happening=models.Happening.objects.get(pk=self.kwargs['pk']))
@@ -60,8 +66,7 @@ class HappeningRegisteredListView(LoginRequiredMixin, UserPassesTestMixin, mixin
         context.update({
             'happening': models.Happening.objects.get(pk=self.kwargs['pk']),
             'user_can_edit_registrations': self.request.user.has_perm(
-                'fohseriet.edit_user_registration') or self.request.user.profile in models.Happening.objects.get(
-                pk=self.kwargs['pk']).editors.all(),
+                'nollesystemet.edit_user_registration') or self.request.user.profile in self.happening.editors.all(),
             'back_url': reverse('fohseriet:evenemang:lista'),
         })
         return context

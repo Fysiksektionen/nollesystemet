@@ -41,7 +41,7 @@ class UsersListView(LoginRequiredMixin, PermissionRequiredMixin, mixins.Fohserie
     model = apps.get_model(settings.USER_PROFILE_MODEL)
     template_name = 'fohseriet/anvandare/index.html'
 
-    permission_required = "fohseriet.edit_user_info"
+    permission_required = 'nollesystemet.edit_user_info'
 
     extra_context = {
         'user_groups': apps.get_model('authentication.UserGroup').objects.filter(is_external=False),
@@ -66,7 +66,7 @@ class UserUpdateView(LoginRequiredMixin, PermissionRequiredMixin, mixins.Fohseri
     template_name = 'fohseriet/anvandare/redigera.html'
     success_url = reverse_lazy('fohseriet:anvandare:index')
 
-    permission_required = 'fohseriet.edit_user_info'
+    permission_required = 'nollesystemet.edit_user_info'
 
     def get_objects(self):
         auth_user = apps.get_model(settings.AUTH_USER_MODEL).objects.get(pk=self.kwargs['pk'])
@@ -76,7 +76,7 @@ class UserRegistrationsListView(LoginRequiredMixin, PermissionRequiredMixin, mix
     model = models.Registration
     template_name = 'fohseriet/anvandare/anmalningar.html'
 
-    permission_required = 'fohseriet.edit_user_info'
+    permission_required = 'nollesystemet.edit_user_info'
 
     def query_test_func(self, registration):
         return self.request.user.has_perm(

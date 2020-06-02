@@ -32,6 +32,13 @@ class Happening(models.Model):
     def __str__(self):
         return str(self.name)
 
+    def user_can_register(self, user_profile):
+        return (not set(self.user_groups.all()).isdisjoint(user_profile.auth_user.user_group.all())) and \
+               (user_profile.auth_user.nolle_group in self.nolle_groups.all())
+
+    def user_can_edit_happening(self, user_profile):
+        return user_profile in self.editors.all() or user_profile.auth_user.has_perm('nollesystemet.edit_happening')
+
 
 class GroupBasePrice(models.Model):
     group = models.ForeignKey(auth_models.UserGroup, on_delete=models.CASCADE)

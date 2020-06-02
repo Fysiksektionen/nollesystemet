@@ -13,7 +13,7 @@
             "align": "left",
             "user": "with-permission",
             "permissions" : {
-                "any": ["fohseriet.edit_happening"]
+                "any": ["nollesystemet.edit_happening"]
             }
         },
         "hantera-andvandare": {
@@ -23,7 +23,7 @@
             "user": "with-permission",
             "permissions" : {
                 "any": [
-                    "fohseriet.edit_user_info"
+                    "nollesystemet.edit_user_info"
                 ]
             }
         },

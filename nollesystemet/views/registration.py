@@ -14,18 +14,36 @@ class RegistrationView(LoginRequiredMixin, UserPassesTestMixin, mixins.Fadderiet
 
     success_url = reverse_lazy('fadderiet:evenemang:index')
 
-    def test_func(self):
-        happening = models.Happening.objects.get(pk=self.kwargs['pk'])
-        return happening in models.Happening.objects.filter(user_groups__in=self.request.user.user_group.all()).filter(nolle_groups=self.request.user.nolle_group)
+    def setup(self, request, *args, **kwargs):
+        super().setup(request, *args, **kwargs)
+        try:
+            self.happening = models.Happening.objects.get(pk=self.kwargs['pk'])
+        except models.Happening.DoesNotExist:
+            self.happening = None
+        else:
+            try:
+                self.registration = models.Registration.objects.get(user=self.request.user.profile, happening=self.happening)
+            except:
+                if self.happening is None:
+                    self.raise_exception = True
+                    self.handle_no_permission()
+                else:
+                    self.registration = None
+        self.registration_user = self.request.user.profile
+        self.observing_user = self.request.user.profile
 
-    def get_form_class(self):
-        return forms.make_crispy_form(super().get_form_class(), submit_button='Skicka')
+    def test_func(self):
+        if self.registration:
+            return self.registration.user_can_edit_registration(self.observing_user)
+        else:
+            return self.happening.user_can_register(self.observing_user)
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs.update({
-            'happening': models.Happening.objects.get(pk=self.kwargs['pk']),
-            'user': self.request.user.profile
+            'happening': self.happening,
+            'observing_user': self.observing_user,
+            'user': self.request.user.profile,
         })
         return kwargs
 
@@ -34,24 +52,12 @@ class RegistrationView(LoginRequiredMixin, UserPassesTestMixin, mixins.Fadderiet
             self.initial.update({'food_preference': self.request.user.profile.food_preference})
         return super().get_initial()
 
-    def get_form(self, form_class=None):
-        form = super().get_form(form_class=None)
-        if self.object is not None:
-            for field_name in form.fields:
-                form.fields[field_name].widget.attrs['disabled'] = True
-            form.helper.inputs.pop()
-        return form
-
     def get_object(self, queryset=None):
-        happening = models.Happening.objects.get(pk=self.kwargs['pk'])
-        try:
-            return models.Registration.objects.get(user=self.request.user.profile, happening=happening)
-        except models.Registration.DoesNotExist:
-            return None
+        return self.registration
 
     def get_context_data(self, **kwargs):
         dynamic_extra_context = {
-            'happening': models.Happening.objects.get(pk=self.kwargs['pk'])
+            'happening': self.happening
         }
         kwargs.update(**dynamic_extra_context)
         return super().get_context_data(**kwargs)
@@ -63,16 +69,24 @@ class RegistrationUpdateView(LoginRequiredMixin, UserPassesTestMixin, mixins.Foh
 
     success_url = reverse_lazy('fohseriet:index')
 
-    def test_func(self):
-        return self.request.user.has_perm(
-            'fohseriet.edit_user_registration') or self.request.user.profile in models.Registration.objects.get(
-            pk=self.kwargs['pk']).happening.editors.all()
-
-    def get_form_class(self):
-        return forms.make_crispy_form(super().get_form_class(), submit_button='Spara')
-
-    def get_object(self, queryset=None):
+    def setup(self, request, *args, **kwargs):
+        super().setup(request, *args, **kwargs)
         try:
-            return models.Registration.objects.get(pk=self.kwargs['pk'])
+            self.registration = models.Registration.objects.get(pk=self.kwargs['pk'])
         except models.Registration.DoesNotExist:
-            return None
+            self.raise_exception = True
+            self.handle_no_permission()
+
+        self.happening = self.registration.happening
+        self.registration_user = self.registration.user
+        self.observing_user = self.request.user.profile
+
+    def test_func(self):
+        return self.registration.user_can_see_registration(self.request.user.profile)
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs.update({
+            'observing_user': self.observing_user
+        })
+        return kwargs
