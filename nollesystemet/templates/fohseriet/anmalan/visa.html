@@ -3,13 +3,17 @@
 {% load crispy_forms_filters %}
 
 {% block title %}
-    Redigera anmälan
+    Se anmälan
 {% endblock %}
 
 {% block content-left-col %}
-    {% include "common/elements/back-button.html" %}
+    <div class="d-flex justify-content-between">
+        {% include "common/elements/back-button.html" %}
+        <a class="btn btn-primary my-4" href="{% url 'fohseriet:anmalan:redigera' object.pk %}">Redigera</a>
+    </div>
 
     <h3>Anmälan till {{ object.happening.name }} för {{ object.user }}</h3>
+
 
     {{ object.happening.description }}
     <hr>

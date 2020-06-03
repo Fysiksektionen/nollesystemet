@@ -5,9 +5,7 @@
 {% endblock %}
 
 {% block content-indented %}
-    <a class="btn btn-primary mt-3 mb-3" href="{{ back_url }}">
-        Tillbaka
-    </a>
+    {% include "common/elements/back-button.html" %}
 
     <div id="filter-elements">
         <input class="form-control p-2" id="search-bar" type="text" placeholder="Sök användare...">
@@ -37,8 +35,8 @@
                         <td id="user-group" hidden>{% if registration_item.user.auth_user.user_group.all %}{{ registration_item.user.auth_user.user_group.all|join:", " }}{% else %}–{% endif %}</td>
                         <td>
                             {% if user_can_edit_registrations %}
-                                <a class="btn btn-primary" href="{% url 'fohseriet:anmalan:redigera' registration_item.pk %}?next={{ request.path|urlencode }}">
-                                    Redigera anmälan
+                                <a class="btn btn-primary" href="{% url 'fohseriet:anmalan:visa' registration_item.pk %}?next={{ request.path|urlencode }}">
+                                    Visa anmälan
                                 </a>
                             {% endif %}
                         </td>

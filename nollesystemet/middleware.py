@@ -14,6 +14,7 @@ class PageCallStackMiddleware:
             page_call_stack = request.session.get('page_call_stack', [])
 
             if not request.META.get('HTTP_REFERER', None):
+                print("No referer")
                 page_call_stack.append(None)
             page_call_stack.append(request.path)
 

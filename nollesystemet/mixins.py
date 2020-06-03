@@ -143,9 +143,20 @@ class BackUrlMixin:
     default_back_url = None
     accepted_back_urls = None
 
+    def setup(self, request, *args, **kwargs):
+        super().setup(request, *args, **kwargs)
+        self.back_url = self.get_back_url()
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        if self.back_url:
+            context.update({
+                'back_url': self.back_url
+            })
 
+        return context
+
+    def get_back_url(self):
         last_url = self.request.session.get('last_url', None)
         back_url = self.default_back_url
         if last_url:
@@ -155,11 +166,7 @@ class BackUrlMixin:
             else:
                 back_url = last_url
 
-        if back_url:
-            context.update({
-                'back_url': reverse('fohseriet:evenemang:lista'),
-            })
+        return back_url
 
-        return context
 
 

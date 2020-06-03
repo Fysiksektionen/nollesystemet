@@ -32,15 +32,15 @@ class RegistrationForm(ExtendedMetaModelForm):
             'other': {
                 'label': 'Övrigt',
                 'required': False,
-                'widget': widgets.Textarea(attrs={'rows': 4}),
+                'widget': widgets.Textarea(attrs={'rows': 4, 'disabled': False}),
             },
         }
 
-    def __init__(self, happening=None, user=None, observing_user=None, *args, **kwargs):
+    def __init__(self, happening=None, user=None, observing_user=None, editable=True, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         # Setup and check happening and user.
-        self.editable = self.is_editable(happening, user, observing_user, self.instance)
+        self.editable = self.is_editable(happening, user, observing_user, self.instance, editable)
 
         self.happening = self.instance.happening if happening is None else happening
         self.user = self.instance.user if user is None else user
@@ -51,13 +51,13 @@ class RegistrationForm(ExtendedMetaModelForm):
         self.update_nonused_fields()
         if not self.editable:
             for field_name in self.fields:
-                self.fields[field_name].widget.attrs['disabled'] = True
+                self.fields[field_name].disabled = True
 
         self.helper = None
         self.make_crispy()
 
     @staticmethod
-    def is_editable(happening, user, observing_user, instance):
+    def is_editable(happening, user, observing_user, instance, editable):
         enabled = None
         if instance.pk is None:  # New registration
             if happening is None:  # Error, system does not know what happening to tie the registration to
@@ -90,7 +90,7 @@ class RegistrationForm(ExtendedMetaModelForm):
             else:  # Error, Anonymous user may not see the registration
                 ValueError('Anonymous user may not see a registration.')
 
-        return enabled
+        return enabled and editable
 
     def update_field_querysets(self):
         self.fields['drink_option'].queryset = self.happening.drinkoption_set.all()

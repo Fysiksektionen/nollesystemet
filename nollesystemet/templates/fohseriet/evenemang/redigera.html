@@ -11,6 +11,8 @@
 {% endblock %}
 
 {% block content-left-col %}
+    {% include "common/elements/back-button.html" %}
+
     <form method="post">
         {% csrf_token %}
         {{ form.errors }}

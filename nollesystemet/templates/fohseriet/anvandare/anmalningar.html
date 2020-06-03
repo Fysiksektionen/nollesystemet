@@ -17,8 +17,8 @@
                     <td>{{ list_item.registration.happening.name }}</td>
                     <td>
                         {% if list_item.user_can_edit %}
-                            <a class="btn btn-primary" href="{% url 'fohseriet:anmalan:redigera' list_item.registration.pk %}?next={{ request.path|urlencode }}">
-                                Redigera anmälan
+                            <a class="btn btn-primary" href="{% url 'fohseriet:anmalan:visa' list_item.registration.pk %}?next={{ request.path|urlencode }}">
+                                Se anmälan
                             </a>
                         {% endif %}
                     </td>

@@ -23,6 +23,7 @@ user_urls = ([
 ], 'anvandare')
 
 registration_urls = ([
+    path('<int:pk>/visa/', views.RegistrationSeeView.as_view(), name="visa"),
     path('<int:pk>/redigera/', views.RegistrationUpdateView.as_view(), name="redigera"),
 ], 'anmalan')
 

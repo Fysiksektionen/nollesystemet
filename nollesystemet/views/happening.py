@@ -34,9 +34,12 @@ class HappeningListViewFohseriet(LoginRequiredMixin, PermissionRequiredMixin, mi
                  'user_can_edit': self.request.user.profile in happening.editors.all()} for happening in querryset]
 
 
-class HappeningRegisteredListView(LoginRequiredMixin, UserPassesTestMixin, mixins.FohserietMenuMixin, ListView):
+class HappeningRegisteredListView(LoginRequiredMixin, UserPassesTestMixin, mixins.BackUrlMixin,
+                                  mixins.FohserietMenuMixin, ListView):
     model = models.Registration
     template_name = 'fohseriet/evenemang/anmalda.html'
+
+    default_back_url = reverse_lazy('fohseriet:evenemang:lista')
 
     ordering = 'user__first_name'
 
@@ -67,16 +70,19 @@ class HappeningRegisteredListView(LoginRequiredMixin, UserPassesTestMixin, mixin
             'happening': models.Happening.objects.get(pk=self.kwargs['pk']),
             'user_can_edit_registrations': self.request.user.has_perm(
                 'nollesystemet.edit_user_registration') or self.request.user.profile in self.happening.editors.all(),
-            'back_url': reverse('fohseriet:evenemang:lista'),
         })
         return context
 
-class HappeningUpdateView(LoginRequiredMixin, UserPassesTestMixin, mixins.HappeningOptionsMixin, mixins.FohserietMenuMixin, mixins.RedirectToGETArgMixin, UpdateView):
+class HappeningUpdateView(LoginRequiredMixin, UserPassesTestMixin, mixins.BackUrlMixin,
+                          mixins.HappeningOptionsMixin, mixins.FohserietMenuMixin, mixins.RedirectToGETArgMixin,
+                          UpdateView):
     model = models.Happening
     form_class = forms.HappeningForm
 
-    success_url = reverse_lazy('fohseriet:evenemang:lista')
     template_name = 'fohseriet/evenemang/redigera.html'
+
+    default_back_url = reverse_lazy('fohseriet:evenemang:lista')
+    success_url = default_back_url
 
     def test_func(self):
         return self.request.user.has_perm(
