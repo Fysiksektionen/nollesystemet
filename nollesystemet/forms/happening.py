@@ -1,6 +1,6 @@
 from django import forms
 from django.forms import inlineformset_factory
-from django.forms.widgets import Textarea
+from django.forms.widgets import Textarea, SelectMultiple
 
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Fieldset, Field, Row, Column, HTML
@@ -71,7 +71,7 @@ class HappeningForm(ExtendedMetaModelForm):
         self.helper.form_tag = False
         self.helper.layout = Layout(
             Fieldset("Systeminfo",
-                     Field('editors'),
+                     Field('editors', data_live_search="true"),
                      Row(
                          Column(Field('user_groups')),
                          Column(Field('nolle_groups'))
