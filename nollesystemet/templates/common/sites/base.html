@@ -19,6 +19,7 @@
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
     <script src="{% static 'bootstrap/js/bootstrap.js' %}"></script>
     <script src="{% static 'bootstrap-select/js/bootstrap-select.js' %}"></script>
+    <script src="{% static 'js/prescript.js' %}"></script>
     {% block extraprescript %}{% endblock %}
     {% if form %}
         {{ form.media }}
@@ -40,7 +41,7 @@
 
 
 <!-- Optional JavaScript -->
-<script src="{% static 'js/basescript.js' %}"></script>
-{% block extrascript %}{% endblock %}
+<script src="{% static 'js/postscript.js' %}"></script>
+{% block extrapostscript %}{% endblock %}
 </body>
 </html>
