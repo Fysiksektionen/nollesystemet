@@ -38,7 +38,7 @@ class HappeningForm(CreateSeeUpdateModelForm):
             'user_groups': {
                 'label': 'Välkomna grupper',
                 'widget': forms.CheckboxSelectMultiple(),
-                'queryset': UserGroup.objects.all().exclude(name__in=['Administratör', 'Arrangör'])
+                'queryset': UserGroup.objects.all().exclude(is_administrational=True)
             },
             'nolle_groups': {
                 'label': 'Välkomna nØllegrupper',

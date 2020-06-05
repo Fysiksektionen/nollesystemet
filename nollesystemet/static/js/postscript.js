@@ -1,1 +1,1 @@
-$('.bootstrap-select').selectpicker();
+$('select').selectpicker();

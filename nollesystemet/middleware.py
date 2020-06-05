@@ -18,7 +18,9 @@ class PageCallStackMiddleware:
                 page_call_stack.append(None)
             page_call_stack.append(request.path)
 
-            if len(page_call_stack) >= 3 and page_call_stack[-1] == page_call_stack[-3]:
+            if len(page_call_stack) >= 2 and page_call_stack[-1] == page_call_stack[-2]:
+                page_call_stack.pop()
+            elif len(page_call_stack) >= 3 and page_call_stack[-1] == page_call_stack[-3]:
                 page_call_stack = page_call_stack[:-2]
 
             while len(page_call_stack) > self.stack_size:

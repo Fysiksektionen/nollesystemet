@@ -3,6 +3,13 @@ from django.db import models
 from django.db.models import Q
 
 import authentication.models as auth_models
+from .user import UserProfile
+
+
+def _all_editors():
+    editors_pk = [user.pk for user in UserProfile.objects.all() if
+                  user.auth_user.has_perm('nollesystemet.edit_happening')]
+    return {'pk__in': editors_pk}
 
 class Happening(models.Model):
     name = models.CharField(max_length=50, unique=True)
@@ -18,11 +25,7 @@ class Happening(models.Model):
 
     food = models.BooleanField(default=True)
 
-    editors = models.ManyToManyField(settings.USER_PROFILE_MODEL,
-                                     limit_choices_to=(
-                                         Q(auth_user__user_group__permissions__codename='edit_happening') |
-                                         Q(auth_user__user_permissions__codename='edit_happening')
-                                     ))
+    editors = models.ManyToManyField(settings.USER_PROFILE_MODEL, limit_choices_to=_all_editors)
 
     class Meta(auth_models.UserProfile.Meta):
         permissions = [
@@ -40,8 +43,11 @@ class Happening(models.Model):
         return user_profile in self.editors.all() or user_profile.auth_user.has_perm('nollesystemet.edit_happening')
 
 
+def _all_baseprice_groups():
+    return {'is_administrational': False}
+
 class GroupBasePrice(models.Model):
-    group = models.ForeignKey(auth_models.UserGroup, on_delete=models.CASCADE)
+    group = models.ForeignKey(auth_models.UserGroup, on_delete=models.CASCADE, limit_choices_to=_all_baseprice_groups)
     happening = models.ForeignKey(Happening, on_delete=models.CASCADE)
     base_price = models.IntegerField()
 

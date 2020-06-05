@@ -16,6 +16,7 @@ class UserGroup(Group):
         is_external: Boolean telling if group is intended for use by authenticated users or not.
     """
     is_external = models.BooleanField()
+    is_administrational = models.BooleanField()
 
 
 class NolleGroup(Group):
