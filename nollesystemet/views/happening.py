@@ -82,12 +82,16 @@ class HappeningUpdateView(LoginRequiredMixin, UserPassesTestMixin, mixins.BackUr
     template_name = 'fohseriet/evenemang/redigera.html'
 
     default_back_url = reverse_lazy('fohseriet:evenemang:lista')
-    success_url = default_back_url
+
+    def get(self, request, *args, **kwargs):
+        ret = super().get(request, *args, **kwargs)
+        self.success_url = self.back_url
+        return ret
 
     def test_func(self):
         return self.request.user.has_perm(
-            'fohseriet.edit_user_registration') or (self.request.user.profile in models.Happening.objects.get(
-            pk=self.kwargs['pk']).editors.all() if 'pk' in self.kwargs else True)
+               'fohseriet.edit_user_registration') or (self.request.user.profile in models.Happening.objects.get(
+               pk=self.kwargs['pk']).editors.all() if 'pk' in self.kwargs else True)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

@@ -31,10 +31,6 @@ class RegistrationView(LoginRequiredMixin, UserPassesTestMixin, mixins.Fadderiet
                     self.registration = None
         self.registration_user = self.request.user.profile
         self.observing_user = self.request.user.profile
-        print('happening', self.happening)
-        print('registration', self.registration)
-        print('registration_user', self.registration_user)
-        print('observing_user', self.observing_user)
 
     def test_func(self):
         if self.registration:
@@ -44,7 +40,7 @@ class RegistrationView(LoginRequiredMixin, UserPassesTestMixin, mixins.Fadderiet
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        if not self.registration:
+        if self.registration is None:
             kwargs.update({
                 'happening': self.happening,
                 'user': self.registration_user,
@@ -56,6 +52,7 @@ class RegistrationView(LoginRequiredMixin, UserPassesTestMixin, mixins.Fadderiet
         kwargs.update({
             'observing_user': self.observing_user,
         })
+        print(kwargs)
         return kwargs
 
     def get_initial(self):

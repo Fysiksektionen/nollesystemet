@@ -1,6 +1,10 @@
 {% extends "common/sites/base.html" %}
 {% load static %}
 
+{% block extraprescript %}
+    <script src="{% static "fohseriet/js/prescript.js" %}"></script>
+{% endblock %}
+
 {% block metatitle %}Föhseriets hemsida{% endblock %}
 
 {% block extrastyle %}
@@ -21,11 +25,8 @@
 {% endblock %}
 
 {% block footer %}
-    <div id="footer-container" class="flex-row d-flex p-4 bg-secondary">
-{#        {% include "fohseriet/elements/footer.html" %}#}
-    </div>
+    <div id="footer-container" class="flex-row d-flex p-4 bg-secondary"> </div>
 {% endblock %}
 
 {% block extrascript %}
-    <script src="{% static "fohseriet/js/basescript.js" %}"></script>
 {% endblock %}

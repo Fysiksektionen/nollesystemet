@@ -1,16 +1,14 @@
 from django import forms
-from django.forms import inlineformset_factory
-from django.forms.widgets import Textarea, SelectMultiple
+from django.forms.widgets import Textarea, DateTimeInput
 
-from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Fieldset, Field, Row, Column, HTML
 
 from authentication.models import NolleGroup, UserGroup
 
 from nollesystemet.models import Happening, DrinkOption, ExtraOption, GroupBasePrice
-from .misc import get_formset_form_helper, ExtendedMetaModelForm
+from .misc import CreateSeeUpdateModelForm, custom_inlineformset_factory
 
-class HappeningForm(ExtendedMetaModelForm):
+class HappeningForm(CreateSeeUpdateModelForm):
     class Meta:
         model = Happening
         exclude = ['image_file_path']
@@ -25,11 +23,11 @@ class HappeningForm(ExtendedMetaModelForm):
             },
             'start_time': {
                 'label': 'Start-tid',
-                'widget': forms.SelectDateWidget(),
+                'widget': DateTimeInput(),
             },
             'end_time': {
                 'label': 'Slut-tid',
-                'widget': forms.SelectDateWidget(),
+                'widget': DateTimeInput(),
             },
             'takes_registration': {
                 'label': 'Kräver anmälan',
@@ -55,28 +53,30 @@ class HappeningForm(ExtendedMetaModelForm):
             },
         }
 
-    def __init__(self, *args, **kwargs):
-        if 'instance' not in kwargs or not kwargs['instance'] or not kwargs['instance'].pk:
-            initial = {
-                'user_groups': UserGroup.objects.filter(name__in=['nØllan', 'Fadder']),
-                'nolle_groups': NolleGroup.objects.all()
-            }
-            if 'initial' in kwargs:
-                initial.update(kwargs['initial'])
-            kwargs['initial'] = initial
+    def __init__(self, **kwargs):
+        initial = {
+            'user_groups': UserGroup.objects.filter(name__in=['nØllan', 'Fadder']),
+            'nolle_groups': NolleGroup.objects.all()
+        }
+        if 'initial' in kwargs:
+            initial.update(kwargs['initial'])
+        kwargs['initial'] = initial
 
-        super().__init__(*args, **kwargs)
+        super().__init__(**kwargs)
 
-        self.helper = FormHelper()
-        self.helper.form_tag = False
-        self.helper.layout = Layout(
+    def get_is_editable(self, **kwargs):
+        return True
+
+    def get_form_helper(self, submit_name=None, form_tag=True):
+        helper = super().get_form_helper(submit_name, False)
+        helper.layout = Layout(
             Fieldset("Systeminfo",
-                     Field('editors', data_live_search="true"),
+                     Field('editors', data_live_search="true", css_class="bootstrap-select"),
                      Row(
                          Column(Field('user_groups')),
                          Column(Field('nolle_groups'))
                      ),
-            ),
+                     ),
             HTML("<hr>"),
             Fieldset("Anmälningsinformation",
                      Row(Column(Field('name'), css_class="col-6")),
@@ -86,89 +86,31 @@ class HappeningForm(ExtendedMetaModelForm):
                          Column(Field('end_time'))
                      ),
                      Field('food'),
-            )
+                     )
         )
+        return helper
 
-
-class DrinkOptionForm(ExtendedMetaModelForm):
-    class Meta:
-        model = DrinkOption
-        fields = ['drink', 'price']
-        field_args = {
-            'drink': {
-                'label': '',
-            },
-            'price': {
-                'label': '',
-            },
-        }
-
-    helper = get_formset_form_helper(['drink', 'price'],
-                                     ['Dryck', 'Pris'],
-                                     wrapper_class="pr-2 rb-1",
-                                     remove_button_css_class="remove-drink-option")
-
-
-DrinkOptionFormset = inlineformset_factory(
-    Happening,
-    DrinkOption,
-    form=DrinkOptionForm,
-    extra=1,
-    can_delete=False
-)
-
-
-class GroupBasePriceForm(ExtendedMetaModelForm):
-    class Meta:
-        model = GroupBasePrice
-        fields = ['group', 'base_price']
-        field_args = {
-            'group': {
-                'label': '',
-            },
-            'base_price': {
-                'label': '',
-            },
-        }
-
-    helper = get_formset_form_helper(['group', 'base_price'],
-                                     ['Grupp', 'Baspris'],
-                                     wrapper_class="pr-2 rb-1",
-                                     remove_button_css_class="remove-base-price")
-
-
-GroupBasePriceFormset = inlineformset_factory(
+GroupBasePriceFormset = custom_inlineformset_factory(
     Happening,
     GroupBasePrice,
-    form=GroupBasePriceForm,
+    ['group', 'base_price'],
+    ['Grupp', 'Baspris'],
+    formclass="base-price",
     extra=1,
-    can_delete=False
 )
-
-
-class ExtraOptionForm(ExtendedMetaModelForm):
-    class Meta:
-        model = ExtraOption
-        fields = ['extra_option', 'price']
-        field_args = {
-            'extra_option': {
-                'label': '',
-            },
-            'price': {
-                'label': '',
-            },
-        }
-
-    helper = get_formset_form_helper(['extra_option', 'price'],
-                                     ['Tillval', 'Pris'],
-                                     wrapper_class="pr-2 rb-1",
-                                     remove_button_css_class="remove-extra-option")
-
-
-ExtraOptionFormset = inlineformset_factory(
+DrinkOptionFormset = custom_inlineformset_factory(
+    Happening,
+    DrinkOption,
+    ['drink', 'price'],
+    ['Dryck', 'Pris'],
+    formclass="drink-option",
+    extra=1,
+)
+ExtraOptionFormset = custom_inlineformset_factory(
     Happening,
     ExtraOption,
-    form=ExtraOptionForm,
+    ['extra_option', 'price'],
+    ['Tillval', 'Pris'],
+    formclass="extra-option",
     extra=1,
-    can_delete=False,
 )

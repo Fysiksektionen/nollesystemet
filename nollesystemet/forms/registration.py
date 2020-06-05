@@ -4,10 +4,10 @@ from crispy_forms.layout import Submit, Layout
 from django.forms import widgets
 
 from nollesystemet.models import Registration
-from .misc import ExtendedMetaModelForm
+from .misc import CreateSeeUpdateModelForm
 
 
-class RegistrationForm(ExtendedMetaModelForm):
+class RegistrationForm(CreateSeeUpdateModelForm):
     class Meta:
         model = Registration
         fields = ['food_preference', 'drink_option', 'extra_option', 'other']
@@ -36,11 +36,8 @@ class RegistrationForm(ExtendedMetaModelForm):
             },
         }
 
-    def __init__(self, happening=None, user=None, observing_user=None, editable=True, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        # Setup and check happening and user.
-        self.editable = self.is_editable(happening, user, observing_user, self.instance, editable)
+    def __init__(self, happening=None, user=None, observing_user=None, **kwargs):
+        super().__init__((happening, user, observing_user), **kwargs)
 
         self.happening = self.instance.happening if happening is None else happening
         self.user = self.instance.user if user is None else user
@@ -49,17 +46,10 @@ class RegistrationForm(ExtendedMetaModelForm):
 
         self.update_field_querysets()
         self.update_nonused_fields()
-        if not self.editable:
-            for field_name in self.fields:
-                self.fields[field_name].disabled = True
 
-        self.helper = None
-        self.make_crispy()
-
-    @staticmethod
-    def is_editable(happening, user, observing_user, instance, editable):
+    def get_is_editable(self, happening, user, observing_user, editable=True, **kwargs):
         enabled = None
-        if instance.pk is None:  # New registration
+        if self.is_new:  # New registration
             if happening is None:  # Error, system does not know what happening to tie the registration to
                 ValueError('Instance is None and no happening was given.')
             else:
@@ -75,14 +65,14 @@ class RegistrationForm(ExtendedMetaModelForm):
                         enabled = True
 
         else:  # Existing registration
-            if (happening is not None and happening != instance.happening) \
-                    or (user is not None and user != instance.user):  # Error, conflicting information
+            if (happening is not None and happening != self.instance.happening) \
+                    or (user is not None and user != self.instance.user):  # Error, conflicting information
                 ValueError('Instance given and given happening or user is in conflict.')
 
             if observing_user is not None:  # If an observer is existant
-                if instance.user_can_edit_registration(observing_user):  # If it can edit
+                if self.instance.user_can_edit_registration(observing_user):  # If it can edit
                     enabled = True
-                elif instance.user_can_see_registration(observing_user):  # If it can see
+                elif self.instance.user_can_see_registration(observing_user):  # If it can see
                     enabled = False
                 else:  # Not allowed to see
                     ValueError('User may not see the registration.')
@@ -107,13 +97,8 @@ class RegistrationForm(ExtendedMetaModelForm):
         if not self.happening.food:
             self.fields.pop('food_preference')
 
-    def make_crispy(self):
-        self.helper = FormHelper()
-        self.helper.form_method = 'post'
-        if self.editable:
-            self.helper.add_input(Submit('submit', 'Skicka' if self.is_new else 'Spara'))
-
     def save(self, commit=True):
-        self.instance.happening = self.happening
-        self.instance.user = self.user
+        if self.is_new:
+            self.instance.happening = self.happening
+            self.instance.user = self.user
         return super().save(commit)
