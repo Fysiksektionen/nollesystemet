@@ -1,5 +1,6 @@
 from django.apps import apps
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin, PermissionRequiredMixin
+from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy, reverse
 from django.views.generic import UpdateView, ListView
 
@@ -82,6 +83,13 @@ class HappeningUpdateView(LoginRequiredMixin, UserPassesTestMixin, mixins.BackUr
     template_name = 'fohseriet/evenemang/redigera.html'
 
     default_back_url = reverse_lazy('fohseriet:evenemang:lista')
+
+    def post(self, request, *args, **kwargs):
+        if 'delete' in request.POST:
+            self.get_object().delete()
+            return HttpResponseRedirect(self.get_back_url())
+        else:
+            return super(HappeningUpdateView, self).post(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
         ret = super().get(request, *args, **kwargs)

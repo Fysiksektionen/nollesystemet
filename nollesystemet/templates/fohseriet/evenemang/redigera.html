@@ -11,9 +11,14 @@
 {% endblock %}
 
 {% block content-left-col %}
-    {% include "common/elements/back-button.html" %}
-
     <form method="post">
+        <div class="d-flex justify-content-between">
+            {% include "common/elements/back-button.html" %}
+            {% if object %}
+                <button type="submit" name="delete" class="btn btn-danger my-4" value="Delete">Radera</button>
+            {% endif %}
+        </div>
+
         {% csrf_token %}
         {{ form.errors }}
         {{ form.non_field_errors }}
@@ -25,6 +30,6 @@
         <hr>
         {% include "fohseriet/elements/formset.html" with formset=extra_option_formset header="Extraval" formclass="extra-option" %}
         <hr>
-        <button type="submit" class="btn btn-primary mt-4 mb-4" value="Spara">Spara</button>
+        <button type="submit" name="submit" class="btn btn-primary mt-4 mb-4" value="Spara">Spara</button>
     </form>
 {% endblock %}
