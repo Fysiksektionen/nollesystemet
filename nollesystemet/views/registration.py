@@ -7,12 +7,14 @@ import nollesystemet.forms as forms
 import nollesystemet.mixins as mixins
 
 
-class RegistrationView(LoginRequiredMixin, UserPassesTestMixin, mixins.FadderietMenuMixin, UpdateView):
+class RegistrationView(mixins.FadderietMixin, UpdateView):
     model = models.Registration
     form_class = forms.RegistrationForm
     template_name = 'fadderiet/evenemang/anmalan.html'
 
     success_url = reverse_lazy('fadderiet:evenemang:index')
+
+    login_required = True
 
     def setup(self, request, *args, **kwargs):
         super().setup(request, *args, **kwargs)
@@ -70,11 +72,12 @@ class RegistrationView(LoginRequiredMixin, UserPassesTestMixin, mixins.Fadderiet
         kwargs.update(**dynamic_extra_context)
         return super().get_context_data(**kwargs)
 
-class RegistrationUpdateView(LoginRequiredMixin, UserPassesTestMixin, mixins.BackUrlMixin,
-                             mixins.FohserietMenuMixin, mixins.RedirectToGETArgMixin, UpdateView):
+class RegistrationUpdateView(mixins.FohserietMixin, UpdateView):
     model = models.Registration
     form_class = forms.RegistrationForm
     template_name = 'fohseriet/anmalan/redigera.html'
+
+    login_required = True
 
     def setup(self, request, *args, **kwargs):
         super().setup(request, *args, **kwargs)
@@ -103,13 +106,14 @@ class RegistrationUpdateView(LoginRequiredMixin, UserPassesTestMixin, mixins.Bac
         return kwargs
 
 
-class RegistrationSeeView(LoginRequiredMixin, UserPassesTestMixin, mixins.BackUrlMixin,
-                          mixins.FohserietMenuMixin, mixins.RedirectToGETArgMixin, UpdateView):
+class RegistrationSeeView(mixins.FohserietMixin, UpdateView):
     model = models.Registration
     form_class = forms.RegistrationForm
     template_name = 'fohseriet/anmalan/visa.html'
 
     default_back_url = reverse_lazy('foseriet:anvandare:anmalningar')
+
+    login_required = True
 
     def setup(self, request, *args, **kwargs):
         super().setup(request, *args, **kwargs)

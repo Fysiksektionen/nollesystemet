@@ -8,11 +8,11 @@ from django.views.generic import TemplateView, UpdateView
 import nollesystemet.mixins as mixins
 
 
-class FadderietMenuView(mixins.FadderietMenuMixin, TemplateView):
+class FadderietMenuView(mixins.FadderietMixin, TemplateView):
     pass
 
 
-class FohserietMenuView(mixins.FohserietMenuMixin, TemplateView):
+class FohserietMenuView(mixins.FohserietMixin, TemplateView):
     pass
 
 

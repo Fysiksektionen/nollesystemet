@@ -9,23 +9,26 @@ import nollesystemet.forms as forms
 import nollesystemet.mixins as mixins
 
 
-class HappeningListViewFadderiet(LoginRequiredMixin, mixins.FadderietMenuMixin, ListView):
+class HappeningListViewFadderiet(mixins.FadderietMixin, ListView):
     model = models.Happening
     template_name = 'fadderiet/evenemang/index.html'
 
     ordering = 'start_time'
+
+    login_required = True
 
     def get_queryset(self):
         self.queryset = models.Happening.objects.filter(user_groups__in=self.request.user.user_group.all()).filter(nolle_groups=self.request.user.nolle_group)
         querryset = super().get_queryset()
         return [{'happening': happening, 'is_registered': models.Registration.objects.filter(user=self.request.user.profile).filter(happening=happening).count() > 0} for happening in querryset]
 
-class HappeningListViewFohseriet(LoginRequiredMixin, PermissionRequiredMixin, mixins.FohserietMenuMixin, ListView):
+class HappeningListViewFohseriet(mixins.FohserietMixin, ListView):
     model = models.Happening
     template_name = 'fohseriet/evenemang/index.html'
 
     ordering = 'start_time'
 
+    login_required = True
     permission_required = 'nollesystemet.edit_happening'
 
     def get_queryset(self):
@@ -35,14 +38,15 @@ class HappeningListViewFohseriet(LoginRequiredMixin, PermissionRequiredMixin, mi
                  'user_can_edit': self.request.user.profile in happening.editors.all()} for happening in querryset]
 
 
-class HappeningRegisteredListView(LoginRequiredMixin, UserPassesTestMixin, mixins.BackUrlMixin,
-                                  mixins.FohserietMenuMixin, ListView):
+class HappeningRegisteredListView(mixins.FohserietMixin, ListView):
     model = models.Registration
     template_name = 'fohseriet/evenemang/anmalda.html'
 
     default_back_url = reverse_lazy('fohseriet:evenemang:lista')
 
     ordering = 'user__first_name'
+
+    login_required = True
 
     extra_context = {
         'user_groups': apps.get_model('authentication.UserGroup').objects.filter(is_external=False),
@@ -74,15 +78,15 @@ class HappeningRegisteredListView(LoginRequiredMixin, UserPassesTestMixin, mixin
         })
         return context
 
-class HappeningUpdateView(LoginRequiredMixin, UserPassesTestMixin, mixins.BackUrlMixin,
-                          mixins.HappeningOptionsMixin, mixins.FohserietMenuMixin, mixins.RedirectToGETArgMixin,
-                          UpdateView):
+class HappeningUpdateView(mixins.HappeningOptionsMixin, mixins.FohserietMixin, UpdateView):
     model = models.Happening
     form_class = forms.HappeningForm
 
     template_name = 'fohseriet/evenemang/redigera.html'
 
     default_back_url = reverse_lazy('fohseriet:evenemang:lista')
+
+    login_required = True
 
     def post(self, request, *args, **kwargs):
         if 'delete' in request.POST:

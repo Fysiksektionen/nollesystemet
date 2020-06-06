@@ -12,12 +12,14 @@ import nollesystemet.mixins as mixins
 from .misc import MultipleObjectsUpdateView
 
 
-class ProfilePageView(LoginRequiredMixin, mixins.FadderietMenuMixin, MultipleObjectsUpdateView):
+class ProfilePageView(mixins.FadderietMixin, MultipleObjectsUpdateView):
     model_list = [apps.get_model(settings.AUTH_USER_MODEL), apps.get_model(settings.USER_PROFILE_MODEL)]
     form_class_list = [forms.AuthUserUpdateForm, forms.ProfileUpdateForm]
 
     template_name = 'fadderiet/mina-sidor/profil.html'
     success_url = reverse_lazy('fadderiet:mina-sidor:profil')
+
+    login_required = True
 
     extra_context = {
         'change_password_url': reverse_lazy('fadderiet:byt-losenord:index')
@@ -37,10 +39,11 @@ class ProfilePageView(LoginRequiredMixin, mixins.FadderietMenuMixin, MultipleObj
             return super().get_success_url()
 
 
-class UsersListView(LoginRequiredMixin, PermissionRequiredMixin, mixins.FohserietMenuMixin, ListView):
+class UsersListView(mixins.FohserietMixin, ListView):
     model = apps.get_model(settings.USER_PROFILE_MODEL)
     template_name = 'fohseriet/anvandare/index.html'
 
+    login_required = True
     permission_required = 'nollesystemet.edit_user_info'
 
     extra_context = {
@@ -59,23 +62,25 @@ class UsersListView(LoginRequiredMixin, PermissionRequiredMixin, mixins.Fohserie
         return context
 
 
-class UserUpdateView(LoginRequiredMixin, PermissionRequiredMixin, mixins.FohserietMenuMixin, mixins.RedirectToGETArgMixin, MultipleObjectsUpdateView):
+class UserUpdateView(mixins.FohserietMixin, MultipleObjectsUpdateView):
     model_list = [models.UserProfile, apps.get_model(settings.AUTH_USER_MODEL)]
     form_class_list = [forms.ProfileUpdateForm, forms.AuthUserGroupsUpdateForm]
 
     template_name = 'fohseriet/anvandare/redigera.html'
     success_url = reverse_lazy('fohseriet:anvandare:index')
 
+    login_required = True
     permission_required = 'nollesystemet.edit_user_info'
 
     def get_objects(self):
         auth_user = apps.get_model(settings.AUTH_USER_MODEL).objects.get(pk=self.kwargs['pk'])
         return auth_user.profile, auth_user
 
-class UserRegistrationsListView(LoginRequiredMixin, PermissionRequiredMixin, mixins.FohserietMenuMixin, ListView):
+class UserRegistrationsListView(mixins.FohserietMixin, ListView):
     model = models.Registration
     template_name = 'fohseriet/anvandare/anmalningar.html'
 
+    login_required = True
     permission_required = 'nollesystemet.edit_user_info'
 
     def query_test_func(self, registration):

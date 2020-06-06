@@ -2,6 +2,7 @@ import json
 import re
 
 from django.contrib.auth import REDIRECT_FIELD_NAME
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin, AccessMixin
 from django.template import Template, Context
 from django.urls import reverse
 from django.views.generic.base import ContextMixin
@@ -40,8 +41,7 @@ class MenuMixin(ContextMixin):
     menu_items_static_file = None
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
+        context = {}
         menu_items = None
         order = None
         try:
@@ -79,7 +79,8 @@ class MenuMixin(ContextMixin):
 
         if menu:
             context['menu'] = menu
-        return context
+        context.update(kwargs)
+        return super().get_context_data(**context)
 
     def check_if_to_render(self, info):
         if info['user'] == 'any':
@@ -126,17 +127,10 @@ class MenuMixin(ContextMixin):
 
 class RedirectToGETArgMixin:
     def get_success_url(self):
+        print(__class__)
         if REDIRECT_FIELD_NAME in self.request.GET:
             self.success_url = self.request.GET[REDIRECT_FIELD_NAME]
         return super().get_success_url()
-
-
-class FohserietMenuMixin(MenuMixin):
-    menu_items_static_file = 'fohseriet/resources/menu_info.json'
-
-
-class FadderietMenuMixin(MenuMixin):
-    menu_items_static_file = 'fadderiet/resources/menu_info.json'
 
 
 class BackUrlMixin:
@@ -168,5 +162,41 @@ class BackUrlMixin:
 
         return back_url
 
+class NollesystemetMixin(BackUrlMixin, MenuMixin, RedirectToGETArgMixin,
+                         PermissionRequiredMixin, UserPassesTestMixin):
+    """
+    Mixin that all views of the project should inherit from. It overrides the error-throwing and default behaviour of
+    mixins that might not be used, but forces those that all views in the project should have.
 
+    menu_items_static_file: Set to the filepath of file used for defining the menu of the given view.
+
+    default_back_url: The default value of self.back_url and context value back_url if no previous page was given.
+    accepted_back_urls: A list of urls which is accepted to use as self.back_url. Otherwise self.back_url = default_back_url
+
+    login_required: If true user must be logged in. Defaults to False. Uses AccessMixin for error logic.
+    """
+
+    login_required = False
+
+    def dispatch(self, request, *args, **kwargs):
+        if self.login_required and not request.user.is_authenticated:
+            return self.handle_no_permission()
+        return super().dispatch(request, *args, **kwargs)
+
+    def has_permission(self):
+        if self.permission_required is not None:
+            return super().has_permission()
+        else:
+            return True
+
+    def test_func(self):
+        return True
+
+
+class FadderietMixin(NollesystemetMixin):
+    menu_items_static_file = 'fadderiet/resources/menu_info.json'
+
+
+class FohserietMixin(NollesystemetMixin):
+    menu_items_static_file = 'fohseriet/resources/menu_info.json'
 
