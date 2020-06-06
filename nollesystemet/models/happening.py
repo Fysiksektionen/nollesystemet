@@ -51,6 +51,9 @@ class GroupBasePrice(models.Model):
     happening = models.ForeignKey(Happening, on_delete=models.CASCADE)
     base_price = models.IntegerField()
 
+    class Meta:
+        unique_together = ['happening', 'group']
+
     def __str__(self):
         return "%s (+%d kr)" % (self.group, self.base_price)
 
@@ -60,6 +63,9 @@ class DrinkOption(models.Model):
     drink = models.CharField(max_length=30)
     price = models.IntegerField()
 
+    class Meta:
+        unique_together = ['happening', 'drink']
+
     def __str__(self):
         return "%s (+%d kr)" % (self.drink, self.price)
 
@@ -68,6 +74,9 @@ class ExtraOption(models.Model):
     happening = models.ForeignKey(Happening, on_delete=models.CASCADE)
     extra_option = models.CharField(max_length=30)
     price = models.IntegerField()
+
+    class Meta:
+        unique_together = ['happening', 'extra_option']
 
     def __str__(self):
         return "%s (+%d kr)" % (self.extra_option, self.price)
