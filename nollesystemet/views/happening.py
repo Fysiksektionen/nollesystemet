@@ -88,6 +88,10 @@ class HappeningUpdateView(mixins.HappeningOptionsMixin, mixins.FohserietMixin, U
 
     login_required = True
 
+    def setup(self, request, *args, **kwargs):
+        super().setup(request, *args, **kwargs)
+        self.success_url = self.back_url
+
     def post(self, request, *args, **kwargs):
         if 'delete' in request.POST:
             self.get_object().delete()
@@ -97,7 +101,6 @@ class HappeningUpdateView(mixins.HappeningOptionsMixin, mixins.FohserietMixin, U
 
     def get(self, request, *args, **kwargs):
         ret = super().get(request, *args, **kwargs)
-        self.success_url = self.back_url
         return ret
 
     def test_func(self):

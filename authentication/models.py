@@ -5,6 +5,7 @@ from django.contrib.auth.models import Group, AbstractBaseUser, PermissionsMixin
 from django.core import validators
 from django.db import models
 
+from .managers import AuthUserManager
 from .model_fields import MultipleStringChoiceField
 
 
@@ -15,8 +16,8 @@ class UserGroup(Group):
     Class attributes:
         is_external: Boolean telling if group is intended for use by authenticated users or not.
     """
-    is_external = models.BooleanField()
-    is_administrational = models.BooleanField()
+    is_external = models.BooleanField(default=False)
+    is_administrational = models.BooleanField(default=False)
 
 
 class NolleGroup(Group):
@@ -47,6 +48,8 @@ class AuthUser(AbstractUser):
     user_group = models.ManyToManyField(UserGroup, blank=True, limit_choices_to={"is_external": False})
     nolle_group = models.ForeignKey(NolleGroup, blank=True, null=True, on_delete=models.SET_NULL)
     PERMISSION_GROUPS = ['user_group', 'nolle_group']  # Used by backend to determine what fields are group-references.
+
+    objects = AuthUserManager()
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

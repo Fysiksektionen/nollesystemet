@@ -127,7 +127,6 @@ class MenuMixin(ContextMixin):
 
 class RedirectToGETArgMixin:
     def get_success_url(self):
-        print(__class__)
         if REDIRECT_FIELD_NAME in self.request.GET:
             self.success_url = self.request.GET[REDIRECT_FIELD_NAME]
         return super().get_success_url()
@@ -162,8 +161,8 @@ class BackUrlMixin:
 
         return back_url
 
-class NollesystemetMixin(BackUrlMixin, MenuMixin, RedirectToGETArgMixin,
-                         PermissionRequiredMixin, UserPassesTestMixin):
+class NollesystemetMixin(BackUrlMixin, RedirectToGETArgMixin,
+                         PermissionRequiredMixin, UserPassesTestMixin, MenuMixin):
     """
     Mixin that all views of the project should inherit from. It overrides the error-throwing and default behaviour of
     mixins that might not be used, but forces those that all views in the project should have.
