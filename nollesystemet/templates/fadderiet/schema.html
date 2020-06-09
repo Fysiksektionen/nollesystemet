@@ -1,9 +1,28 @@
 {% extends "fadderiet/base-sites/base-content.html" %}
 
+{% load static %}
+
 {% block title %}
     Schema
 {% endblock %}
 
 {% block content-indented %}
-    Här är ett schema
+    <ul class="nav nav-pills d-flex">
+        {% for group in nolle_groups %}
+            <li class="d-flex flex-grow-1 mx-1 {% ifequal group.name users_nolle_group_name %}active{% endifequal %}">
+                <a class="btn btn-primary flex-grow-1 {% ifequal group.name users_nolle_group_name %}active{% endifequal %}" data-toggle="pill" href="#group-schedule-{{ group.pk }}">
+                    {{ group.name }}
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+
+    <div class="tab-content">
+        {% for group in nolle_groups %}
+            <div id="group-schedule-{{ group.pk }}" class="tab-pane fade in {% ifequal group.name users_nolle_group_name %}active show{% endifequal %}">
+                <h3 class="my-3">Schema för {{ group.name }}</h3>
+                <img class="img-fluid" src="{% get_media_prefix %}{{ group.schedule }}" alt="Schema för {{ group.name }}">
+            </div>
+        {% endfor %}
+    </div>
 {% endblock %}

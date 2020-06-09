@@ -26,6 +26,7 @@ class NolleGroup(Group):
     """
     description = models.TextField(max_length=1000, blank=True)
     logo = models.ImageField(null=True, blank=True)
+    schedule = models.ImageField(null=True, blank=True)
 
 
 class AuthUser(AbstractUser):

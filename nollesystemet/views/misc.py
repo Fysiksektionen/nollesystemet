@@ -1,11 +1,16 @@
 from abc import abstractmethod
 
+from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.urls import reverse
 from django.http import QueryDict, HttpResponseRedirect, HttpResponse
 from django.views.generic import TemplateView, UpdateView
 
+import authentication.models as auth_models
+
 import nollesystemet.mixins as mixins
+from nollesystemet import models
+
 
 
 class FadderietMenuView(mixins.FadderietMixin, TemplateView):
@@ -150,3 +155,15 @@ class MultipleObjectsUpdateView(UpdateView):
         from django.views.generic.edit import FormMixin
         return FormMixin.get_success_url(self)
 
+
+class ScheduleView(mixins.FadderietMixin, TemplateView):
+    template_name = "fadderiet/schema.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['nolle_groups'] = auth_models.NolleGroup.objects.all()
+        try:
+            context['users_nolle_group_name'] = self.request.user.nolle_group.name if self.request.user else ''
+        except:
+            pass
+        return context
