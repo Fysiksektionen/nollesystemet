@@ -31,6 +31,7 @@
     <orderEntry type="library" name="tempusdominus-bootstrap-4" level="application" />
     <orderEntry type="library" name="bootstrap-datetimepicker" level="application" />
     <orderEntry type="library" name="bootstrap-datetimepicker.pt-BR" level="application" />
+    <orderEntry type="library" name="d99a0c6ab2" level="application" />
   </component>
   <component name="TemplatesService">
     <option name="TEMPLATE_CONFIGURATION" value="Django" />

@@ -25,3 +25,19 @@ class Registration(models.Model):
 
     def user_can_see_registration(self, user_profile):
         return user_profile == self.user or self.user_can_edit_registration(user_profile)
+
+    def get_base_price(self):
+        return self.happening.get_baseprice(self)
+
+    def get_drink_option_price(self):
+        return self.drink_option.price
+
+    def get_extra_option_price(self):
+        return sum([values['price'] for values in self.extra_option.values('price')])
+
+    def get_full_price(self):
+        return self.get_base_price() + self.get_drink_option_price() + self.get_extra_option_price()
+
+    @property
+    def all_extra_options_str(self):
+        return [str(extra_option) for extra_option in self.extra_option.all()]

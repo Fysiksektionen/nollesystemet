@@ -42,6 +42,10 @@ class Happening(models.Model):
     def user_can_edit_happening(self, user_profile):
         return user_profile in self.editors.all() or user_profile.auth_user.has_perm('nollesystemet.edit_happening')
 
+    def get_baseprice(self, registration):
+
+        return self.groupbaseprice_set.filter(group__in=registration.user.auth_user.user_group.all()).order_by('base_price').first().base_price
+
 
 def _all_baseprice_groups():
     return {'is_administrational': False}

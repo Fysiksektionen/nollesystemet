@@ -73,8 +73,8 @@ class UserUpdateView(mixins.FohserietMixin, MultipleObjectsUpdateView):
     permission_required = 'nollesystemet.edit_user_info'
 
     def get_objects(self):
-        auth_user = apps.get_model(settings.AUTH_USER_MODEL).objects.get(pk=self.kwargs['pk'])
-        return auth_user.profile, auth_user
+        user = apps.get_model(settings.USER_PROFILE_MODEL).objects.get(pk=self.kwargs['pk'])
+        return user, user.auth_user
 
 class UserRegistrationsListView(mixins.FohserietMixin, ListView):
     model = models.Registration

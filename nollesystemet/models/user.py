@@ -16,4 +16,23 @@ class UserProfile(auth_models.UserProfile):
             ("edit_user_registration", "Can change any user registration"),
         ]
 
+    @property
+    def name(self):
+        try:
+            return '%s %s' % (str(self.first_name), str(self.last_name))
+        except:
+            return 'User have no name set'
 
+    @property
+    def email(self):
+        try:
+            return '%s' % str(self.auth_user.email)
+        except:
+            return 'User profile has no AuthUser'
+
+    @property
+    def nolle_group(self):
+        try:
+            return '%s' % str(self.auth_user.nolle_group)
+        except:
+            return 'User profile has no AuthUser or nolle_group'

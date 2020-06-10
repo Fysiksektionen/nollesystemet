@@ -14,6 +14,7 @@ happening_urls = ([
     path('<int:pk>/redigera/', views.HappeningUpdateView.as_view(), name='redigera'),
     path('<int:pk>/anmalda/', views.HappeningRegisteredListView.as_view(), name='anmalda'),
     path('skapa/', views.HappeningUpdateView.as_view(), name='skapa'),
+    path('<int:pk>/ladda-ned-anmalda/', views.HappeningDownloadView.as_view(), name='ladda-ned-anmalda'),
 ], 'evenemang')
 
 user_urls = ([

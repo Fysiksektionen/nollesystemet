@@ -5,7 +5,12 @@
 {% endblock %}
 
 {% block content-indented %}
-    {% include "common/elements/back-button.html" %}
+    <div class="d-flex justify-content-between">
+        {% include "common/elements/back-button.html" %}
+        <a href="{% url "fohseriet:evenemang:ladda-ned-anmalda" happening.pk %}" class="btn btn-success my-4" download>
+            Ladda ned <i class="fa fa-download" aria-hidden="true"></i>
+        </a>
+    </div>
 
     <div id="filter-elements">
         <input class="form-control p-2" id="search-bar" type="text" placeholder="Sök användare...">
