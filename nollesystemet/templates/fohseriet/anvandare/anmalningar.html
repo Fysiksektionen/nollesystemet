@@ -5,9 +5,7 @@
 {% endblock %}
 
 {% block content-indented %}
-    <a class="btn btn-primary mt-3 mb-3" href="{{ back_url }}">
-        Tillbaka
-    </a>
+    {% include "common/elements/back-button.html" %}
 
     {% if object_list %}
         <table class="table table-list">
@@ -19,6 +17,7 @@
                         {% if list_item.user_can_edit %}
                             <a class="btn btn-primary" href="{% url 'fohseriet:anmalan:visa' list_item.registration.pk %}?next={{ request.path|urlencode }}">
                                 Se anmälan
+                                <i class="fa fa-address-card" aria-hidden="true"></i>
                             </a>
                         {% endif %}
                     </td>

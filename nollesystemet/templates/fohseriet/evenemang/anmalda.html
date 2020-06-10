@@ -8,7 +8,8 @@
     <div class="d-flex justify-content-between">
         {% include "common/elements/back-button.html" %}
         <a href="{% url "fohseriet:evenemang:ladda-ned-anmalda" happening.pk %}" class="btn btn-success my-4" download>
-            Ladda ned <i class="fa fa-download" aria-hidden="true"></i>
+            Ladda ned
+            <i class="fa fa-download" aria-hidden="true"></i>
         </a>
     </div>
 
@@ -42,6 +43,7 @@
                             {% if user_can_edit_registrations %}
                                 <a class="btn btn-primary" href="{% url 'fohseriet:anmalan:visa' registration_item.pk %}?next={{ request.path|urlencode }}">
                                     Visa anmälan
+                                    <i class="fa fa-address-card" aria-hidden="true"></i>
                                 </a>
                             {% endif %}
                         </td>

@@ -23,7 +23,10 @@
             {% crispy form %}
         {% endwith %}
     </div>
-    <button type="button" class="btn btn-success add-{{ formclass }}">Lägg till fler</button>
+    <button type="button" class="btn btn-success add-{{ formclass }}">
+        Lägg till fler
+        <i class="fa fa-plus" aria-hidden="true"></i>
+    </button>
 </div>
 <script>
         bindFormset("{{ formclass }}", "{{ formset.prefix }}");

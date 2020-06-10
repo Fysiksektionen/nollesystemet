@@ -45,10 +45,16 @@
                         <td>{{ user_item.phone_number }}</td>
                         <td id="user-group">{{ user_item.auth_user.user_group.all|join:", " }}</td>
                         {% if user_can_edit_user_info %}
-                            <td><a class="btn btn-primary" href="{% url 'fohseriet:anvandare:redigera' user_item.pk %}?next={{ request.path|urlencode }}">Redigera</a></td>
+                            <td><a class="btn btn-primary" href="{% url 'fohseriet:anvandare:redigera' user_item.pk %}?next={{ request.path|urlencode }}">
+                                Redigera
+                                <i class="fa fa-edit" aria-hidden="true"></i>
+                            </a></td>
                         {% endif %}
                         {% if user_can_edit_registrations %}
-                            <td><a class="btn btn-primary" href="{% url 'fohseriet:anvandare:anmalningar' user_item.pk %}">Se anmälningar</a></td>
+                            <td><a class="btn btn-primary" href="{% url 'fohseriet:anvandare:anmalningar' user_item.pk %}">
+                                Se anmälningar
+                                <i class="fa fa-scroll" aria-hidden="true"></i>
+                            </a></td>
                         {% endif %}
                     </tr>
                 {% endfor %}

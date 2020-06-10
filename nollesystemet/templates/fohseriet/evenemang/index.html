@@ -8,6 +8,7 @@
     <div class="pb-3">
         <a class="btn btn-primary" href="{% url 'fohseriet:evenemang:skapa' %}">
             Skapa evenemang
+            <i class="fa fa-plus" aria-hidden="true"></i>
         </a>
     </div>
 
@@ -24,6 +25,7 @@
                             {% if list_item.user_can_edit %}
                                 <a class="btn btn-primary" href="{% url 'fohseriet:evenemang:anmalda' list_item.happening.pk %}">
                                     Se anmälda
+                                    <i class="fa fa-users" aria-hidden="true"></i>
                                 </a>
                             {% endif %}
                         </td>
@@ -31,6 +33,7 @@
                             {% if list_item.user_can_edit %}
                                 <a class="btn btn-primary" href="{% url 'fohseriet:evenemang:redigera' list_item.happening.pk %}?next={{ request.path|urlencode }}">
                                     Redigera
+                                    <i class="fa fa-edit" aria-hidden="true"></i>
                                 </a>
                             {% endif %}
                         </td>

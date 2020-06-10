@@ -9,7 +9,10 @@
 {% block content-left-col %}
     <div class="d-flex justify-content-between">
         {% include "common/elements/back-button.html" %}
-        <a class="btn btn-primary my-4" href="{% url 'fohseriet:anmalan:redigera' object.pk %}">Redigera</a>
+        <a class="btn btn-primary my-4" href="{% url 'fohseriet:anmalan:redigera' object.pk %}">
+            Redigera
+            <i class="fa fa-edit" aria-hidden="true"></i>
+        </a>
     </div>
 
     <h3>Anmälan till {{ object.happening.name }} för {{ object.user }}</h3>

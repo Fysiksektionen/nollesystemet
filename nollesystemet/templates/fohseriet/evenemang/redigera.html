@@ -15,7 +15,10 @@
         <div class="d-flex justify-content-between">
             {% include "common/elements/back-button.html" %}
             {% if object %}
-                <button type="submit" name="delete" class="btn btn-danger my-4" value="Delete">Radera</button>
+                <button type="submit" name="delete" class="btn btn-danger my-4" value="Delete">
+                    Radera
+                    <i class="fa fa-remove" aria-hidden="true"></i>
+                </button>
             {% endif %}
         </div>
 
@@ -30,6 +33,9 @@
         <hr>
         {% include "fohseriet/elements/formset.html" with formset=extra_option_formset header="Extraval" formclass="extra-option" %}
         <hr>
-        <button type="submit" name="submit" class="btn btn-primary mt-4 mb-4" value="Spara">Spara</button>
+        <button type="submit" name="submit" class="btn btn-primary mt-4 mb-4" value="Spara">
+            Spara
+            <i class="fa fa-save" aria-hidden="true"></i>
+        </button>
     </form>
 {% endblock %}
