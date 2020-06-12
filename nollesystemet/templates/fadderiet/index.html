@@ -7,11 +7,13 @@
 {% endblock %}
 
 {% block content-spanning %}
-    <div>
-        <h1>Hej nØllan!</h1>
-    </div>
-    <div class="center-cropped" style="height: 700px;">
-        <img src="{% static "fadderiet/resources/fadderiet_valkommen.JPG" %}" alt="" />
+    <div class="position-relative text-center vertical-align-center" style="height: 700px;">
+        <div class="position-absolute bg-background-gray" style="opacity: 0.7; top: 10%; left: 10%; width: 20%; border-radius: 15px;">
+            <h1 style="margin: 0.5em 0; opacity: 1;">Hej nØllan!</h1>
+        </div>
+        <div class="center-cropped" style="height: 100%;">
+            <img src="{% static "fadderiet/resources/fadderiet_valkommen.JPG" %}" alt="" style="z-index: -1;"/>
+        </div>
     </div>
 {% endblock %}
 
