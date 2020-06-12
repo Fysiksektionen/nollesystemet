@@ -1,0 +1,5 @@
+Hej {{ user_profile.first_name }}!
+
+Du har anmält dig till {{ registration.happening.name }}. Det du har valt kostar {{ registration.get_full_price }}.
+
+

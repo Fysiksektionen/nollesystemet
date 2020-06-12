@@ -30,7 +30,10 @@ class Registration(models.Model):
         return self.happening.get_baseprice(self)
 
     def get_drink_option_price(self):
-        return self.drink_option.price
+        if self.drink_option:
+            return self.drink_option.price
+        else:
+            return 0
 
     def get_extra_option_price(self):
         return sum([values['price'] for values in self.extra_option.values('price')])
@@ -41,3 +44,4 @@ class Registration(models.Model):
     @property
     def all_extra_options_str(self):
         return [str(extra_option) for extra_option in self.extra_option.all()]
+

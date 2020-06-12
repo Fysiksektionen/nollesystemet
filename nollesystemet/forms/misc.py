@@ -98,11 +98,11 @@ def make_crispy_form(form_class, submit_button=None, form_action=None):
 
 
 class CreateSeeUpdateModelForm(ExtendedMetaModelForm):
-    def __init__(self, is_editable_args=(), editable=True, **kwargs):
+    def __init__(self, is_editable_args=(), editable=None, **kwargs):
         super(CreateSeeUpdateModelForm, self).__init__(**kwargs)
 
         self.is_new = self.instance.pk is None
-        self.is_editable = self.get_is_editable(*is_editable_args, editable=editable, **kwargs) if editable is None else editable
+        self.is_editable = self.get_is_editable(*is_editable_args, editable=True, **kwargs) if editable is None else editable
 
         for field_name in self.fields:
             self.fields[field_name].disabled = not self.is_editable

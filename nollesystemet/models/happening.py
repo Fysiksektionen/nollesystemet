@@ -43,8 +43,11 @@ class Happening(models.Model):
         return user_profile in self.editors.all() or user_profile.auth_user.has_perm('nollesystemet.edit_happening')
 
     def get_baseprice(self, registration):
-
-        return self.groupbaseprice_set.filter(group__in=registration.user.auth_user.user_group.all()).order_by('base_price').first().base_price
+        user_base_prices = self.groupbaseprice_set.filter(group__in=registration.user.auth_user.user_group.all())
+        if user_base_prices.count() > 0:
+            return user_base_prices.order_by('base_price').first().base_price
+        else:
+            return 0
 
 
 def _all_baseprice_groups():

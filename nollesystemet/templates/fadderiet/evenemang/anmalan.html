@@ -7,7 +7,7 @@
 {% endblock %}
 
 {% block content-left-col %}
-    {{ object.happening.description }}
+    {{ object.happening.description|linebreaks }}
     <hr>
     {% crispy form %}
 {% endblock %}

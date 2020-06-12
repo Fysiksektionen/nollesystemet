@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <style>
+        body {
+            font-family: "Poppins", -apple-system, system-ui, "BlinkMacSystemFont", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+        .outer-div {
+            margin: auto;
+            width: 100%;
+            position: relative;
+        }
+        .header-div {
+            background-color: #069080;
+            margin: auto;
+            height: auto;
+            padding: 20px;
+            color: #ffffff;
+        }
+        .content-div {
+            background-color: #fafafa;
+            margin: auto;
+            padding: 20px;
+        }
+        .footer-div {
+            height: 40px;
+            margin-top: 30px;
+            font-size: smaller;
+        }
+        .vertical-center {
+            margin: 0;
+            position: absolute;
+            top: 50%;
+            -ms-transform: translateY(-50%);
+            transform: translateY(-50%);
+        }
+        .rounded-content-box {
+            border-radius: 20px;
+            background-color: #f0f0f0;
+            border: 1px solid #b1b1b1;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+
+    </style>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Sofia">
+    <title>Anmälan till {{ happening }}</title>
+</head>
+<body>
+<div class="outer-div">
+    <div class="header-div" style="position: relative;">
+        <h1 style="margin: 0">Anmälan till {{ happening }}</h1>
+    </div>
+    <div class="content-div">
+        <div class="rounded-content-box">
+            <h2 style="margin-block-start: 0;">Välkommen till {{ happening }}!</h2>
+            Tack för att fyllt i anmälan till {{ happening }}.
+            Nedan kan du se vad du fyllde i samt den information som fanns i eventbeskrivningen.
+
+            <h3>Betalning</h3>
+            Du ska ha betalat din billjet <u>innan</u> du kommer till evenemanget. Det gör du genom att:
+            <ul>
+                <li>swisha till 123 503 97 21 eller</li>
+                <li>betala via bankgiro på XXXX-XXXX.</li>
+            </ul>
+            Du ska betala <strong>{{ registration.get_full_price }} kr</strong>.
+
+            <h3>Frågor?</h3>
+
+
+            Har du några frågor kring evenemanget? Mejla ansvarig arrangör på: <i>mail@f.kth.se</i> eller ring på <i>073-385 48 66</i>.
+
+            <a href="{{ registration_url }}">
+                <div style="background-color: #069080; padding: 12px 15px; margin-top: 2em; width: 100px; text-align: center; border-radius: 10px; color: #ffffff; text-decoration: none;">
+                    Se anmälan
+                </div>
+            </a>
+        </div>
+        <div class="rounded-content-box">
+            <h2 style="margin-block-start: 0;">Anmälan: {{ happening }}</h2>
+            {{ happening.description|linebreaks }}
+            {% for field in form %}
+                <h4>{{ field.label_tag }}</h4>
+                {{ field }}
+            {% endfor %}
+        </div>
+        <div class="footer-div">
+            Du får detta mejl i egenskap av användare av Fysiksektionens anmälningssystem <i>nØllesystemet</i>. Samtliga personuppgifter lagras enligt vår personuppgiftspolicy som återfinns här: <a href="https://f.kth.se/personuppgifter">Personuppgiftspolicy</a>.
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,7 +1,11 @@
 import django.forms as forms
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Layout
+from django.core.mail import EmailMultiAlternatives
 from django.forms import widgets
+from django.template import Context
+from django.template.loader import get_template
+from django.urls import reverse
 
 from nollesystemet.models import Registration
 from .misc import CreateSeeUpdateModelForm
@@ -42,7 +46,6 @@ class RegistrationForm(CreateSeeUpdateModelForm):
         self.happening = self.instance.happening if happening is None else happening
         self.user = self.instance.user if user is None else user
         self.observing_user = observing_user
-        self.is_new = self.instance.pk is None
 
         self.update_field_querysets()
         self.update_nonused_fields()
@@ -77,8 +80,8 @@ class RegistrationForm(CreateSeeUpdateModelForm):
                 else:  # Not allowed to see
                     ValueError('User may not see the registration.')
 
-            else:  # Error, Anonymous user may not see the registration
-                ValueError('Anonymous user may not see a registration.')
+            else:  # Anonymous can't edit
+                enabled = False
 
         return enabled and editable
 
@@ -101,4 +104,34 @@ class RegistrationForm(CreateSeeUpdateModelForm):
         if self.is_new:
             self.instance.happening = self.happening
             self.instance.user = self.user
-        return super().save(commit)
+
+        ret = super().save(commit)
+        if self.is_new:
+            self._send_confirmation_email()
+
+        return ret
+
+    def _send_confirmation_email(self):
+        """ (!) Only call this post save to db. """
+
+        subject_template = get_template('fadderiet/evenemang/bekraftelse_epost_amne.txt')
+        plaintext = get_template('fadderiet/evenemang/bekraftelse_epost.txt')
+        html = get_template('fadderiet/evenemang/bekraftelse_epost.html')
+
+        context = {
+            'registration': self.instance,
+            'happening': self.instance.happening,
+            'user_profile': self.instance.user,
+            'form': RegistrationForm(instance=self.instance),
+            'registration_url': reverse('fadderiet:evenemang:anmalan', kwargs={'pk': self.instance.pk})
+        }
+
+        from_email, to = None, str(self.instance.user.email)
+        subject = subject_template.render(context)
+        text_content = plaintext.render(context)
+        html_content = html.render(context)
+        msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
+        msg.attach_alternative(html_content, "text/html")
+        msg.send()
+
+
