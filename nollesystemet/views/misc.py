@@ -1,15 +1,17 @@
+import collections
+import csv
 from abc import abstractmethod
+from typing import Any, Callable
 
-from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.urls import reverse
 from django.http import QueryDict, HttpResponseRedirect, HttpResponse
+from django.views import View
 from django.views.generic import TemplateView, UpdateView
 
 import authentication.models as auth_models
 
 import nollesystemet.mixins as mixins
-from nollesystemet import models
 
 
 
@@ -167,3 +169,67 @@ class ScheduleView(mixins.FadderietMixin, TemplateView):
         except:
             pass
         return context
+
+class DownloadView(View):
+    # {'title': '', 'accessor': ''} or
+    # {'title': '', 'function': },
+    csv_data_structure: Any = []
+
+    file_name = None
+
+    def get_file_name(self):
+        return ""
+
+    def get_queryset(self):
+        return []
+
+    def get(self, request, *args, **kwargs):
+        if self.file_name is None:
+            self.file_name = self.get_file_name()
+
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="' + self.file_name + '.csv"'
+        writer = csv.writer(response)
+
+        # Write column titles
+        writer.writerow([column['title'] for column in self.csv_data_structure])
+
+        # Write registration data
+        queryset = self.get_queryset()
+        row_data = []
+        for item in queryset:
+            column_data = []
+
+            for column in self.csv_data_structure:
+                value = None
+                if 'accessor' in column:
+                    accessor_path = column['accessor']
+                    current_node = item
+                    while '.' in accessor_path:
+                        index = accessor_path.find('.')
+                        next_accessor = accessor_path[:index]
+                        accessor_path = accessor_path[index+1:]
+
+                        current_node = current_node.__getattribute__(next_accessor)
+                    value = current_node.__getattribute__(accessor_path)
+
+                elif 'function' in column:
+                    fn: Callable = column['function']
+                    fn_args = column.get('args', [])
+                    value = fn(item, *fn_args)
+
+                else:
+                    raise SyntaxError("No valid way of obtaining data was presented. Either specify an 'accessor' path or a 'function' to run to obtain data." )
+
+                if value is None or isinstance(value, str):
+                    pass
+                elif isinstance(value, collections.abc.Iterable):
+                    value = ', '.join([str(v) for v in value])
+                elif isinstance(value, object):
+                    value = str(value)
+                column_data.append(value)
+
+            row_data.append(column_data)
+
+        writer.writerows(row_data)
+        return response

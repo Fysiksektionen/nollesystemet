@@ -11,6 +11,9 @@
                 {{ hidden }}
             {% endfor %}
             {% crispy form %}
+            <div class="child-formset">
+                {% include "fohseriet/elements/formset.html" with formset=form.nested_formset header="Svar" %}
+            </div>
         </div>
     {% endfor %}
     <div class="emptyform {{ formset.prefix }}-form pb-1" style="display: none">
@@ -21,6 +24,9 @@
                 {{ hidden }}
             {% endfor %}
             {% crispy form %}
+            <div class="child-formset">
+                {% include "fohseriet/elements/formset.html" with formset=form.nested_formset header="Svar" %}
+            </div>
         {% endwith %}
     </div>
     <button type="button" class="btn btn-success add-{{ formset.prefix }}">
@@ -29,5 +35,5 @@
     </button>
 </div>
 <script>
-        bindFormset("{{ formset.prefix }}");
+    bindNestedFormset("{{ formset.prefix }}", "{{ formset.0.nested_formset.prefix }}");
 </script>

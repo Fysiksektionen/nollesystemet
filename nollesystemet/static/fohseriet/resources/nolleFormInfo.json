@@ -1,0 +1,33 @@
+{
+    "dynamic_questions": [
+        {
+            "question_type": "TEXT",
+            "number_label": "First",
+            "title": "Vad gör du här?"
+        },
+        {
+            "question_type": "RADIO",
+            "number_label": "Nr. 2",
+            "title": "Vad är bäst?",
+            "answers": [
+                "Apelsiner", "Äpplen", "Päron", "Sprit"
+            ]
+        },
+        {
+            "question_type": "CHECK",
+            "number_label": "π",
+            "title": "Välj allt du vill ha",
+            "answers": [
+                "Gaffel", "Mjöl", "Sprit", "Kaffe"
+            ]
+        },
+        {
+            "question_type": "CHECK",
+            "number_label": "2^2",
+            "title": "Vad gör du helst på fritiden?",
+            "answers": [
+                "Inget", "Pluggar", "Sover"
+            ]
+        }
+    ]
+}

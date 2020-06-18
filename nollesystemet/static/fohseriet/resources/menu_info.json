@@ -1,5 +1,5 @@
 {
-    "order": ["hantera-event", "hantera-andvandare", "fadderiet", ["logga-in", "logga-ut"]],
+    "order": ["hantera-event", "hantera-andvandare", "nolleenkaten","fadderiet", ["logga-in", "logga-ut"]],
     "menu_items": {
         "index": {
             "name": "Start",
@@ -19,6 +19,17 @@
         "hantera-andvandare": {
             "name": "Hantera andvändare",
             "url_name": "fohseriet:anvandare:index",
+            "align": "left",
+            "user": "with-permission",
+            "permissions" : {
+                "any": [
+                    "nollesystemet.edit_user_info"
+                ]
+            }
+        },
+        "nolleenkaten": {
+            "name": "nØlleenkäten",
+            "url_name": "fohseriet:nolleenkaten:index",
             "align": "left",
             "user": "with-permission",
             "permissions" : {

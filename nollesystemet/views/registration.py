@@ -54,7 +54,6 @@ class RegistrationView(mixins.FadderietMixin, UpdateView):
         kwargs.update({
             'observing_user': self.observing_user,
         })
-        print(kwargs)
         return kwargs
 
     def get_initial(self):

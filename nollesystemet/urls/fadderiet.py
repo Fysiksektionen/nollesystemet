@@ -32,6 +32,7 @@ happening_urls = ([
     path('<int:pk>/anmalan', views.registration.RegistrationView.as_view(), name='anmalan'),
 ], 'evenemang')
 
+
 fadderiet_urls = ([
     path('', views.misc.FadderietMenuView.as_view(template_name='fadderiet/index.html'),
          name='index'),
@@ -40,8 +41,7 @@ fadderiet_urls = ([
     path('om-fadderiet/', views.FadderietMenuView.as_view(template_name="fadderiet/om-fadderiet.html"), name='om-fadderiet'),
     path('kontakt/', views.FadderietMenuView.as_view(template_name="fadderiet/kontakt.html"), name='kontakt'),
     path('mina-sidor/', views.hello_world, name='mina-sidor'),
-    path('nolleenkaten/', views.hello_world, name='nolleenkaten'),
-
+    path('nolleenkaten/', views.NolleFormView.as_view(), name='nolleenkaten'),
 
     path('evenemang/', include(happening_urls)),
     path('logga-in/', include(login_urls)),
@@ -50,5 +50,6 @@ fadderiet_urls = ([
     path('aterstall-losenord/', include(password_reset_urls)),
     path('byt-losenord/', include(password_change_urls)),
     path('mina-sidor/', include(my_pages_urls)),
+
 ], 'fadderiet')
 

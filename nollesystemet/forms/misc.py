@@ -1,7 +1,7 @@
 import django.forms as forms
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Field, Row, Column, Button, Submit
-from django.forms import inlineformset_factory
+from django.forms import inlineformset_factory, modelformset_factory
 from django.forms.formsets import DELETION_FIELD_NAME
 
 
@@ -98,17 +98,24 @@ def make_crispy_form(form_class, submit_button=None, form_action=None):
 
 
 class CreateSeeUpdateModelForm(ExtendedMetaModelForm):
-    def __init__(self, is_editable_args=(), editable=None, **kwargs):
+    def __init__(self, is_editable_args=(), editable=None, submit_name=None, form_tag=True, **kwargs):
         super(CreateSeeUpdateModelForm, self).__init__(**kwargs)
 
         self.is_new = self.instance.pk is None
         self.is_editable = self.get_is_editable(*is_editable_args, editable=True, **kwargs) if editable is None else editable
 
+        self.add_fields(**kwargs)
+
         for field_name in self.fields:
             self.fields[field_name].disabled = not self.is_editable
             self.fields[field_name].widget.attrs['disabled'] = not self.is_editable
+            if not self.is_editable:
+                self.fields[field_name].required = False
 
-        self.helper = self.get_form_helper()
+        self.helper = self.get_form_helper(submit_name, form_tag)
+
+    def add_fields(self, **kwargs):
+        pass
 
     def get_is_editable(self, *args, **kwargs):
         return self.is_new
@@ -121,6 +128,25 @@ class CreateSeeUpdateModelForm(ExtendedMetaModelForm):
             helper.add_input(Submit('submit', submit_name if submit_name else ('Skicka' if self.is_new else 'Spara')))
 
         return helper
+
+
+def nested_formset_factory(parent_model, child_model, parent_form, child_form):
+    class ParentFormClass(parent_form):
+        nested_formset_class = inlineformset_factory(
+            parent_model, child_model, form=child_form, extra=1
+        )
+
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            self.nested_formset = self.nested_formset_class(instance=self.instance)
+
+        def is_valid(self):
+            return super().is_valid() and self.nested_formset.is_valid()
+
+    return modelformset_factory(parent_model, ParentFormClass, can_delete=True)
+
+
+
 
 
 

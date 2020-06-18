@@ -1,5 +1,5 @@
 {
-    "order": ["schema", "bra-info", "om-fadderiet", "evenemang", "kontakt", "fohseriet", "mina-sidor:profil", ["logga-in", "logga-ut"]],
+    "order": ["schema", "bra-info", "om-fadderiet", "evenemang", "nolleenkaten", "kontakt", "fohseriet", "mina-sidor:profil", ["logga-in", "logga-ut"]],
     "menu_items": {
         "index": {
             "name": "Hem",
@@ -74,6 +74,12 @@
                     "nollesystemet.edit_user_registration"
                 ]
             }
+        },
+        "nolleenkaten": {
+            "name": "nØlleenkäten",
+            "url_name": "fadderiet:nolleenkaten",
+            "align": "left",
+            "user": "any"
         }
     }
 }

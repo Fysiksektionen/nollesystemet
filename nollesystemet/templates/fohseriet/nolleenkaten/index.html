@@ -1,0 +1,24 @@
+{% extends 'fohseriet/base-sites/left-col-template.html' %}
+{% load crispy_forms_tags %}
+{% load crispy_forms_filters %}
+
+{% block title %}
+    nØlleenkäten
+{% endblock %}
+
+{% block content-left-col %}
+    <div class="d-flex justify-content-between">
+        {% include "common/elements/back-button.html" %}
+        <a href="{% url "fohseriet:nolleenkaten:ladda-ned-svar" %}" class="btn btn-success my-4" download>
+            Ladda ned
+            <i class="fa fa-download" aria-hidden="true"></i>
+        </a>
+    </div>
+
+    <form method="post" onSubmit="return confirm('Är du säker på att du vill uppdatera nØlleenkäten? Gör inte detta om folk redan börjat svara på enkäten!');">
+        {% csrf_token %}
+        <input type="submit" name="update" value="Uppdatera från fil" class="btn btn-primary">
+    </form>
+    <h3>Förhandsgranskning:</h3>
+    {% crispy form %}
+{% endblock %}

@@ -14,6 +14,7 @@ from django.views.generic.edit import FormMixin, ProcessFormView
 import nollesystemet.models as models
 import nollesystemet.forms as forms
 import nollesystemet.mixins as mixins
+from nollesystemet.views.misc import DownloadView
 
 
 class HappeningListViewFadderiet(mixins.FadderietMixin, ListView):
@@ -85,75 +86,36 @@ class HappeningRegisteredListView(mixins.FohserietMixin, ListView):
         })
         return context
 
-class HappeningDownloadView(mixins.FohserietMixin, View):
+class HappeningDownloadView(mixins.FohserietMixin, DownloadView):
+
+    login_required = True
+
+    def test_func(self):
+        return self.happening.user_can_edit_happening(self.request.user.profile)
+
+    csv_data_structure: Any = [
+        {'title': 'Namn', 'accessor': 'user.name'},
+        {'title': 'E-post', 'accessor': 'user.email'},
+        {'title': 'nØllegrupp', 'accessor': 'user.nolle_group'},
+        {'title': 'Speckost', 'accessor': 'food_preference'},
+        {'title': 'Dryck', 'accessor': 'drink_option.drink'},
+        {'title': 'Tillval', 'accessor': 'all_extra_options_str'},
+        {'title': 'Övrigt', 'accessor': 'other'},
+        {'title': 'Baspris', 'function': models.Registration.get_base_price},
+        {'title': 'Dryckespris', 'function': models.Registration.get_drink_option_price},
+        {'title': 'Tillvalspris', 'function': models.Registration.get_extra_option_price},
+        {'title': 'Totalpris', 'function': models.Registration.get_full_price},
+    ]
 
     def setup(self, request, *args, **kwargs):
         super().setup(request, *args, **kwargs)
         self.happening = models.Happening.objects.get(pk=self.kwargs['pk'])
 
-        self.csv_data_structure: Any = [
-            {'title': 'Namn', 'accessor': 'user.name'},
-            {'title': 'E-post', 'accessor': 'user.email'},
-            {'title': 'nØllegrupp', 'accessor': 'user.nolle_group'},
-            {'title': 'Speckost', 'accessor': 'food_preference'},
-            {'title': 'Dryck', 'accessor': 'drink_option.drink'},
-            {'title': 'Tillval', 'accessor': 'all_extra_options_str'},
-            {'title': 'Övrigt', 'accessor': 'other'},
-            {'title': 'Baspris', 'function': models.Registration.get_base_price},
-            {'title': 'Dryckespris', 'function': models.Registration.get_drink_option_price},
-            {'title': 'Tillvalspris', 'function': models.Registration.get_extra_option_price},
-            {'title': 'Totalpris', 'function': models.Registration.get_full_price},
-        ]
+    def get_file_name(self):
+        return 'Anmalda_' + slugify(self.happening.name, allow_unicode=True).replace('-', '_').upper()
 
-    def get(self, request, *args, **kwargs):
-        response = HttpResponse(content_type='text/csv')
-
-        happening_file_name = slugify(self.happening.name, allow_unicode=True).replace('-', '_').upper()
-        response['Content-Disposition'] = 'attachment; filename="Anmalda_' + happening_file_name + '.csv"'
-        writer = csv.writer(response)
-
-        # Write column titles
-        writer.writerow([column['title'] for column in self.csv_data_structure])
-
-        # Write registration data
-        registrations = models.Registration.objects.filter(happening=self.happening)
-        row_data = []
-        for registration in registrations:
-            column_data = []
-
-            for column in self.csv_data_structure:
-                value = None
-                if 'accessor' in column:
-                    accessor_path = column['accessor']
-                    current_node = registration
-                    while '.' in accessor_path:
-                        index = accessor_path.find('.')
-                        next_accessor = accessor_path[:index]
-                        accessor_path = accessor_path[index+1:]
-
-                        current_node = current_node.__getattribute__(next_accessor)
-                    value = current_node.__getattribute__(accessor_path)
-
-                elif 'function' in column:
-                    fn: Callable = column['function']
-                    fn_args = column.get('args', [])
-                    value = fn(registration, *fn_args)
-
-                else:
-                    raise SyntaxError("No valid way of obtaining data was presented. Either specify an 'accessor' path or a 'function' to run to obtain data." )
-
-                if value is None or isinstance(value, str):
-                    pass
-                elif isinstance(value, collections.abc.Iterable):
-                    value = ', '.join([str(v) for v in value])
-                elif isinstance(value, object):
-                    value = str(value)
-                column_data.append(value)
-
-            row_data.append(column_data)
-
-        writer.writerows(row_data)
-        return response
+    def get_queryset(self):
+        return models.Registration.objects.filter(happening=self.happening)
 
 
 class HappeningUpdateView(mixins.HappeningOptionsMixin, mixins.FohserietMixin, UpdateView):
