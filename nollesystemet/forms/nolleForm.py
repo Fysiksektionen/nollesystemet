@@ -1,9 +1,26 @@
+from crispy_forms.helper import FormHelper
 from django import forms
 from crispy_forms.layout import Layout, Fieldset, Field, Row, Column, HTML, Submit, Div
 
 from .misc import CreateSeeUpdateModelForm
 from nollesystemet.models import NolleFormAnswer, DynamicQuestion, DynamicAnswer, QuestionType
 
+
+class NolleFormFileUploadForm(forms.Form):
+    nolle_form_file = forms.FileField(label='nØlleformulärets fil',
+                                      required=True,
+                                      allow_empty_file=False,
+                                      help_text="Här laddar du upp en fil som uppdaterar innehållet i nØlleformuläret.")
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            'nolle_form_file',
+            Submit('submit', 'Uppdatera formulär')
+        )
+        self.helper.form_method = 'post'
 
 class DynamicQuestionCharField(forms.CharField):
     def __init__(self, question, **kwargs):

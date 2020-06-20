@@ -7,7 +7,7 @@ from django.views.generic import TemplateView, FormView, UpdateView
 
 import nollesystemet.mixins as mixins
 import nollesystemet.models as models
-from nollesystemet.forms import NolleFormBaseForm
+from nollesystemet.forms import NolleFormBaseForm, NolleFormFileUploadForm
 from .misc import DownloadView
 
 
@@ -17,26 +17,27 @@ class NolleFormInspectView(mixins.FohserietMixin, FormView):
 
     template_name = "fohseriet/nolleenkaten/index.html"
 
-    form_class = NolleFormBaseForm
+    form_class = NolleFormFileUploadForm
+    success_url = reverse_lazy('fohseriet:nolleenkaten:index')
 
-    def post(self, request, *args, **kwargs):
-        if 'update' in request.POST:
-            models.DynamicQuestion.objects.all().delete()
+    def form_valid(self, form):
+        models.NolleFormAnswer.objects.all().delete()
+        models.DynamicQuestion.objects.all().delete()
+        with form.files['nolle_form_file'] as json_file:
+            data = json.load(json_file)
+            for question_info in data['dynamic_questions']:
+                models.DynamicQuestion(question_info=question_info)
 
-            with open(finders.find('fohseriet/resources/nolleFormInfo.json')) as json_file:
-                data = json.load(json_file)
-                for question_info in data['dynamic_questions']:
-                    models.DynamicQuestion(question_info=question_info)
-        return self.get(request, *args, **kwargs)
+        return super().form_valid(form)
 
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs.update({
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        preview_form_kwargs = {
             'editable': False,
             'form_tag': False
-        })
-        return kwargs
-
+        }
+        context['preview_form'] = NolleFormBaseForm(**preview_form_kwargs)
+        return context
 
 class NolleFormView(mixins.FadderietMixin, UpdateView):
     login_required = True
