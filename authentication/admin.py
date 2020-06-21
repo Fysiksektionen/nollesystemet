@@ -7,18 +7,7 @@ This is for smooth development and backdoors for admins, not for user-side behav
 
 from django.contrib import admin, auth
 
-from .models import UserGroup, AuthUser, NolleGroup
+from .models import AuthUser
 
-admin.site.unregister(auth.models.Group)
+admin.site.register(AuthUser)
 
-@admin.register(AuthUser)
-class UserAdmin(admin.ModelAdmin):
-    pass
-
-@admin.register(UserGroup)
-class UserGroupAdmin(admin.ModelAdmin):
-    pass
-
-@admin.register(NolleGroup)
-class NolleGroupAdmin(admin.ModelAdmin):
-    pass

@@ -61,36 +61,25 @@ class AuthUserUpdateForm(ExtendedMetaModelForm):
 class AuthUserGroupsUpdateForm(ExtendedMetaModelForm):
     class Meta:
         model = apps.get_model(settings.AUTH_USER_MODEL)
-        fields = ['user_group', 'nolle_group']
+        fields = ['groups']
         field_args = {
-            'user_group': {
-                'label': 'Användartyp',
+            'groups': {
+                'label': 'Administratörsegenskaper',
                 'widget': forms.CheckboxSelectMultiple(),
-            },
-            'nolle_group': {
-                'label': 'nØllegrupp',
-                'widget': forms.RadioSelect(),
-                'empty_label': None,
-            },
+            }
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.layout = Layout(
-            Fieldset("Grupptillhörigheter",
-                     Row(Column(Field('user_group')),
-                         Column(Field('nolle_group'))
-                         ),
-                     )
-        )
+        self.helper.layout = Layout('groups')
 
 
 class ProfileUpdateForm(ExtendedMetaModelForm):
     class Meta:
         model = UserProfile
         fields = ['first_name', 'last_name', 'kth_id', 'phone_number', 'food_preference', 'contact_name',
-                  'contact_relation', 'contact_phone_number']
+                  'contact_relation', 'contact_phone_number', 'nolle_group']
 
         field_args = {
             'first_name': {
@@ -121,6 +110,11 @@ class ProfileUpdateForm(ExtendedMetaModelForm):
                 'required': False,
                 'label': 'KTH-id',
             },
+            'nolle_group': {
+                'label': 'nØllegrupp',
+                'widget': forms.RadioSelect(),
+                'empty_label': '(Ingen)',
+            },
         }
 
     def __init__(self, *args, **kwargs):
@@ -144,7 +138,9 @@ class ProfileUpdateForm(ExtendedMetaModelForm):
             Fieldset("Information till evenemang",
                      'food_preference'
                      ),
+            Row(Column(Field('nolle_group'))),
         )
-        if self.instance.auth_user.user_group.filter(name='nØllan').exists():
+
+        if self.instance.user_type == UserProfile.UserType.NOLLAN:
             self.fields.pop('kth_id')
             self.helper.layout.fields[0].fields[1].fields[1].pop(0)

@@ -4,3 +4,4 @@ class AuthenticationAppConfig(AppConfig):
     name = 'authentication'
     verbose_name = 'Authentication app'
 
+

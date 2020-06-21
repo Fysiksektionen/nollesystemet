@@ -16,12 +16,17 @@ class AuthUserManager(BaseUserManager):
         if not username:
             raise ValueError('The given username must be set')
         username = self.model.normalize_username(username)
+
+        extra_fields.setdefault('auth_backend', 'CRED')
+        extra_fields.setdefault('email', username + "@f.kth.se")
+
         user = self.model(username=username, **extra_fields)
+
         user.auth_backend = 'CRED'
         user.set_password(password)
         user.save(using=self._db)
 
-        user_profile = apps.get_model(utils.get_setting('USER_PROFILE_MODEL'))(auth=user)
+        user_profile = apps.get_model(utils.get_setting('USER_PROFILE_MODEL'))(auth_user=user)
         user_profile.save()
 
         return user
@@ -39,4 +44,6 @@ class AuthUserManager(BaseUserManager):
             raise ValueError('Superuser must have is_staff=True.')
         if extra_fields.get('is_superuser') is not True:
             raise ValueError('Superuser must have is_superuser=True.')
+
+        extra_fields.setdefault('auth_backend', '__all__')
         return self._create_user(username, password, **extra_fields)

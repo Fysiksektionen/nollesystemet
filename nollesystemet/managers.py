@@ -11,12 +11,13 @@ class UserProfileManager(BaseUserManager):
             raise ValueError('The given username must be set')
         username = apps.get_model(settings.AUTH_USER_MODEL).normalize_username(username)
 
-        is_staff = extra_fields.pop('is_staff')
-        is_superuser = extra_fields.pop('is_superuser')
+        auth_user = apps.get_model(
+            settings.AUTH_USER_MODEL
+        ).objects.create_user(username=username,
+                              is_staff=extra_fields.pop('is_staff'),
+                              is_superuser=extra_fields.pop('is_superuser')
+                              )
 
-        auth_user = apps.get_model(settings.AUTH_USER_MODEL)(username=username,
-                                                             is_staff=is_staff,
-                                                             is_superuser=is_superuser)
         auth_user.set_password(password)
         auth_user.save(using=self._db)
 

@@ -5,29 +5,8 @@ from django.contrib.auth.models import Group, AbstractBaseUser, PermissionsMixin
 from django.core import validators
 from django.db import models
 
+from .managers import AuthUserManager
 from .model_fields import MultipleStringChoiceField
-
-
-class UserGroup(Group):
-    """
-    Model for groups of special permissions.
-
-    Class attributes:
-        is_external: Boolean telling if group is intended for use by authenticated users or not.
-    """
-    is_external = models.BooleanField()
-    is_administrational = models.BooleanField()
-
-
-class NolleGroup(Group):
-    """
-    Model for "nØllegrupper". Can have special permissions.
-    Also contains extra information on the group itself.
-    """
-    description = models.TextField(max_length=1000, blank=True)
-    logo = models.ImageField(null=True, blank=True)
-    schedule = models.ImageField(null=True, blank=True)
-
 
 class AuthUser(AbstractUser):
     """
@@ -36,18 +15,13 @@ class AuthUser(AbstractUser):
     """
 
     # Remove unwanted inherited things
-    groups = None
     first_name = None
     last_name = None
     date_joined = None
 
     # Field for authorized authentication backends
     auth_backend = MultipleStringChoiceField(separator=",", choices=None, max_length=150)
-
-    # Remove standard group and add two new groups
-    user_group = models.ManyToManyField(UserGroup, blank=True, limit_choices_to={"is_external": False})
-    nolle_group = models.ForeignKey(NolleGroup, blank=True, null=True, on_delete=models.SET_NULL)
-    PERMISSION_GROUPS = ['user_group', 'nolle_group']  # Used by backend to determine what fields are group-references.
+    objects = AuthUserManager()
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -81,9 +55,6 @@ class UserProfile(models.Model):
     first_name = models.CharField(max_length=100, blank=True)
     last_name = models.CharField(max_length=100, blank=True)
 
-    has_set_profile = models.BooleanField(verbose_name="Profile setup done",
-                                          default=False)
-
     auth_user = AutoOneToOneField(settings.AUTH_USER_MODEL,
                                   on_delete=models.CASCADE,
                                   related_name="profile",
@@ -98,3 +69,17 @@ class UserProfile(models.Model):
             return '%s %s' % (str(self.first_name), str(self.last_name))
         else:
             return str(getattr(self.auth_user, self.auth_user.USERNAME_FIELD))
+
+    @property
+    def name(self):
+        try:
+            return '%s %s' % (str(self.first_name), str(self.last_name))
+        except:
+            return 'User have no name set'
+
+    @property
+    def email(self):
+        try:
+            return '%s' % str(self.auth_user.email)
+        except:
+            return 'User profile has no AuthUser'

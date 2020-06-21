@@ -1,17 +1,23 @@
+from django.apps import apps
 from django.conf import settings
 from django.db import models
-from django.db.models import Q
+
+from multiselectfield import MultiSelectField
 
 import authentication.models as auth_models
-from .user import UserProfile
+from .user import UserProfile, NolleGroup
+from .fields import MultipleChoiceEnumModelField
 
-
-def _all_editors():
-    editors_pk = [user.pk for user in UserProfile.objects.all() if
-                  user.auth_user.has_perm('nollesystemet.edit_happening')]
-    return {'pk__in': editors_pk}
+def _is_editor_condition():
+    return {'pk__in': [user.pk for user in UserProfile.objects.all()
+                       if user.auth_user.has_perm('nollesystemet.edit_happening')]}
 
 class Happening(models.Model):
+    """
+    Model representing a physical (or digital) event.
+    Stores information on the event and available options at a registration.
+    """
+
     name = models.CharField(max_length=50, unique=True)
     description = models.CharField(max_length=300)
     start_time = models.DateTimeField()
@@ -20,54 +26,66 @@ class Happening(models.Model):
 
     takes_registration = models.BooleanField()
     external_registration = models.BooleanField()
-    user_groups = models.ManyToManyField(auth_models.UserGroup, related_name="happening_user_group")
-    nolle_groups = models.ManyToManyField(auth_models.NolleGroup, related_name="happening_nolle_group")
+    user_types = MultipleChoiceEnumModelField(UserProfile.UserType, blank=False, null=False,
+                                              default=[UserProfile.UserType.NOLLAN, UserProfile.UserType.FADDER])
+    nolle_groups = models.ManyToManyField(NolleGroup, related_name="happening_nolle_group")
 
     food = models.BooleanField(default=True)
 
-    editors = models.ManyToManyField(settings.USER_PROFILE_MODEL, limit_choices_to=_all_editors)
+    editors = models.ManyToManyField(UserProfile, limit_choices_to=_is_editor_condition)
 
     class Meta(auth_models.UserProfile.Meta):
         permissions = [
-            ("edit_happening", "Can edit/create happenings"),
+            ("create_happening", "Can create happenings"),
+            ("edit_happening", "Can edit any happening"),
         ]
 
     def __str__(self):
         return str(self.name)
 
-    def user_can_register(self, user_profile):
-        return (not set(self.user_groups.all()).isdisjoint(user_profile.auth_user.user_group.all())) and \
-               (user_profile.auth_user.nolle_group in self.nolle_groups.all())
+    @staticmethod
+    def can_create(observing_user: UserProfile):
+        return observing_user.has_perm('create_happening')
 
-    def user_can_edit_happening(self, user_profile):
-        return user_profile in self.editors.all() or user_profile.auth_user.has_perm('nollesystemet.edit_happening')
+    def can_register(self, observing_user: UserProfile):
+        print('User type:', observing_user.user_type, 'Allowed: ', self.user_types, 'In:', observing_user.user_type in self.user_types)
+        return observing_user.user_type in self.user_types and observing_user.nolle_group in self.nolle_groups.all()
+
+    def can_see_registered(self, observing_user: UserProfile):
+        return self.can_edit(observing_user) or observing_user.has_perm('see_registration') or observing_user.has_perm('edit_registration')
+
+    def can_edit(self, observing_user: UserProfile):
+        return observing_user in self.editors.all() or observing_user.has_perm('edit_happening')
+
+    def is_registered(self, user: UserProfile):
+        return apps.get_model('nollesystemet.Registration').objects.filter(happening=self, user=user).exists()
 
     def get_baseprice(self, registration):
-        user_base_prices = self.groupbaseprice_set.filter(group__in=registration.user.auth_user.user_group.all())
-        if user_base_prices.count() > 0:
-            return user_base_prices.order_by('base_price').first().base_price
-        else:
+        try:
+            return self.usertypebaseprice_set.get(user_type=registration.user.user_type).price
+        except UserTypeBasePrice.DoesNotExist:
             return 0
 
 
-def _all_baseprice_groups():
-    return {'is_administrational': False}
+class UserTypeBasePrice(models.Model):
+    """ Model representing the minimum price of a happening for a given UserProfile.UserType. """
 
-class GroupBasePrice(models.Model):
-    group = models.ForeignKey(auth_models.UserGroup, on_delete=models.CASCADE, limit_choices_to=_all_baseprice_groups)
+    user_type = models.PositiveSmallIntegerField(choices=UserProfile.UserType.choices)
     happening = models.ForeignKey(Happening, on_delete=models.CASCADE)
-    base_price = models.IntegerField()
+    price = models.PositiveSmallIntegerField()
 
     class Meta:
-        unique_together = ['happening', 'group']
+        unique_together = ['happening', 'user_type']
 
     def __str__(self):
-        return "%s (+%d kr)" % (self.group, self.base_price)
+        return "%s (+%d kr)" % (self.user_type, self.price)
 
 
 class DrinkOption(models.Model):
-    happening = models.ForeignKey(Happening, on_delete=models.CASCADE)
+    """ Model representing an option of drinks to a happening and its associated price. """
+
     drink = models.CharField(max_length=30)
+    happening = models.ForeignKey(Happening, on_delete=models.CASCADE)
     price = models.IntegerField()
 
     class Meta:
@@ -78,8 +96,10 @@ class DrinkOption(models.Model):
 
 
 class ExtraOption(models.Model):
-    happening = models.ForeignKey(Happening, on_delete=models.CASCADE)
+    """ Model representing extra options of a happening and their respective price. """
+
     extra_option = models.CharField(max_length=30)
+    happening = models.ForeignKey(Happening, on_delete=models.CASCADE)
     price = models.IntegerField()
 
     class Meta:

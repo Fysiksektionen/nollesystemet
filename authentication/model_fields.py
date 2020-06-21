@@ -10,7 +10,7 @@ class MultipleStringChoiceField(models.CharField):
             if not ("choices" in kwargs):
                 raise KeyError("You must specify the choices option to MultipleStringChoiceField if you don't specify max_length.")
 
-            max_length = len(self.separator.join([pair[0] for pair in kwargs["choices"]]))
+            max_length = len(self.separator.join([str(pair[0]) for pair in kwargs["choices"]]))
             kwargs['max_length'] = max_length
 
         super().__init__(**kwargs)
@@ -21,6 +21,8 @@ class MultipleStringChoiceField(models.CharField):
     def deconstruct(self):
         name, path, args, kwargs = super().deconstruct()
         del kwargs["max_length"]
+        if self.separator != ",":
+            kwargs['separator'] = self.separator
         return name, path, args, kwargs
 
     def to_python(self, value):

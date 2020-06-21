@@ -73,9 +73,9 @@ class RegistrationForm(CreateSeeUpdateModelForm):
                 ValueError('Instance given and given happening or user is in conflict.')
 
             if observing_user is not None:  # If an observer is existant
-                if self.instance.user_can_edit_registration(observing_user):  # If it can edit
+                if self.instance.can_edit(observing_user):  # If it can edit
                     enabled = True
-                elif self.instance.user_can_see_registration(observing_user):  # If it can see
+                elif self.instance.can_see(observing_user):  # If it can see
                     enabled = False
                 else:  # Not allowed to see
                     ValueError('User may not see the registration.')

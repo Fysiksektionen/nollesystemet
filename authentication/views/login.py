@@ -34,15 +34,6 @@ def _login_success_redirect(request, user, next_url='/', drop_params=None):
     if REDIRECT_FIELD_NAME in query_params:
         del query_params[REDIRECT_FIELD_NAME]
 
-    # If user profile is used in this build
-    user_model_name = utils.get_setting('USER_PROFILE_MODEL')
-    if user_model_name:
-        # If user profile is not set up
-        profile_name = apps.get_model(user_model_name).auth_user.field.remote_field.name
-        if not getattr(request.user, profile_name).has_set_profile:
-            query_params[REDIRECT_FIELD_NAME] = next_url
-            next_url = utils.get_setting('USER_PROFILE_SETUP_URL')
-
     if len(query_params) > 0:
         suffix = '?' + query_params.urlencode(safe='/')
     return HttpResponseRedirect(next_url + suffix)

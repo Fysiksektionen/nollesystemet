@@ -36,9 +36,9 @@ class RegistrationView(mixins.FadderietMixin, UpdateView):
 
     def test_func(self):
         if self.registration:
-            return self.registration.user_can_see_registration(self.observing_user)
+            return self.registration.can_see(self.observing_user)
         else:
-            return self.happening.user_can_register(self.observing_user)
+            return self.happening.can_register(self.observing_user)
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -94,7 +94,7 @@ class RegistrationUpdateView(mixins.FohserietMixin, UpdateView):
         self.success_url = self.default_back_url
 
     def test_func(self):
-        return self.registration.user_can_edit_registration(self.request.user.profile)
+        return self.registration.can_edit(self.request.user.profile)
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -129,7 +129,7 @@ class RegistrationSeeView(mixins.FohserietMixin, UpdateView):
         self.success_url = self.back_url
 
     def test_func(self):
-        return self.registration.user_can_see_registration(self.request.user.profile)
+        return self.registration.can_see(self.request.user.profile)
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()

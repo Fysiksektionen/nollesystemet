@@ -10,9 +10,8 @@ from django.views import View
 from django.views.generic import TemplateView, UpdateView
 
 import authentication.models as auth_models
-
 import nollesystemet.mixins as mixins
-
+from nollesystemet.models import NolleGroup
 
 
 class FadderietMenuView(mixins.FadderietMixin, TemplateView):
@@ -163,9 +162,9 @@ class ScheduleView(mixins.FadderietMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['nolle_groups'] = auth_models.NolleGroup.objects.all()
+        context['nolle_groups'] = NolleGroup.objects.all()
         try:
-            context['users_nolle_group_name'] = self.request.user.nolle_group.name if self.request.user else ''
+            context['users_nolle_group'] = self.request.user.profile.nolle_group if self.request.user else ''
         except:
             pass
         return context

@@ -37,6 +37,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'crispy_forms',
+    'multiselectfield',
     'authentication',
     'nollesystemet',
 )
@@ -173,7 +174,6 @@ USER_PROFILE_MODEL = 'nollesystemet.UserProfile'
 USER_PROFILE_SETUP_URL = reverse_lazy('fadderiet:mina-sidor:profil')
 
 AUTHENTICATION_BACKENDS = [
-    'authentication.backends.MultipleGroupCategoriesBackend',
     'authentication.backends.UserCredentialsBackend',
     'authentication.backends.CASBackend',
 ]

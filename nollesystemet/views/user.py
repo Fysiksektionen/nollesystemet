@@ -47,8 +47,8 @@ class UsersListView(mixins.FohserietMixin, ListView):
     permission_required = 'nollesystemet.edit_user_info'
 
     extra_context = {
-        'user_groups': apps.get_model('authentication.UserGroup').objects.filter(is_external=False),
-        'nolle_groups': apps.get_model('authentication.NolleGroup').objects.all()
+        'user_types': models.UserProfile.UserType.names,
+        'nolle_groups': models.NolleGroup.objects.all()
     }
 
     def get_context_data(self, **kwargs):

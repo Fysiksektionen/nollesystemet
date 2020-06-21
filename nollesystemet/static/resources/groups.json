@@ -1,0 +1,16 @@
+{
+    "groups": [
+        {
+            "name": "Administratör",
+            "perms": [
+                "edit_user_profile"
+            ]
+        },
+        {
+            "name": "Arrangör",
+            "perms": [
+                "edit_happening"
+            ]
+        }
+    ]
+}

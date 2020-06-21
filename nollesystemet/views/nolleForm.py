@@ -22,11 +22,11 @@ class NolleFormInspectView(mixins.FohserietMixin, FormView):
 
     def form_valid(self, form):
         models.NolleFormAnswer.objects.all().delete()
-        models.DynamicQuestion.objects.all().delete()
+        models.DynamicNolleFormQuestion.objects.all().delete()
         with form.files['nolle_form_file'] as json_file:
             data = json.load(json_file)
             for question_info in data['dynamic_questions']:
-                models.DynamicQuestion(question_info=question_info)
+                models.DynamicNolleFormQuestion(question_info=question_info)
 
         return super().form_valid(form)
 

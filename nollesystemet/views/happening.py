@@ -1,15 +1,12 @@
-import collections
-import csv
 from typing import Callable, Any
 
 from django.apps import apps
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin, PermissionRequiredMixin
 from django.http import HttpResponseRedirect, HttpResponse
 from django.urls import reverse_lazy, reverse
 from django.utils.text import slugify
-from django.views import View
 from django.views.generic import UpdateView, ListView
-from django.views.generic.edit import FormMixin, ProcessFormView
+
+import authentication.models as auth_models
 
 import nollesystemet.models as models
 import nollesystemet.forms as forms
@@ -26,9 +23,16 @@ class HappeningListViewFadderiet(mixins.FadderietMixin, ListView):
     login_required = True
 
     def get_queryset(self):
-        self.queryset = models.Happening.objects.filter(user_groups__in=self.request.user.user_group.all()).filter(nolle_groups=self.request.user.nolle_group)
+        self.queryset = models.Happening.objects.all()
         querryset = super().get_queryset()
-        return [{'happening': happening, 'is_registered': models.Registration.objects.filter(user=self.request.user.profile).filter(happening=happening).count() > 0} for happening in querryset]
+        return [
+            {
+                'happening': happening,
+                'is_registered': happening.is_registered(self.request.user.profile)
+            }
+            for happening in querryset
+            if happening.can_register(self.request.user.profile)
+        ]
 
 class HappeningListViewFohseriet(mixins.FohserietMixin, ListView):
     model = models.Happening
@@ -57,8 +61,8 @@ class HappeningRegisteredListView(mixins.FohserietMixin, ListView):
     login_required = True
 
     extra_context = {
-        'user_groups': apps.get_model('authentication.UserGroup').objects.filter(is_external=False),
-        'nolle_groups': apps.get_model('authentication.NolleGroup').objects.all()
+        'user_types': models.UserProfile.UserType.names,
+        'nolle_groups': models.NolleGroup.objects.all()
     }
 
     def setup(self, request, *args, **kwargs):
@@ -70,7 +74,7 @@ class HappeningRegisteredListView(mixins.FohserietMixin, ListView):
             self.handle_no_permission()
 
     def test_func(self):
-        return self.happening.user_can_edit_happening(self.request.user.profile)
+        return self.happening.can_edit(self.request.user.profile)
 
     def get_queryset(self):
         self.queryset = models.Registration.objects.filter(happening=models.Happening.objects.get(pk=self.kwargs['pk']))
@@ -91,7 +95,8 @@ class HappeningDownloadView(mixins.FohserietMixin, DownloadView):
     login_required = True
 
     def test_func(self):
-        return self.happening.user_can_edit_happening(self.request.user.profile)
+        return self.happening.can_edit(self.request.user.profile) or \
+               self.happening.can_see_registered(self.request.user.profile)
 
     csv_data_structure: Any = [
         {'title': 'Namn', 'accessor': 'user.name'},
@@ -104,7 +109,7 @@ class HappeningDownloadView(mixins.FohserietMixin, DownloadView):
         {'title': 'Baspris', 'function': models.Registration.get_base_price},
         {'title': 'Dryckespris', 'function': models.Registration.get_drink_option_price},
         {'title': 'Tillvalspris', 'function': models.Registration.get_extra_option_price},
-        {'title': 'Totalpris', 'function': models.Registration.get_full_price},
+        {'title': 'Totalpris', 'function': models.Registration.get_price},
     ]
 
     def setup(self, request, *args, **kwargs):
@@ -118,7 +123,7 @@ class HappeningDownloadView(mixins.FohserietMixin, DownloadView):
         return models.Registration.objects.filter(happening=self.happening)
 
 
-class HappeningUpdateView(mixins.HappeningOptionsMixin, mixins.FohserietMixin, UpdateView):
+class HappeningUpdateView(mixins.FohserietMixin, UpdateView):
     model = models.Happening
     form_class = forms.HappeningForm
 
@@ -165,3 +170,23 @@ class HappeningUpdateView(mixins.HappeningOptionsMixin, mixins.FohserietMixin, U
         if 'pk' not in self.kwargs:
             return None
         return super().get_object(queryset=queryset)
+
+    def form_valid(self, form):
+        context = self.get_context_data(form=form)
+        drink_option_formset = context['drink_option_formset']
+        base_price_formset = context['base_price_formset']
+        extra_option_formset = context['extra_option_formset']
+        if drink_option_formset.is_valid() and base_price_formset.is_valid() and extra_option_formset.is_valid():
+            response = super().form_valid(form)
+
+            drink_option_formset.instance = self.object
+            drink_option_formset.save()
+
+            base_price_formset.instance = self.object
+            base_price_formset.save()
+
+            extra_option_formset.instance = self.object
+            extra_option_formset.save()
+            return response
+        else:
+            return super().form_invalid(form)

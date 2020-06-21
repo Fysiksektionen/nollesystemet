@@ -3,14 +3,12 @@ from django.forms.widgets import Textarea, DateTimeInput
 
 from crispy_forms.layout import Layout, Fieldset, Field, Row, Column, HTML
 
-from authentication.models import NolleGroup, UserGroup
-
-from nollesystemet.models import Happening, DrinkOption, ExtraOption, GroupBasePrice
+import nollesystemet.models as models
 from .misc import CreateSeeUpdateModelForm, custom_inlineformset_factory
 
 class HappeningForm(CreateSeeUpdateModelForm):
     class Meta:
-        model = Happening
+        model = models.Happening
         exclude = ['image_file_path']
         field_args = {
             'name': {
@@ -35,10 +33,10 @@ class HappeningForm(CreateSeeUpdateModelForm):
             'external_registration': {
                 'label': 'Accepterar icke-användare',
             },
-            'user_groups': {
+            'user_types': {
                 'label': 'Välkomna grupper',
                 'widget': forms.CheckboxSelectMultiple(),
-                'queryset': UserGroup.objects.all().exclude(is_administrational=True)
+
             },
             'nolle_groups': {
                 'label': 'Välkomna nØllegrupper',
@@ -54,15 +52,9 @@ class HappeningForm(CreateSeeUpdateModelForm):
         }
 
     def __init__(self, **kwargs):
-        initial = {
-            'user_groups': UserGroup.objects.filter(name__in=['nØllan', 'Fadder']),
-            'nolle_groups': NolleGroup.objects.all()
-        }
-        if 'initial' in kwargs:
-            initial.update(kwargs['initial'])
-        kwargs['initial'] = initial
-
         super().__init__(**kwargs)
+        self.initial.setdefault('user_types', [models.UserProfile.UserType.NOLLAN, models.UserProfile.UserType.FADDER])
+        self.initial.setdefault('nolle_groups', models.NolleGroup.objects.all())
 
     def get_is_editable(self, **kwargs):
         return True
@@ -73,7 +65,7 @@ class HappeningForm(CreateSeeUpdateModelForm):
             Fieldset("Systeminfo",
                      Field('editors', data_live_search="true", css_class="bootstrap-select"),
                      Row(
-                         Column(Field('user_groups')),
+                         Column(Field('user_types')),
                          Column(Field('nolle_groups'))
                      ),
                      ),
@@ -91,24 +83,24 @@ class HappeningForm(CreateSeeUpdateModelForm):
         return helper
 
 GroupBasePriceFormset = custom_inlineformset_factory(
-    Happening,
-    GroupBasePrice,
-    ['group', 'base_price'],
+    models.Happening,
+    models.UserTypeBasePrice,
+    ['user_type', 'price'],
     ['Grupp', 'Baspris'],
     formclass="base-price",
     extra=1,
 )
 DrinkOptionFormset = custom_inlineformset_factory(
-    Happening,
-    DrinkOption,
+    models.Happening,
+    models.DrinkOption,
     ['drink', 'price'],
     ['Dryck', 'Pris'],
     formclass="drink-option",
     extra=1,
 )
 ExtraOptionFormset = custom_inlineformset_factory(
-    Happening,
-    ExtraOption,
+    models.Happening,
+    models.ExtraOption,
     ['extra_option', 'price'],
     ['Tillval', 'Pris'],
     formclass="extra-option",

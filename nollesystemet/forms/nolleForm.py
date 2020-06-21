@@ -3,7 +3,7 @@ from django import forms
 from crispy_forms.layout import Layout, Fieldset, Field, Row, Column, HTML, Submit, Div
 
 from .misc import CreateSeeUpdateModelForm
-from nollesystemet.models import NolleFormAnswer, DynamicQuestion, DynamicAnswer, QuestionType
+from nollesystemet.models import NolleFormAnswer, DynamicNolleFormQuestion, DynamicNolleFormQuestionAnswer
 
 
 class NolleFormFileUploadForm(forms.Form):
@@ -30,9 +30,9 @@ class DynamicQuestionCharField(forms.CharField):
     def clean(self, value):
         cleaned_value = super().clean(value)
         try:
-            return DynamicAnswer.objects.get(question=self.question, value=cleaned_value)
-        except DynamicAnswer.DoesNotExist:
-            return DynamicAnswer(question=self.question, value=cleaned_value)
+            return DynamicNolleFormQuestionAnswer.objects.get(question=self.question, value=cleaned_value)
+        except DynamicNolleFormQuestionAnswer.DoesNotExist:
+            return DynamicNolleFormQuestionAnswer(question=self.question, value=cleaned_value)
 
 
 class NolleFormBaseForm(CreateSeeUpdateModelForm):
@@ -92,25 +92,25 @@ class NolleFormBaseForm(CreateSeeUpdateModelForm):
             self.instance.user = user
 
     def add_fields(self, **kwargs):
-        for question in DynamicQuestion.objects.all():
-            if question.question_type == QuestionType.TEXT:
+        for question in DynamicNolleFormQuestion.objects.all():
+            if question.question_type == DynamicNolleFormQuestion.QuestionType.TEXT:
                 self.fields['q_' + str(question.pk)] = DynamicQuestionCharField(
                     question,
-                    max_length=DynamicAnswer._meta.get_field('value').max_length,
+                    max_length=DynamicNolleFormQuestionAnswer._meta.get_field('value').max_length,
                     widget=forms.Textarea(attrs={"rows": 2})
                 )
                 if not self.is_new:
                     self.initial['q_' + str(question.pk)] = self.instance.dynamic_answers.get(question=question).value
-            elif question.question_type == QuestionType.RADIO:
+            elif question.question_type == DynamicNolleFormQuestion.QuestionType.RADIO:
                 self.fields['q_' + str(question.pk)] = forms.ChoiceField(
-                    choices=[(str(q.pk), str(q.value)) for q in question.dynamicanswer_set.all()],
+                    choices=[(str(q.pk), str(q.value)) for q in question.dynamicnolleformquestionanswer_set.all()],
                     widget=forms.RadioSelect
                 )
                 if not self.is_new:
                     self.initial['q_' + str(question.pk)] = self.instance.dynamic_answers.get(question=question).pk
-            elif question.question_type == QuestionType.CHECK:
+            elif question.question_type == DynamicNolleFormQuestion.QuestionType.CHECK:
                 self.fields['q_' + str(question.pk)] = forms.MultipleChoiceField(
-                    choices=[(str(q.pk), str(q.value)) for q in question.dynamicanswer_set.all()],
+                    choices=[(str(q.pk), str(q.value)) for q in question.dynamicnolleformquestionanswer_set.all()],
                     widget=forms.CheckboxSelectMultiple
                 )
                 if not self.is_new:
@@ -123,16 +123,16 @@ class NolleFormBaseForm(CreateSeeUpdateModelForm):
         super().save(commit=commit)
         for field_name in self.fields:
             if field_name[:2] == 'q_':
-                question = DynamicQuestion.objects.get(pk=field_name[2:])
+                question = DynamicNolleFormQuestion.objects.get(pk=field_name[2:])
 
-                if question.question_type == QuestionType.TEXT:
+                if question.question_type == DynamicNolleFormQuestion.QuestionType.TEXT:
                     self.cleaned_data[field_name].save()
                     self.instance.dynamic_answers.add(self.cleaned_data[field_name])
-                elif question.question_type == QuestionType.RADIO:
-                    self.instance.dynamic_answers.add(DynamicAnswer.objects.get(pk=self.cleaned_data[field_name]))
-                elif question.question_type == QuestionType.CHECK:
+                elif question.question_type == DynamicNolleFormQuestion.QuestionType.RADIO:
+                    self.instance.dynamic_answers.add(DynamicNolleFormQuestionAnswer.objects.get(pk=self.cleaned_data[field_name]))
+                elif question.question_type == DynamicNolleFormQuestion.QuestionType.CHECK:
                     for pk in self.cleaned_data[field_name]:
-                        self.instance.dynamic_answers.add(DynamicAnswer.objects.get(pk=pk))
+                        self.instance.dynamic_answers.add(DynamicNolleFormQuestionAnswer.objects.get(pk=pk))
 
 
     def get_form_helper(self, submit_name=None, form_tag=True):
@@ -172,7 +172,7 @@ class NolleFormBaseForm(CreateSeeUpdateModelForm):
             ),
             Fieldset(
                 "Fler frågor!?",
-                *[self._get_dynamic_questions_layout(question) for question in DynamicQuestion.objects.all()]
+                *[self._get_dynamic_questions_layout(question) for question in DynamicNolleFormQuestion.objects.all()]
             ),
             Fieldset(
                 "Övrigt",

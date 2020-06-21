@@ -9,7 +9,7 @@
         <div id="filter-elements">
             <input class="form-control p-2" id="search-bar" type="text" placeholder="Sök användare...">
             <div class="p-2" id="user-groups">
-                {% for group in user_groups %}
+                {% for group in user_types %}
                     <button type="button" class="btn btn-primary active active-button" data-toggle="button" aria-pressed="true" autocomplete="off" data-group-name="{{ group.name }}" data-column-id="user-group">
                         {{ group.name }}
                     </button>
@@ -43,7 +43,7 @@
                         <td id="nolle-group">{% if user_item.auth_user.nolle_group %}{{ user_item.auth_user.nolle_group.name }}{% else %}–{% endif %}</td>
                         <td>{{ user_item.auth_user.email }}</td>
                         <td>{{ user_item.phone_number }}</td>
-                        <td id="user-group">{{ user_item.auth_user.user_group.all|join:", " }}</td>
+                        <td id="user-group">{{ user_item.user_type }}</td>
                         {% if user_can_edit_user_info %}
                             <td><a class="btn btn-primary" href="{% url 'fohseriet:anvandare:redigera' user_item.pk %}?next={{ request.path|urlencode }}">
                                 Redigera
@@ -104,13 +104,13 @@
             for (var i = 0; i < should_be_active.length; ++i) { should_be_active[i] = true; }
 
             var nolle_group_buttons = $('#nolle-groups button');
-            var user_group_buttons = $('#user-groups button');
+            var user_type_buttons = $('#user-types button');
 
             $(tableId + " tr").filter(function (index, element) {
                 $(element).show();
                 if (!(($(this).text().toLowerCase().indexOf(searchValue) > -1) &&
                       check_all_button_constraints(nolle_group_buttons, $(this)) &&
-                      check_all_button_constraints(user_group_buttons, $(this)))) {
+                      check_all_button_constraints(user_type_buttons, $(this)))) {
                     $(element).hide();
                 }
 
