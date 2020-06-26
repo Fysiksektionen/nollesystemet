@@ -26,16 +26,60 @@
         {{ form.errors }}
         {{ form.non_field_errors }}
         {% crispy form %}
-        <hr>
-        {% include "fohseriet/elements/formset.html" with formset=base_price_formset header="Baspris" formclass="base-price" %}
-        <hr>
-        {% include "fohseriet/elements/formset.html" with formset=drink_option_formset header="Dryck" formclass="drink-option" %}
-        <hr>
-        {% include "fohseriet/elements/formset.html" with formset=extra_option_formset header="Extraval" formclass="extra-option" %}
-        <hr>
+        <div class="reg-info">
+            {% include "fohseriet/elements/formset.html" with formset=base_price_formset header="Baspris" %}
+            {% include "fohseriet/elements/formset.html" with formset=drink_option_formset header="Dryck" %}
+            {% include "fohseriet/elements/formset.html" with formset=extra_option_formset header="Extraval" %}
+        </div>
         <button type="submit" name="submit" class="btn btn-primary mt-4 mb-4" value="Spara">
             Spara
             <i class="fa fa-save" aria-hidden="true"></i>
         </button>
     </form>
+{% endblock %}
+
+{% block extrapostscript %}
+    {{ block.super }}
+    <script>
+        const selectRadioElement = "input:radio[name='takes_registration']";
+        const selectRegistrationLinkedElement = ".reg-info a,.reg-info button,.reg-info input,.reg-info select,.reg-info option,.reg-info optgroup";
+        $(document).ready(function () {
+
+            const checkedElement = $(selectRadioElement + ":checked");
+            if (checkedElement.val() === 'True') {
+                $(selectRegistrationLinkedElement).each(function( index ) {
+                  $( this ).removeAttr( "disabled" );
+                });
+            }
+            if (checkedElement.val() === 'False') {
+                $(selectRegistrationLinkedElement).each(function( index ) {
+                  $( this ).attr( "disabled", true );
+                });
+            }
+
+
+            $(selectRadioElement).change(function () {
+                $(selectRadioElement).each(function () {
+                    $( this ).removeProp( "checked" );
+                });
+                $( this ).prop( "checked", true );
+                if ($( this ).val() === 'True') {
+                    $(selectRegistrationLinkedElement).each(function( index ) {
+                      $( this ).removeAttr( "disabled" );
+                    });
+                }
+                if ($( this ).val() === 'False') {
+                    $(selectRegistrationLinkedElement).each(function( index ) {
+                      $( this ).attr( "disabled", true );
+                    });
+                }
+            });
+
+            $( "form" ).submit(function () {
+                $(selectRegistrationLinkedElement).each(function( index ) {
+                    $( this ).removeAttr( "disabled" );
+                });
+            });
+        });
+    </script>
 {% endblock %}

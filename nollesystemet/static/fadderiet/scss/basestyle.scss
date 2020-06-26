@@ -3,6 +3,7 @@ $fadderiet: #069080;
 $fadderiet_secondary: #3b5351;
 $background-gray: #DEDEDE;
 $background: #FFFFFF;
+$warning: rgba(255, 241, 184, 0.55);
 
 $theme-colors: (
         "primary": $fadderiet,
@@ -10,6 +11,7 @@ $theme-colors: (
         "background-gray": $background-gray,
         "white": #ffffff,
         "black": #000000,
+        "fadderiet": $fadderiet,
 );
 
 @import "../../scss/basestyle";
@@ -18,18 +20,85 @@ body {
   background: $background;
 }
 
-#menu-container {
+#menu {
+  background-color: $fadderiet;
   a {
     color: $white;
   }
-  .menu-item {
-      border-bottom: 2px solid transparent;
-      &:hover {
-        border-bottom: 1px solid white;
+
+  .navbar-collapse {
+    @media only screen and (min-width: $xl-size) {
+      .nav-item {
+        border-bottom: 2px solid transparent;
+
+        &:not(.selected):hover {
+          border-bottom: 1px solid white;
+
+          .nav-item-border:hover {
+            border-bottom: 1px solid transparent;
+          }
+        }
+
+        &.selected {
+          border-bottom: 2px solid white;
+        }
+
+        .nav-item-border {
+          border-bottom: none;
+        }
       }
+    }
+    @media only screen and (max-width: $xl-size) {
+      .nav-item {
+        border-left: 2px solid transparent;
+        padding-left: 1em;
+        margin: 0.25em 0 0.25em 0;
+
+        &:not(.selected):hover {
+          border-left: 1px solid white;
+
+          .nav-item-border:hover {
+            border-left: 1px solid transparent;
+          }
+        }
+
+        &.selected {
+          border-left: 2px solid white;
+        }
+
+        .nav-item-border {
+          border-left: none;
+        }
+      }
+    }
   }
-  .selected-menu-item {
-      border-bottom: 2px solid white;
+}
+
+#schedule-navbar {
+  a, span {
+    color: $white;
+  }
+
+  .nav-item {
+    .nav-link {
+      border-bottom: 2px solid transparent;
+
+      &:not(.active):hover {
+        border-bottom: 1px solid white;
+
+        .nav-link-border:hover {
+          border-bottom: 1px solid transparent;
+        }
+      }
+
+      &.active {
+        border-bottom: 2px solid white;
+      }
+
+      .nav-link-border {
+        border-bottom: none;
+      }
+    }
   }
 }
 
@@ -37,7 +106,7 @@ body {
   color: $white;
 }
 
-$table-row-rounding-radious: 10px;
+$table-row-rounding-radius: 10px;
 
 .table-list {
   margin-top: 20px;
@@ -45,22 +114,26 @@ $table-row-rounding-radious: 10px;
 
   border-collapse: separate;
   border-spacing: 0 10px;
+
   tr {
     border: hidden;
+
     td:first-child, th:first-child {
       font-weight: bold;
-      -moz-border-radius-topleft: $table-row-rounding-radious;
-      -moz-border-radius-bottomleft: $table-row-rounding-radious;
-      -webkit-border-top-left-radius: $table-row-rounding-radious;
-      -webkit-border-bottom-left-radius: $table-row-rounding-radious;
+      -moz-border-radius-topleft: $table-row-rounding-radius;
+      -moz-border-radius-bottomleft: $table-row-rounding-radius;
+      -webkit-border-top-left-radius: $table-row-rounding-radius;
+      -webkit-border-bottom-left-radius: $table-row-rounding-radius;
     }
+
     td:last-child, th:last-child {
-      -moz-border-radius-topright: $table-row-rounding-radious;
-      -moz-border-radius-bottomright: $table-row-rounding-radious;
-      -webkit-border-top-right-radius: $table-row-rounding-radious;
-      -webkit-border-bottom-right-radius: $table-row-rounding-radious;
+      -moz-border-radius-topright: $table-row-rounding-radius;
+      -moz-border-radius-bottomright: $table-row-rounding-radius;
+      -webkit-border-top-right-radius: $table-row-rounding-radius;
+      -webkit-border-bottom-right-radius: $table-row-rounding-radius;
     }
   }
+
   th, td {
     border: hidden;
   }
@@ -70,10 +143,12 @@ $table-row-rounding-radious: 10px;
       background: $fadderiet;
       color: $white;
     }
+
     th {
-      border-bottom: none ;
+      border-bottom: none;
     }
   }
+
   tbody {
     tr {
       background: $fadderiet_secondary;

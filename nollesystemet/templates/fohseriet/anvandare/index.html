@@ -1,68 +1,117 @@
 {% extends "fohseriet/base-sites/base-content.html" %}
-
+{% load crispy_forms_tags %}
+{% load crispy_forms_filters %}
 
 {% block title %}Användare{% endblock %}
 
 
 {% block content-indented %}
     {% if object_list %}
-        <div id="filter-elements">
-            <input class="form-control p-2" id="search-bar" type="text" placeholder="Sök användare...">
-            <div class="p-2" id="user-groups">
-                {% for group in user_types %}
-                    <button type="button" class="btn btn-primary active active-button" data-toggle="button" aria-pressed="true" autocomplete="off" data-group-name="{{ group.name }}" data-column-id="user-group">
-                        {{ group.name }}
-                    </button>
-                {% endfor %}
-            </div>
-            <div class="p-2" id="nolle-groups">
-                {% for group in nolle_groups %}
-                    <button type="button" class="btn btn-primary active active-button" data-toggle="button" aria-pressed="true" autocomplete="off" data-group-name="{{ group.name }}" data-column-id="nolle-group">
-                        {{ group.name }}
-                    </button>
-                {% endfor %}
-            </div>
-        </div>
-
-        <table class="table table-list" id="user-table">
-            <thead class="">
-                <tr>
-                    <th scope="col">Namn</th>
-                    <th scope="col">nØllegrupp</th>
-                    <th scope="col">E-postadress</th>
-                    <th scope="col">Telefonnummer</th>
-                    <th scope="col">Användargrupp</th>
-                    <th scope="col"></th>
-                    <th scope="col"></th>
-                </tr>
-          </thead>
-          <tbody id="user-table-body">
-                {% for user_item in object_list %}
-                    <tr class="">
-                        <td>{{ user_item.first_name }} {{ user_item.last_name }}</td>
-                        <td id="nolle-group">{% if user_item.auth_user.nolle_group %}{{ user_item.auth_user.nolle_group.name }}{% else %}–{% endif %}</td>
-                        <td>{{ user_item.auth_user.email }}</td>
-                        <td>{{ user_item.phone_number }}</td>
-                        <td id="user-group">{{ user_item.user_type }}</td>
-                        {% if user_can_edit_user_info %}
-                            <td><a class="btn btn-primary" href="{% url 'fohseriet:anvandare:redigera' user_item.pk %}?next={{ request.path|urlencode }}">
-                                Redigera
-                                <i class="fa fa-edit" aria-hidden="true"></i>
-                            </a></td>
-                        {% endif %}
-                        {% if user_can_edit_registrations %}
-                            <td><a class="btn btn-primary" href="{% url 'fohseriet:anvandare:anmalningar' user_item.pk %}">
-                                Se anmälningar
-                                <i class="fa fa-scroll" aria-hidden="true"></i>
-                            </a></td>
-                        {% endif %}
-                    </tr>
-                {% endfor %}
-          </tbody>
-        </table>
+        {% for user_object in object_list %}
+            {% with user_object.user as profile %}
+                <div class="card my-2 bg-chill-white text-black">
+                    <div class="card-header card" data-toggle="collapse" href="#collapse{{ forloop.counter }}">
+                        <div class="d-flex flex-nowrap justify-content-between">
+                            <div class="font-weight-bolder col-lg">
+                                {{ profile.name }}
+                            </div>
+                            <div class="d-flex flex-fill hidden visible-lg col-8 justify-content-between" style="white-space: nowrap;">
+                                <div class="d-flex col">
+                                    {{ profile.nolle_group }}
+                                </div>
+                                <div class="d-flex col">
+                                    {{ profile.type }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="collapse{{ forloop.counter }}" class="collapse">
+                        <div class="d-flex card-body flex-wrap">
+                            {% if user_object.can_see %}
+                                <div class="d-flex flex-column col-lg-7">
+                                    {% crispy user_object.form %}
+                                </div>
+                                <div class="d-flex col-lg-5">
+                                    <div class="d-flex flex-fill">
+                                        <div class="d-flex flex-fill flex-column align-content-center justify-content-start">
+                                            <div class="d-flex justify-content-center">
+                                                {% if user_object.can_edit %}
+                                                    <a class="col-8 col-sm-6 col-md-5 col-lg-10 col-xl-9 btn btn-primary my-3" href="{% url 'fohseriet:anvandare:redigera' profile.pk %}?next={{ request.path|urlencode }}">
+                                                        Redigera
+                                                        <i class="fa fa-edit" aria-hidden="true"></i>
+                                                    </a>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endwith %}
+        {% endfor %}
     {% else %}
-        Systemet har inga användare
+        Systemet har inga användare. Känns det helt fel? Mejla <a href="mailto:nollesystemet@f.kth.se">nollesystemet@f.kth.se</a> för att få hjälp.
     {% endif %}
+    {#    {% if object_list %}#}
+    {#        <div id="filter-elements">#}
+    {#            <input class="form-control p-2" id="search-bar" type="text" placeholder="Sök användare...">#}
+    {#            <div class="p-2" id="user-groups">#}
+    {#                {% for group in user_types %}#}
+    {#                    <button type="button" class="btn btn-primary active active-button" data-toggle="button" aria-pressed="true" autocomplete="off" data-group-name="{{ group.name }}" data-column-id="user-group">#}
+    {#                        {{ group.name }}#}
+    {#                    </button>#}
+    {#                {% endfor %}#}
+    {#            </div>#}
+    {#            <div class="p-2" id="nolle-groups">#}
+    {#                {% for group in nolle_groups %}#}
+    {#                    <button type="button" class="btn btn-primary active active-button" data-toggle="button" aria-pressed="true" autocomplete="off" data-group-name="{{ group.name }}" data-column-id="nolle-group">#}
+    {#                        {{ group.name }}#}
+    {#                    </button>#}
+    {#                {% endfor %}#}
+    {#            </div>#}
+    {#        </div>#}
+    {##}
+    {#        <table class="table table-list" id="user-table">#}
+    {#            <thead class="">#}
+    {#                <tr>#}
+    {#                    <th scope="col">Namn</th>#}
+    {#                    <th scope="col">nØllegrupp</th>#}
+    {#                    <th scope="col">E-postadress</th>#}
+    {#                    <th scope="col">Telefonnummer</th>#}
+    {#                    <th scope="col">Användargrupp</th>#}
+    {#                    <th scope="col"></th>#}
+    {#                    <th scope="col"></th>#}
+    {#                </tr>#}
+    {#          </thead>#}
+    {#          <tbody id="user-table-body">#}
+    {#                {% for user_item in object_list %}#}
+    {#                    <tr class="">#}
+    {#                        <td>{{ user_item.first_name }} {{ user_item.last_name }}</td>#}
+    {#                        <td id="nolle-group">{% if user_item.auth_user.nolle_group %}{{ user_item.auth_user.nolle_group.name }}{% else %}–{% endif %}</td>#}
+    {#                        <td>{{ user_item.auth_user.email }}</td>#}
+    {#                        <td>{{ user_item.phone_number }}</td>#}
+    {#                        <td id="user-group">{{ user_item.user_type }}</td>#}
+    {#                        {% if user_can_edit_user_info %}#}
+    {#                            <td><a class="btn btn-primary" href="{% url 'fohseriet:anvandare:redigera' user_item.pk %}?next={{ request.path|urlencode }}">#}
+    {#                                Redigera#}
+    {#                                <i class="fa fa-edit" aria-hidden="true"></i>#}
+    {#                            </a></td>#}
+    {#                        {% endif %}#}
+    {#                        {% if user_can_edit_registrations %}#}
+    {#                            <td><a class="btn btn-primary" href="{% url 'fohseriet:anvandare:anmalningar' user_item.pk %}">#}
+    {#                                Se anmälningar#}
+    {#                                <i class="fa fa-scroll" aria-hidden="true"></i>#}
+    {#                            </a></td>#}
+    {#                        {% endif %}#}
+    {#                    </tr>#}
+    {#                {% endfor %}#}
+    {#          </tbody>#}
+    {#        </table>#}
+    {#    {% else %}#}
+    {#        Systemet har inga användare#}
+    {#    {% endif %}#}
 
 {% endblock %}
 
@@ -109,8 +158,8 @@
             $(tableId + " tr").filter(function (index, element) {
                 $(element).show();
                 if (!(($(this).text().toLowerCase().indexOf(searchValue) > -1) &&
-                      check_all_button_constraints(nolle_group_buttons, $(this)) &&
-                      check_all_button_constraints(user_type_buttons, $(this)))) {
+                    check_all_button_constraints(nolle_group_buttons, $(this)) &&
+                    check_all_button_constraints(user_type_buttons, $(this)))) {
                     $(element).hide();
                 }
 

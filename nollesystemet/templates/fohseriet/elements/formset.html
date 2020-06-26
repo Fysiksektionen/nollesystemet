@@ -1,7 +1,7 @@
 {% load crispy_forms_tags crispy_forms_filters %}
 
-<div id="{{ formset.prefix }}-formset">
-    <h3>{{ header }}</h3>
+<fieldset id="{{ formset.prefix }}-formset">
+    <legend>{{ header }}</legend>
     {{ formset.management_form }}
     {% for form in formset %}
         <div class="{{ formset.prefix }}-form pb-1">
@@ -27,7 +27,7 @@
         Lägg till fler
         <i class="fa fa-plus" aria-hidden="true"></i>
     </button>
-</div>
+</fieldset>
 <script>
         bindFormset("{{ formset.prefix }}");
 </script>

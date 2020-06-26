@@ -38,18 +38,36 @@ class ProfilePageView(mixins.FadderietMixin, MultipleObjectsUpdateView):
         else:
             return super().get_success_url()
 
+    def get_form_kwargs(self):
+        return {
+            'observing_user': [None, self.request.user.profile]
+        }
+
 
 class UsersListView(mixins.FohserietMixin, ListView):
-    model = apps.get_model(settings.USER_PROFILE_MODEL)
+    model = models.UserProfile
     template_name = 'fohseriet/anvandare/index.html'
 
     login_required = True
     permission_required = 'nollesystemet.edit_user_info'
 
+    ordering = 'first_name'
+
     extra_context = {
         'user_types': models.UserProfile.UserType.names,
         'nolle_groups': models.NolleGroup.objects.all()
     }
+
+    def get_queryset(self):
+        self.queryset = models.UserProfile.objects.all()
+        querryset = super().get_queryset()
+        return [{
+            'user': user,
+            'can_edit': user.can_edit(self.request.user.profile),
+            'can_see': user.can_see(self.request.user.profile),
+            'form': forms.ProfileUpdateForm(instance=user, editable=False)
+        } for user in querryset]
+
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

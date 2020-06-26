@@ -35,6 +35,14 @@ class Registration(models.Model):
             return True
         return False
 
+    @staticmethod
+    def can_see_some(observing_user: UserProfile):
+        """ :return Boolean indicating if observing_user has the right to see the registration of some user. """
+        # If can see more than one user. Larger than 1 because all users can see their own profile
+        return len([registration.can_see(observing_user)
+                    for registration in Registration.objects.all()]) > \
+               len(Registration.objects.filter(user=observing_user))
+
     def can_edit(self, observing_user: UserProfile):
         if observing_user.has_perm('edit_registration'):
             return True
@@ -42,20 +50,31 @@ class Registration(models.Model):
             return True
         return False
 
-    def get_base_price(self):
+    @staticmethod
+    def can_edit_some(observing_user: UserProfile):
+        """ :return Boolean indicating if observing_user has the right to see the registration of some user. """
+        # If can see more than one user. Larger than 1 because all users can see their own profile
+        return len([registration.can_edit(observing_user)
+                    for registration in Registration.objects.all()]) > 0
+
+    @property
+    def base_price(self):
         return self.happening.get_baseprice(self)
 
-    def get_drink_option_price(self):
+    @property
+    def drink_price(self):
         if self.drink_option:
             return self.drink_option.price
         else:
             return 0
 
-    def get_extra_option_price(self):
+    @property
+    def extra_option_price(self):
         return sum([values['price'] for values in self.extra_option.values('price')])
 
-    def get_price(self):
-        return self.get_base_price() + self.get_drink_option_price() + self.get_extra_option_price()
+    @property
+    def price(self):
+        return self.base_price + self.drink_price + self.extra_option_price
 
     @property
     def all_extra_options_str(self):

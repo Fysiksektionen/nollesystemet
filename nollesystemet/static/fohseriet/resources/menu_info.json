@@ -4,58 +4,65 @@
         "index": {
             "name": "Start",
             "url_name": "fohseriet:index",
-            "align": "left",
-            "user": "any"
+            "align": "left"
         },
         "hantera-event": {
             "name": "Hantera event",
             "url_name": "fohseriet:evenemang:lista",
             "align": "left",
-            "user": "with-permission",
-            "permissions" : {
-                "any": ["nollesystemet.edit_happening"]
+            "conditions": {
+                "methods": {
+                    "any": [
+                        "nollesystemet.Happening.can_create",
+                        "nollesystemet.Happening.can_see_some_registered"
+                    ]
+                }
             }
         },
         "hantera-andvandare": {
             "name": "Hantera andvändare",
             "url_name": "fohseriet:anvandare:index",
             "align": "left",
-            "user": "with-permission",
-            "permissions" : {
-                "any": [
-                    "nollesystemet.edit_user_info"
-                ]
+            "conditions": {
+                "methods": {
+                    "all": [
+                        "nollesystemet.UserProfile.can_see_some_user"
+                    ]
+                }
             }
         },
         "nolleenkaten": {
             "name": "nØlleenkäten",
             "url_name": "fohseriet:nolleenkaten:index",
             "align": "left",
-            "user": "with-permission",
-            "permissions" : {
-                "any": [
-                    "nollesystemet.edit_user_info"
-                ]
+            "conditions": {
+                "methods": {
+                    "any": [
+                        "nollesystemet.UserProfile.can_edit_some_user"
+                    ]
+                }
             }
         },
         "fadderiet": {
             "name": "Fadderiets hemsida",
             "url_name": "fadderiet:index",
-            "align": "left",
-            "user": "any"
+            "align": "left"
         },
         "logga-ut": {
             "url_name": "fohseriet:logga-ut",
             "align": "right",
-            "user": "logged-in",
-            "template_content": "Logga ut ({{ request.user }})"
+            "template_content": "Logga ut ({{ request.user }})",
+            "conditions": {
+                "logged-in": "True"
+            }
         },
-
         "logga-in": {
             "name": "Logga in",
             "url_name": "fohseriet:logga-in:index",
             "align": "right",
-            "user": "logged-out",
+            "conditions": {
+                "logged-in": "False"
+            },
             "selected_url_regex": ".*"
         }
     }

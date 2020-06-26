@@ -24,8 +24,10 @@ class Happening(models.Model):
     end_time = models.DateTimeField()
     image_file_path = models.CharField(max_length=50)
 
+    open_for_registration = models.BooleanField(default=False)
     takes_registration = models.BooleanField()
-    external_registration = models.BooleanField()
+    published = models.BooleanField(default=False, editable=False)
+
     user_types = MultipleChoiceEnumModelField(UserProfile.UserType, blank=False, null=False,
                                               default=[UserProfile.UserType.NOLLAN, UserProfile.UserType.FADDER])
     nolle_groups = models.ManyToManyField(NolleGroup, related_name="happening_nolle_group")
@@ -48,14 +50,31 @@ class Happening(models.Model):
         return observing_user.has_perm('create_happening')
 
     def can_register(self, observing_user: UserProfile):
-        print('User type:', observing_user.user_type, 'Allowed: ', self.user_types, 'In:', observing_user.user_type in self.user_types)
-        return observing_user.user_type in self.user_types and observing_user.nolle_group in self.nolle_groups.all()
+        return self.takes_registration and self.open_for_registration and \
+               observing_user.user_type in self.user_types and \
+               observing_user.nolle_group in self.nolle_groups.all()
+
+    @staticmethod
+    def can_register_to_some(observing_user: UserProfile):
+        return len([Happening.can_register(happening, observing_user) for happening in Happening.objects.all()]) > 0
 
     def can_see_registered(self, observing_user: UserProfile):
-        return self.can_edit(observing_user) or observing_user.has_perm('see_registration') or observing_user.has_perm('edit_registration')
+        return self.can_edit(observing_user) or \
+               observing_user.has_perm('see_registration') or \
+               observing_user.has_perm('edit_registration')
+
+    @staticmethod
+    def can_see_some_registered(observing_user: UserProfile):
+        return len([Happening.can_see_registered(happening, observing_user)
+                    for happening in Happening.objects.all()]) > 0
 
     def can_edit(self, observing_user: UserProfile):
         return observing_user in self.editors.all() or observing_user.has_perm('edit_happening')
+
+    @staticmethod
+    def can_edit_some_registered(observing_user: UserProfile):
+        return len([Happening.can_edit(happening, observing_user)
+                    for happening in Happening.objects.all()]) > 0
 
     def is_registered(self, user: UserProfile):
         return apps.get_model('nollesystemet.Registration').objects.filter(happening=self, user=user).exists()

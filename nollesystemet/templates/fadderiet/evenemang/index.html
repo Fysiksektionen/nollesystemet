@@ -6,27 +6,66 @@
 
 {% block content-indented %}
     {% if object_list %}
-        <table class="table table-list">
-            <tbody id="user-table-body">
-            {% for list_item in object_list %}
-                <tr>
-                    <td>{{ list_item.happening.name }}</td>
-                    <td>{{ list_item.happening.start_time|date }}</td>
-                    <td>{{ list_item.happening.start_time|time }} - {{ list_item.happening.end_time|time }}</td>
-                    <td>
-                        <a class="btn btn-primary" href="{% url 'fadderiet:evenemang:anmalan' list_item.happening.pk %}">
-                            {% if list_item.is_registered %}
-                                Se anmälan
-                            {% else %}
-                                Anmäl dig
-                            {% endif %}
-                        </a>
-                    </td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
+        {% for list_item in object_list %}
+            {% with list_item.happening as happening %}
+                <div class="card my-2">
+                    <div class="card-header" data-toggle="collapse" href="#collapse{{ forloop.counter }}">
+                        <div class="d-flex justify-content-between">
+                            <a class="navbar-brand font-weight-bolder">
+                                {{ happening.name }}
+                            </a>
+                            <div class="d-flex">
+                                {% if list_item.is_registered %}
+                                    <i class="fa fa-user my-auto" aria-hidden="true" style="color: green;"></i>
+                                    <i class="fa fa-check my-auto" aria-hidden="true" style="color: green; font-size: x-small;"></i>
+                                {% else %}
+                                    <i class="fa fa-user my-auto" aria-hidden="true" style="color: darkgray;"></i>
+                                    <i class="fa fa-check my-auto" aria-hidden="true" style="color: transparent; font-size: x-small;"></i>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div id="collapse{{ forloop.counter }}" class="collapse">
+                        <div class="d-flex card-body flex-wrap">
+                            <div class="d-flex flex-column col-md-8">
+                                <p>
+                                    {{ happening.description }}
+                                </p>
+                                <p>
+                                    <strong>Start:</strong> {{ happening.start_time|date }} {{ happening.start_time|time }}
+                                </p>
+                                <p>
+                                    <strong>Slut:</strong> {{ happening.end_time|date }} {{ happening.end_time|time }}
+                                </p>
+                                <p>
+                                    <strong>Plats:</strong> < Plats >
+                                </p>
+                                <p>
+                                    <strong>Kontaktperson: </strong> < Person >, < Telefon >
+                                </p>
+                            </div>
+                            <div class="d-flex flex-column align-content-md-end col-md-4">
+                                <div class="d-flex justify-content-md-end">
+                                    <a class="btn btn-primary px-3" href="{% url 'fadderiet:evenemang:anmalan' happening.pk %}">
+                                        {% if list_item.is_registered %}
+                                            Se din anmälan
+                                        {% else %}
+                                            Anmäl dig
+                                        {% endif %}
+                                    </a>
+                                </div>
+                                {% if list_item.is_registered %}
+                                    <p class="text-center border-dark border py-4 rounded-lg mt-md-auto mt-3 bg-warning">
+                                        Vill du ändra din anmälan behöver du kontakta ansvarig för evenemanget.
+                                    </p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endwith %}
+        {% endfor %}
     {% else %}
-        Systemet har inga evenemang
+        Tyvärr finns inga öppna evenemang för dig just nu. Känns det helt fel? Mejla <a href="mailto:nollesystemet@f.kth.se">nollesystemet@f.kth.se</a> för att få hjälp.
     {% endif %}
 {% endblock %}

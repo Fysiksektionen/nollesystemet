@@ -12,16 +12,9 @@
 {% endblock %}
 
 {% block menu %}
-    <div id="menu-bar" class="flex-row d-flex p-2 bg-secondary" style="height: 100px;">
-        <div id="logo-container" class="p-1">
-            <a href="{% url "fohseriet:index" %}">
-                <img id="logo-img" src="{% static "fohseriet/resources/fohseriet_logo.png" %}" alt="Föhseriets logga" style="display: block; max-width:100px; max-height:100%; width: auto; height: auto;">
-            </a>
-        </div>
-        <div id="menu-container" class="flex-grow-1 p-1 align-content-center m-auto">
-            {% include "common/elements/menu-items.html" with menu=menu only %}
-        </div>
-    </div>
+    {% url "fohseriet:index" as logo_url %}
+    {% static "fohseriet/resources/fohseriet_logo.png" as logo_path %}
+    {% include "common/elements/menu-items.html" with menu=menu logo_path=logo_path logo_url=logo_url only %}
 {% endblock %}
 
 {% block footer %}

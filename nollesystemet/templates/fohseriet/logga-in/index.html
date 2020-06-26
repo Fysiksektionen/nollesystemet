@@ -4,18 +4,26 @@
 {% block title-centered %}Logga in{% endblock %}
 
 {% block centered-content %}
-    <div class="errornote">
-        {% if request.GET.failed %}
-            Inloggning misslyckades!
-        {% endif %}
-    </div>
+    <div class="d-flex flex-column col-xl-4 col-lg-6 col-md-8">
+        <div class="errornote">
+            {% if request.GET.failed %}
+                Inloggning misslyckades!
+            {% endif %}
+        </div>
 
-    <h2 class="p-3 text-center my-3">Hur vill du logga in?</h2>
+        <h2 class="p-3 text-center my-3">Hur vill du logga in?</h2>
 
-    <div class="row justify-content-center text-center">
-        <div class="col-6 d-inline-flex justify-content-around">
-            <a href="{{ cred_login_url }}" class="btn btn-primary col-5 py-3">Med inloggningsuppgifter</a>
-            <a href="{{ cas_login_url }}" class="btn btn-primary col-5 py-3">Via KTH-inloggning</a>
+        <div class="d-flex justify-content-between">
+            <a href="{{ cred_login_url }}" class="btn btn-primary col-5 py-3 d-flex justify-content-center align-content-center">
+                <div class="my-auto">
+                    Via nØllesystemet
+                </div>
+            </a>
+            <a href="{{ cas_login_url }}" class="btn btn-primary col-5 py-3 d-flex justify-content-center align-content-center">
+                <div class="my-auto">
+                    Via KTH
+                </div>
+            </a>
         </div>
     </div>
 {% endblock %}

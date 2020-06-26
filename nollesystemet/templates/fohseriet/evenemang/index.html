@@ -5,43 +5,78 @@
 {% endblock %}
 
 {% block content-indented %}
-    <div class="pb-3">
-        <a class="btn btn-primary" href="{% url 'fohseriet:evenemang:skapa' %}">
-            Skapa evenemang
-            <i class="fa fa-plus" aria-hidden="true"></i>
-        </a>
-    </div>
+    {% if can_create %}
+        <div class="pb-3">
+            <a class="btn btn-primary" href="{% url 'fohseriet:evenemang:skapa' %}">
+                Skapa evenemang
+                <i class="fa fa-plus" aria-hidden="true"></i>
+            </a>
+        </div>
+    {% endif %}
 
     {% if object_list %}
-        <table class="table table-list">
-            <tbody id="user-table-body">
-                {% for list_item in object_list %}
-                    <tr>
-                        <td>{{ list_item.happening.name }}</td>
-                        <td>{{ list_item.happening.start_time|date }}</td>
-                        <td>{{ list_item.happening.start_time|time }} - {{ list_item.happening.end_time|time }}</td>
-                        <td class="flex-grow-1"></td>
-                        <td>
-                            {% if list_item.user_can_edit %}
-                                <a class="btn btn-primary" href="{% url 'fohseriet:evenemang:anmalda' list_item.happening.pk %}">
-                                    Se anmälda
-                                    <i class="fa fa-users" aria-hidden="true"></i>
-                                </a>
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if list_item.user_can_edit %}
-                                <a class="btn btn-primary" href="{% url 'fohseriet:evenemang:redigera' list_item.happening.pk %}?next={{ request.path|urlencode }}">
-                                    Redigera
-                                    <i class="fa fa-edit" aria-hidden="true"></i>
-                                </a>
-                            {% endif %}
-                        </td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        {% for list_item in object_list %}
+            {% with list_item.happening as happening %}
+                <div class="card my-2 bg-dark text-white">
+                    <div class="card-header card" data-toggle="collapse" href="#collapse{{ forloop.counter }}">
+                        <div class="d-flex justify-content-between">
+                            <div class="navbar-brand font-weight-bolder">
+                                {{ happening.name }}
+                            </div>
+                            <div class="d-flex">
+                                {% ifequal forloop.counter 1 %}
+                                    <i class="fa fa-user-check my-auto" aria-hidden="true" style="color: green;"></i>
+                                {% else %}
+                                    <i class="fa fa-user-times my-auto" aria-hidden="true" style="color: red;"></i>
+                                {% endifequal %}
+                            </div>
+                        </div>
+                    </div>
+                    <div id="collapse{{ forloop.counter }}" class="collapse">
+                        <div class="d-flex card-body flex-wrap">
+                            <div class="d-flex flex-column col-md-6 col-lg-8">
+                                <p>
+                                    {{ happening.description }}
+                                </p>
+                                <p>
+                                    <strong>Start:</strong> {{ happening.start_time|date }} {{ happening.start_time|time }}
+                                </p>
+                                <p>
+                                    <strong>Slut:</strong> {{ happening.end_time|date }} {{ happening.end_time|time }}
+                                </p>
+                                <p>
+                                    <strong>Plats:</strong> < Plats >
+                                </p>
+                                <p>
+                                    <strong>Kontaktperson: </strong> < Person >, < Telefon >
+                                </p>
+                            </div>
+                            <div class="d-flex col-md-6 col-lg-4">
+                                <div class="d-flex flex-column col-12">
+                                    <div class="d-flex my-3 justify-content-md-end justify-content-center">
+                                        {% if list_item.can_edit %}
+                                            <a class="col-10 col-xl-8 btn btn-primary" href="{% url 'fohseriet:evenemang:anmalda' happening.pk %}">
+                                                Se anmälda
+                                                <i class="fa fa-users" aria-hidden="true"></i>
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                                    <div class="d-flex my-3 justify-content-md-end justify-content-center">
+                                        {% if list_item.can_edit %}
+                                            <a class="col-10 col-xl-8 btn btn-primary" href="{% url 'fohseriet:evenemang:redigera'  happening.pk %}?next={{ request.path|urlencode }}">
+                                                Redigera
+                                                <i class="fa fa-edit" aria-hidden="true"></i>
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endwith %}
+        {% endfor %}
     {% else %}
-        Systemet har inga evenemang
+        Systemet har inga evenemang. Känns det helt fel? Mejla <a href="mailto:nollesystemet@f.kth.se">nollesystemet@f.kth.se</a> för att få hjälp.
     {% endif %}
 {% endblock %}

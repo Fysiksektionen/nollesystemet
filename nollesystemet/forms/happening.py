@@ -1,12 +1,23 @@
 from django import forms
 from django.forms.widgets import Textarea, DateTimeInput
 
-from crispy_forms.layout import Layout, Fieldset, Field, Row, Column, HTML
+from crispy_forms.layout import Layout, Fieldset, Field, Row, Column, HTML, Div
 
 import nollesystemet.models as models
 from .misc import CreateSeeUpdateModelForm, custom_inlineformset_factory
 
 class HappeningForm(CreateSeeUpdateModelForm):
+    takes_registration = forms.TypedChoiceField(
+        coerce=lambda x: x == 'True',
+        choices=((True, 'Ja'), (False, 'Nej')),
+        widget=forms.RadioSelect
+    )
+    food = forms.TypedChoiceField(
+        coerce=lambda x: x == 'True',
+        choices=((True, 'Ja'), (False, 'Nej')),
+        widget=forms.RadioSelect
+    )
+
     class Meta:
         model = models.Happening
         exclude = ['image_file_path']
@@ -29,6 +40,7 @@ class HappeningForm(CreateSeeUpdateModelForm):
             },
             'takes_registration': {
                 'label': 'Kräver anmälan',
+                'required': True
             },
             'external_registration': {
                 'label': 'Accepterar icke-användare',
@@ -36,7 +48,6 @@ class HappeningForm(CreateSeeUpdateModelForm):
             'user_types': {
                 'label': 'Välkomna grupper',
                 'widget': forms.CheckboxSelectMultiple(),
-
             },
             'nolle_groups': {
                 'label': 'Välkomna nØllegrupper',
@@ -45,6 +56,9 @@ class HappeningForm(CreateSeeUpdateModelForm):
             },
             'food': {
                 'label': 'Serverar mat',
+            },
+            'open_for_registration': {
+                'label': 'Öppen för anmälan',
             },
             'editors': {
                 'label': 'Eventadministratörer',
@@ -63,21 +77,25 @@ class HappeningForm(CreateSeeUpdateModelForm):
         helper = super().get_form_helper(submit_name, False)
         helper.layout = Layout(
             Fieldset("Systeminfo",
-                     Field('editors', data_live_search="true", css_class="bootstrap-select"),
+                     Div('takes_registration', css_id="reg-radio-div"),
                      Row(
                          Column(Field('user_types')),
-                         Column(Field('nolle_groups'))
+                         Column(Field('nolle_groups')),
+                         css_class="reg-info"
                      ),
+                     Field('editors', data_live_search="true", css_class="bootstrap-select"),
                      ),
             HTML("<hr>"),
-            Fieldset("Anmälningsinformation",
+            Fieldset("Evenemangsinformation",
                      Row(Column(Field('name'), css_class="col-6")),
                      Field('description'),
                      Row(
                          Column(Field('start_time')),
                          Column(Field('end_time'))
+                     )
                      ),
-                     Field('food'),
+            Fieldset("Mat",
+                     Div(Field('food'), css_class="reg-info"),
                      )
         )
         return helper
@@ -87,7 +105,7 @@ GroupBasePriceFormset = custom_inlineformset_factory(
     models.UserTypeBasePrice,
     ['user_type', 'price'],
     ['Grupp', 'Baspris'],
-    formclass="base-price",
+    formclass="base-price reg-info",
     extra=1,
 )
 DrinkOptionFormset = custom_inlineformset_factory(

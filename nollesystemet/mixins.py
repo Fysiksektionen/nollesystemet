@@ -1,6 +1,7 @@
 import json
 import re
 
+from django.apps import apps
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib.auth.mixins import PermissionRequiredMixin, UserPassesTestMixin
 from django.template import Template, Context
@@ -43,7 +44,7 @@ class MenuMixin(ContextMixin):
                     if not 'selected_url_regex' in info:
                         info['selected_url_regex'] = '.*'
                     if re.search(menu[info['align']][-1]['url'] + info['selected_url_regex'], self.request.path):
-                        menu[info['align']][-1]['classes'] = (info['classes'] + ' ' if 'classes' in info else '') + 'selected-menu-item'
+                        menu[info['align']][-1]['classes'] = (info['classes'] + ' ' if 'classes' in info else '') + 'selected'
                     break
 
         if menu:
@@ -52,34 +53,80 @@ class MenuMixin(ContextMixin):
         return super().get_context_data(**context)
 
     def check_if_to_render(self, info):
-        if info['user'] == 'any':
-            return True
+        if "conditions" in info:
+            conditions = info["conditions"]
 
-        if info['user'] == 'logged-in' and self.request.user.is_authenticated:
-            return True
+            for key in conditions.keys():
+                if key not in ["logged-in", "methods", "permissions"]:
+                    raise Exception(
+                        "Wrongly configured menu file."
+                        "For menu-item %s the conditions parameter can not have key %s.",
+                        (info["name"], key))
 
-        if info['user'] == 'logged-out' and not self.request.user.is_authenticated:
-            return True
-
-        if info['user'] == 'with-permission':
-            render = True
-            for logic, prems in info['permissions'].items():
-                if logic == 'all':
-                    for prem in prems:
-                        if not self.request.user.has_perm(prem):
-                            render = False
-                elif logic == 'any':
-                    for prem in prems:
-                        if self.request.user.has_perm(prem):
-                            break
-                    else:
-                        render = False
+            auth_render = False
+            if "logged-in" in conditions:
+                if conditions["logged-in"] == "True":
+                    auth_render = self.request.user.is_authenticated
+                elif conditions["logged-in"] == "False":
+                    auth_render = not self.request.user.is_authenticated
+                elif conditions["logged-in"] == "any":
+                    auth_render = True
                 else:
-                    raise Exception("Permissions can only contain keys 'any' or 'all', not %s" % logic)
+                    raise Exception(
+                        "Wrongly configured menu file. "
+                        "For menu-item %s the conditions.logged-in parameter can not have key %s.",
+                        (info["name"], conditions["logged-in"]))
+            else:
+                auth_render = True
 
-            return render
+            methods_render = False
+            if "methods" in conditions:
+                if self.request.user.is_authenticated:
+                    for key in conditions["methods"].keys():
+                        if key not in ["all", "any"]:
+                            raise Exception(
+                                "Wrongly configured menu file."
+                                "For menu-item %s the conditions.methods parameter can not have key %s.",
+                                (info["name"], key))
+                    if "any" in conditions["methods"]:
+                        for method_string in conditions["methods"]["any"]:
+                            split = method_string.split(".")
+                            model = apps.get_model(app_label=split[0], model_name=split[1])
+                            methods_render |= getattr(model, (split[2]))(self.request.user.profile)
+                    else:
+                        methods_render = True
+                    if "all" in conditions["methods"]:
+                        for method_string in conditions["methods"]["all"]:
+                            split = method_string.split(".")
+                            model = apps.get_model(app_label=split[0], model_name=split[1])
+                            methods_render &= getattr(model, (split[2]))(self.request.user.profile)
+            else:
+                methods_render = True
 
-        return False
+            perms_render = False
+            if "permissions" in conditions:
+                if self.request.user.is_authenticated:
+                    for key in conditions["permissions"].keys():
+                        if key not in ["all", "any"]:
+                            raise Exception(
+                                "Wrongly configured menu file."
+                                "For menu-item %s the conditions.permissions parameter can not have key %s.",
+                                (info["name"], key))
+                    if "any" in conditions["permissions"]:
+                        for codename in conditions["permissions"]["any"]:
+                            perms_render |= self.request.user.has_perm(codename)
+                    else:
+                        perms_render = True
+                    if "all" in conditions["permissions"]:
+                        for codename in conditions["permissions"]["all"]:
+                            perms_render &= self.request.user.has_perm(codename)
+            else:
+                perms_render = True
+
+            return auth_render and methods_render and perms_render
+
+        else:
+            return True
 
     def render_to_response(self, context, **response_kwargs):
         if 'menu' in context:

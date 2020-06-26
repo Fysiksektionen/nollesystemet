@@ -46,9 +46,19 @@ class HappeningListViewFohseriet(mixins.FohserietMixin, ListView):
     def get_queryset(self):
         self.queryset = models.Happening.objects.all()
         querryset = super().get_queryset()
-        return [{'happening': happening,
-                 'user_can_edit': self.request.user.profile in happening.editors.all()} for happening in querryset]
+        return [{
+            'happening': happening,
+            'can_edit': happening.can_edit(self.request.user.profile),
+            'can_see_registered': happening.can_see_registered(self.request.user.profile),
+            'num_of_registered': models.Registration.objects.filter(happening=happening).count()
+        } for happening in querryset]
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'can_create': models.Happening.can_create(self.request.user.profile)
+        })
+        return context
 
 class HappeningRegisteredListView(mixins.FohserietMixin, ListView):
     model = models.Registration
@@ -79,14 +89,17 @@ class HappeningRegisteredListView(mixins.FohserietMixin, ListView):
     def get_queryset(self):
         self.queryset = models.Registration.objects.filter(happening=models.Happening.objects.get(pk=self.kwargs['pk']))
         querryset = super().get_queryset()
-        return querryset
+        return [{
+            'registration': registration,
+            'can_edit': registration.can_edit(self.request.user.profile),
+            'can_see': registration.can_see(self.request.user.profile),
+            'form': forms.RegistrationForm(instance=registration, editable=False)
+        } for registration in querryset]
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context.update({
-            'happening': models.Happening.objects.get(pk=self.kwargs['pk']),
-            'user_can_edit_registrations': self.request.user.has_perm(
-                'nollesystemet.edit_user_registration') or self.request.user.profile in self.happening.editors.all(),
+            'happening': models.Happening.objects.get(pk=self.kwargs['pk'])
         })
         return context
 
@@ -106,10 +119,10 @@ class HappeningDownloadView(mixins.FohserietMixin, DownloadView):
         {'title': 'Dryck', 'accessor': 'drink_option.drink'},
         {'title': 'Tillval', 'accessor': 'all_extra_options_str'},
         {'title': 'Övrigt', 'accessor': 'other'},
-        {'title': 'Baspris', 'function': models.Registration.get_base_price},
-        {'title': 'Dryckespris', 'function': models.Registration.get_drink_option_price},
-        {'title': 'Tillvalspris', 'function': models.Registration.get_extra_option_price},
-        {'title': 'Totalpris', 'function': models.Registration.get_price},
+        {'title': 'Baspris', 'function': models.Registration.base_price},
+        {'title': 'Dryckespris', 'function': models.Registration.drink_price},
+        {'title': 'Tillvalspris', 'function': models.Registration.extra_option_price},
+        {'title': 'Totalpris', 'function': models.Registration.price},
     ]
 
     def setup(self, request, *args, **kwargs):

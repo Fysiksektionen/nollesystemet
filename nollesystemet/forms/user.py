@@ -7,7 +7,7 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Fieldset, Field, Row, Column, HTML
 
 from nollesystemet.models import UserProfile
-from .misc import ExtendedMetaModelForm
+from .misc import ExtendedMetaModelForm, CreateSeeUpdateModelForm
 
 
 class AuthUserUpdateForm(ExtendedMetaModelForm):
@@ -75,11 +75,11 @@ class AuthUserGroupsUpdateForm(ExtendedMetaModelForm):
         self.helper.layout = Layout('groups')
 
 
-class ProfileUpdateForm(ExtendedMetaModelForm):
+class ProfileUpdateForm(CreateSeeUpdateModelForm):
     class Meta:
         model = UserProfile
         fields = ['first_name', 'last_name', 'kth_id', 'phone_number', 'food_preference', 'contact_name',
-                  'contact_relation', 'contact_phone_number', 'nolle_group']
+                  'contact_relation', 'contact_phone_number', 'nolle_group', 'user_type']
 
         field_args = {
             'first_name': {
@@ -115,12 +115,21 @@ class ProfileUpdateForm(ExtendedMetaModelForm):
                 'widget': forms.RadioSelect(),
                 'empty_label': '(Ingen)',
             },
+            'user_type': {
+                'label': 'Användartyp',
+            },
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.helper = FormHelper()
-        self.helper.layout = Layout(
+
+        if self.instance.user_type == UserProfile.UserType.NOLLAN:
+            self.fields.pop('kth_id')
+            self.helper.layout.fields[0].fields[1].fields[1].pop(0)
+
+    def get_form_helper(self, submit_name=None, form_tag=True):
+        helper = super().get_form_helper(submit_name, form_tag)
+        helper.layout = Layout(
             Fieldset("Kontaktupgifter",
                      Row(Column(Field('first_name', placeholder="Förnamn")),
                          Column(Field('last_name', placeholder="Efternamn"))
@@ -138,9 +147,9 @@ class ProfileUpdateForm(ExtendedMetaModelForm):
             Fieldset("Information till evenemang",
                      'food_preference'
                      ),
-            Row(Column(Field('nolle_group'))),
+            Row(
+                Column(Field('nolle_group')),
+                Column(Field('user_type'))
+            ),
         )
-
-        if self.instance.user_type == UserProfile.UserType.NOLLAN:
-            self.fields.pop('kth_id')
-            self.helper.layout.fields[0].fields[1].fields[1].pop(0)
+        return helper

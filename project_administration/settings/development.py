@@ -18,12 +18,10 @@ DATABASES = {
 }
 
 ALLOWED_HOSTS = (
-    '127.0.0.1',
-    'localhost',
-    '192.168.0.1',
+    '*'
 )
 
-CAS_SERVER_URL = "http://localhost:3004"
+CAS_SERVER_URL = "http://92.34.11.25:3004"
 
 PAGE_CALL_STACK_SIZE = 10
 

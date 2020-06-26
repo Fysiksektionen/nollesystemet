@@ -1,12 +1,10 @@
 {% extends "fadderiet/base-sites/base.html" %}
 
 {% block content %}
-    <div class="d-flex justify-content-center">
-        <div class="d-flex flex-column flex-fill justify-content-center mb-5">
-            <h1 class="my-5 text-center">{% block title-centered %}{% endblock %}</h1>
-            <div class="d-flex flex-column flex-fill justify-content-center">
-                {% block centered-content %}{% endblock %}
-            </div>
+    <div class="container-fluid justify-content-center mb-5">
+        <h1 class="my-5 text-center">{% block title-centered %}{% endblock %}</h1>
+        <div class="d-flex container-fluid justify-content-center">
+            {% block centered-content %}{% endblock %}
         </div>
     </div>
 {% endblock %}

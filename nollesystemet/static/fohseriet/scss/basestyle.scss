@@ -10,6 +10,8 @@ $theme-colors: (
         "background-gray": $background,
         "white": #ffffff,
         "black": #000000,
+        "fohseriet": $fohseriet,
+        "chill-white": $chill-white,
 );
 
 @import "../../scss/basestyle";
@@ -21,24 +23,25 @@ body{
   background: $background;
 }
 
-#menu-container {
-  .menu-item {
-    a {
-      color: $chill-white;
-      &:hover {
-        color: $white;
-        //border-bottom: 1px solid white;
-      }
-      font-weight: bolder;
-      font-size: 1.1rem;
-    }
-  }
-  .selected-menu-item {
-    a {
+#menu {
+  background-color: $black;
+  .nav-link {
+    color: $chill-white;
+
+    &:hover {
       color: $white;
     }
+
+    font-weight: bolder;
+    font-size: 1.1rem;
   }
 
+  @media only screen and (max-width: $xl-size) {
+    .nav-item {
+      padding-left: 1em;
+      margin: 0.25em 0 0.25em 0;
+    }
+  }
 }
 
 #content {
@@ -61,7 +64,7 @@ body{
   }
 }
 
-$table-row-rounding-radious: 10px;
+$table-row-rounding-radius: 10px;
 
 .table-list {
   background: $background;
@@ -74,16 +77,16 @@ $table-row-rounding-radious: 10px;
     border: hidden;
     td:first-child, th:first-child {
       font-weight: bold;
-      -moz-border-radius-topleft: $table-row-rounding-radious;
-      -moz-border-radius-bottomleft: $table-row-rounding-radious;
-      -webkit-border-top-left-radius: $table-row-rounding-radious;
-      -webkit-border-bottom-left-radius: $table-row-rounding-radious;
+      -moz-border-radius-topleft: $table-row-rounding-radius;
+      -moz-border-radius-bottomleft: $table-row-rounding-radius;
+      -webkit-border-top-left-radius: $table-row-rounding-radius;
+      -webkit-border-bottom-left-radius: $table-row-rounding-radius;
     }
     td:last-child, th:last-child {
-      -moz-border-radius-topright: $table-row-rounding-radious;
-      -moz-border-radius-bottomright: $table-row-rounding-radious;
-      -webkit-border-top-right-radius: $table-row-rounding-radious;
-      -webkit-border-bottom-right-radius: $table-row-rounding-radious;
+      -moz-border-radius-topright: $table-row-rounding-radius;
+      -moz-border-radius-bottomright: $table-row-rounding-radius;
+      -webkit-border-top-right-radius: $table-row-rounding-radius;
+      -webkit-border-bottom-right-radius: $table-row-rounding-radius;
     }
   }
   th, td {

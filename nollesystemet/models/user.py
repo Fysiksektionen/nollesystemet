@@ -74,11 +74,18 @@ class UserProfile(auth_models.UserProfile):
             ("edit_users", "Can edit any user profile"),
         ]
 
+
+    @property
+    def type(self):
+        return UserProfile.UserType(self.user_type).label
+
     def has_perm(self, codename):
+        """ :return Boolean indicating if user has specified permission. """
         return self.auth_user.has_perm(codename)
 
-    def can_be_seen_by(self, observing_user):
-        if self.can_be_edited_by(observing_user):                  # Has permission to edit the user
+    def can_see(self, observing_user):
+        """ :return Boolean indicating if observing_user has the right to see the profile of calling user. """
+        if self.can_edit(observing_user):                       # Has permission to edit the user
             return True
         if NolleGroup.is_forfadder(observing_user):             # Is forfadder for the user
             if self.nolle_group in NolleGroup.get_forfadder_group(observing_user, accept_multiple=True):
@@ -87,22 +94,32 @@ class UserProfile(auth_models.UserProfile):
             return True
         return False
 
-    def can_be_edited_by(self, observing_user):
+    def can_edit(self, observing_user):
+        """ :return Boolean indicating if observing_user has the right to edit the profile of calling user. """
         if observing_user == self:                      # Is their own profile
             return True
         if observing_user.has_perm('edit_users'):       # Has correct permission
             return True
         return False
 
-    def can_see_some_user(self):
+    @staticmethod
+    def can_see_some_user(observing_user):
+        """ :return Boolean indicating if observing_user has the right to see the profile of some user. """
         # If can see more than one user. Larger than 1 because all users can see their own profile
-        return len([user.can_be_seen_by(self) for user in UserProfile.objects.all()]) > 1
+        return len(
+            [user.can_see(observing_user) for user in UserProfile.objects.all()]
+        ) > min(1, UserProfile.objects.count() - 1)
 
-    def can_edit_some_user(self):
+    @staticmethod
+    def can_edit_some_user(observing_user):
+        """ :return Boolean indicating if observing_user has the right to edit the profile of some user. """
         # If can edit more than one user. Larger than 1 because all users can edit their own profile
-        return len([user.can_be_edited_by(self) for user in UserProfile.objects.all()]) > 1
+        return len(
+            [user.can_edit(observing_user) for user in UserProfile.objects.all()]
+        ) > min(1, UserProfile.objects.count() - 1)
 
     def is_responsible_forfadder(self, potential_forfadder):
+        """ :return Boolean indicating if potential_forfadder is the forfadder of calling user. """
         if not NolleGroup.is_forfadder(potential_forfadder):
             return False
         else:
