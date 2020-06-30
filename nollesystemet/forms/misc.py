@@ -1,6 +1,6 @@
 import django.forms as forms
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Field, Row, Column, Button, Submit, Div
+from crispy_forms.layout import Layout, Field, Row, Column, Button, Submit, Div, HTML
 from django.forms import inlineformset_factory, modelformset_factory
 from django.forms.formsets import DELETION_FIELD_NAME
 
@@ -103,43 +103,68 @@ class ModifiableModelForm(ExtendedMetaModelForm):
                  submit_name=None, delete_name=None, form_tag=True,
                  exlude_fields=None,
                  **kwargs):
+        # Call to super for field init
         super(ModifiableModelForm, self).__init__(**kwargs)
 
+        # Evaluate/save variables for deciding rendering-logic
         self.is_new = self.instance.pk is None
         self.is_editable = self.get_is_editable(*is_editable_args, editable=True, **kwargs) if editable is None else editable
         self.is_deletable = deletable
 
+        self.submit_name = submit_name
+        self.delete_name = delete_name
+
+        # Exclude dynamically unwanted fields (not rendered by Layout when not present)
         if exlude_fields is not None:
             for field_name in exlude_fields:
                 self.fields.pop(field_name)
 
+        # Disable / enable if required.
         for field_name in self.fields:
-            self.fields[field_name].disabled = not self.is_editable
-            self.fields[field_name].widget.attrs['disabled'] = not self.is_editable
             if not self.is_editable:
+                self.fields[field_name].disabled = not self.is_editable
+                self.fields[field_name].widget.attrs['disabled'] = not self.is_editable
+            if not self.is_editable or self.fields[field_name].disabled:
                 self.fields[field_name].required = False
 
-        self.helper = self.get_form_helper(submit_name, delete_name, form_tag)
+        # Get standard form helper with user Layout.
+        self.helper = self.get_form_helper(form_tag)
+        # Add Submit and Delete to form Layout
+        if self.is_editable:
+            if self.helper.form_tag:
+                if self.helper.layout:  # Add to end of Layout object
+                    self.helper.layout.fields.append(
+                        Row(
+                            Column(HTML(self.submit_button), css_class="d-flex justify-content-start"),
+                            Column(HTML(self.delete_button), css_class="d-flex justify-content-end")
+                        )
+                    )
+                else:  # If no special layout: just add to end without care to style.
+                    self.helper.add_input(HTML(self.submit_button))
+                    if self.is_deletable:
+                        self.helper.add_input(HTML(self.delete_button))
 
     def get_is_editable(self, *args, **kwargs):
         return self.is_new
 
-    def get_form_helper(self, submit_name=None, delete_name=None, form_tag=True):
+    def get_form_helper(self, form_tag=True):
         helper = FormHelper()
         helper.form_method = 'post'
         helper.form_tag = form_tag
-        if form_tag:
-            if self.is_deletable and self.is_editable:
-                helper.add_input(
-                    Submit('submit', submit_name if submit_name else ('Skicka' if self.is_new else 'Spara'))
-                )
-                helper.add_input(
-                    Submit('delete', delete_name if delete_name else 'Radera', css_class="btn btn-danger")
-                )
-
-            elif self.is_editable:
-                helper.add_input(Submit('submit', submit_name if submit_name else ('Skicka' if self.is_new else 'Spara')))
         return helper
+
+    @property
+    def submit_button(self):
+        val = self.submit_name if self.submit_name else ('Skicka' if self.is_new else 'Spara')
+        return '<input type="submit" name="submit" value="' + val +\
+               '" class="btn btn-primary" id="submit-id-submit">'
+
+    @property
+    def delete_button(self):
+        val = self.delete_name if self.delete_name else 'Radera'
+        return '<input type="submit" name="delete" value="' + val +\
+               '" class="btn btn-primary btn btn-danger" id="submit-id-delete">'
+
 
 def nested_formset_factory(parent_model, child_model, parent_form, child_form):
     class ParentFormClass(parent_form):

@@ -118,7 +118,6 @@ class NolleFormBaseForm(ModifiableModelForm):
                     self.initial['q_' + str(question.pk)] = [str(tup[0]) for tup in pks]
             self.fields['q_' + str(question.pk)].label = '<strong>' + question.number_label + '</strong>. ' + question.title
 
-
     def save(self, commit=True):
         super().save(commit=commit)
         for field_name in self.fields:
@@ -134,9 +133,8 @@ class NolleFormBaseForm(ModifiableModelForm):
                     for pk in self.cleaned_data[field_name]:
                         self.instance.dynamic_answers.add(DynamicNolleFormQuestionAnswer.objects.get(pk=pk))
 
-
-    def get_form_helper(self, submit_name=None, delete_name=None, form_tag=True):
-        helper = super().get_form_helper(submit_name, delete_name, form_tag)
+    def get_form_helper(self, form_tag=True):
+        helper = super().get_form_helper(form_tag)
         helper.layout = Layout(
             Fieldset(
                 "Om dig",
