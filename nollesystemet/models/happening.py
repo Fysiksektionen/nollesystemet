@@ -56,7 +56,8 @@ class Happening(models.Model):
 
     @staticmethod
     def can_register_to_some(observing_user: UserProfile):
-        return len([Happening.can_register(happening, observing_user) for happening in Happening.objects.all()]) > 0
+        return len([True for happening in Happening.objects.all()
+                    if happening.can_register(observing_user)]) > 0
 
     def can_see_registered(self, observing_user: UserProfile):
         return self.can_edit(observing_user) or \
@@ -65,16 +66,16 @@ class Happening(models.Model):
 
     @staticmethod
     def can_see_some_registered(observing_user: UserProfile):
-        return len([Happening.can_see_registered(happening, observing_user)
-                    for happening in Happening.objects.all()]) > 0
+        return len([True for happening in Happening.objects.all()
+                    if happening.can_see_registered(observing_user)]) > 0
 
     def can_edit(self, observing_user: UserProfile):
         return observing_user in self.editors.all() or observing_user.has_perm('edit_happening')
 
     @staticmethod
     def can_edit_some_registered(observing_user: UserProfile):
-        return len([Happening.can_edit(happening, observing_user)
-                    for happening in Happening.objects.all()]) > 0
+        return len([True for happening in Happening.objects.all()
+                    if happening.can_edit(observing_user)]) > 0
 
     def is_registered(self, user: UserProfile):
         return apps.get_model('nollesystemet.Registration').objects.filter(happening=self, user=user).exists()

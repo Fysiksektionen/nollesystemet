@@ -7,7 +7,7 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Fieldset, Field, Row, Column, HTML
 
 from nollesystemet.models import UserProfile
-from .misc import ExtendedMetaModelForm, CreateSeeUpdateModelForm
+from .misc import ExtendedMetaModelForm, ModifiableModelForm
 
 
 class AuthUserUpdateForm(ExtendedMetaModelForm):
@@ -75,7 +75,7 @@ class AuthUserGroupsUpdateForm(ExtendedMetaModelForm):
         self.helper.layout = Layout('groups')
 
 
-class ProfileUpdateForm(CreateSeeUpdateModelForm):
+class ProfileUpdateForm(ModifiableModelForm):
     class Meta:
         model = UserProfile
         fields = ['first_name', 'last_name', 'kth_id', 'phone_number', 'food_preference', 'contact_name',
@@ -120,15 +120,22 @@ class ProfileUpdateForm(CreateSeeUpdateModelForm):
             },
         }
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, *args, observing_user=None, **kwargs):
+        print(observing_user)
+        super().__init__(*args, is_editable_args=(observing_user,), **kwargs)
 
         if self.instance.user_type == UserProfile.UserType.NOLLAN:
             self.fields.pop('kth_id')
             self.helper.layout.fields[0].fields[1].fields[1].pop(0)
 
-    def get_form_helper(self, submit_name=None, form_tag=True):
-        helper = super().get_form_helper(submit_name, form_tag)
+    def get_is_editable(self, observing_user, **kwargs):
+        if observing_user is not None:
+            return self.is_new or self.instance.can_edit(observing_user)
+        else:
+            raise PermissionError("Anonumus user can't access a profile.")
+
+    def get_form_helper(self, submit_name=None, delete_name=None, form_tag=True):
+        helper = super().get_form_helper(submit_name, delete_name, form_tag)
         helper.layout = Layout(
             Fieldset("Kontaktupgifter",
                      Row(Column(Field('first_name', placeholder="Förnamn")),

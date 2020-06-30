@@ -8,10 +8,10 @@ from django.template.loader import get_template
 from django.urls import reverse
 
 from nollesystemet.models import Registration
-from .misc import CreateSeeUpdateModelForm
+from .misc import ModifiableModelForm
 
 
-class RegistrationForm(CreateSeeUpdateModelForm):
+class RegistrationForm(ModifiableModelForm):
     class Meta:
         model = Registration
         fields = ['food_preference', 'drink_option', 'extra_option', 'other']

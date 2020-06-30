@@ -1,6 +1,6 @@
 import django.forms as forms
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Field, Row, Column, Button, Submit
+from crispy_forms.layout import Layout, Field, Row, Column, Button, Submit, Div
 from django.forms import inlineformset_factory, modelformset_factory
 from django.forms.formsets import DELETION_FIELD_NAME
 
@@ -97,14 +97,21 @@ def make_crispy_form(form_class, submit_button=None, form_action=None):
     return CrispyForm
 
 
-class CreateSeeUpdateModelForm(ExtendedMetaModelForm):
-    def __init__(self, is_editable_args=(), editable=None, submit_name=None, form_tag=True, **kwargs):
-        super(CreateSeeUpdateModelForm, self).__init__(**kwargs)
+class ModifiableModelForm(ExtendedMetaModelForm):
+    def __init__(self,
+                 is_editable_args=(), editable=None, deletable=False,
+                 submit_name=None, delete_name=None, form_tag=True,
+                 exlude_fields=None,
+                 **kwargs):
+        super(ModifiableModelForm, self).__init__(**kwargs)
 
         self.is_new = self.instance.pk is None
         self.is_editable = self.get_is_editable(*is_editable_args, editable=True, **kwargs) if editable is None else editable
+        self.is_deletable = deletable
 
-        self.add_fields(**kwargs)
+        if exlude_fields is not None:
+            for field_name in exlude_fields:
+                self.fields.pop(field_name)
 
         for field_name in self.fields:
             self.fields[field_name].disabled = not self.is_editable
@@ -112,23 +119,27 @@ class CreateSeeUpdateModelForm(ExtendedMetaModelForm):
             if not self.is_editable:
                 self.fields[field_name].required = False
 
-        self.helper = self.get_form_helper(submit_name, form_tag)
-
-    def add_fields(self, **kwargs):
-        pass
+        self.helper = self.get_form_helper(submit_name, delete_name, form_tag)
 
     def get_is_editable(self, *args, **kwargs):
         return self.is_new
 
-    def get_form_helper(self, submit_name=None, form_tag=True):
+    def get_form_helper(self, submit_name=None, delete_name=None, form_tag=True):
         helper = FormHelper()
         helper.form_method = 'post'
         helper.form_tag = form_tag
-        if self.is_editable and form_tag:
-            helper.add_input(Submit('submit', submit_name if submit_name else ('Skicka' if self.is_new else 'Spara')))
+        if form_tag:
+            if self.is_deletable and self.is_editable:
+                helper.add_input(
+                    Submit('submit', submit_name if submit_name else ('Skicka' if self.is_new else 'Spara'))
+                )
+                helper.add_input(
+                    Submit('delete', delete_name if delete_name else 'Radera', css_class="btn btn-danger")
+                )
 
+            elif self.is_editable:
+                helper.add_input(Submit('submit', submit_name if submit_name else ('Skicka' if self.is_new else 'Spara')))
         return helper
-
 
 def nested_formset_factory(parent_model, child_model, parent_form, child_form):
     class ParentFormClass(parent_form):

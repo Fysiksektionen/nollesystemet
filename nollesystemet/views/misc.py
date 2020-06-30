@@ -95,12 +95,16 @@ class MultipleObjectsUpdateView(UpdateView):
 
         for i, form_class in enumerate(form_class_list):
             form_kwargs = kwargs.copy()
-            for arg in list_kwargs:
-                if arg in form_kwargs:
-                    if isinstance(kwargs[arg], list) and kwargs[arg]:
-                        form_kwargs.update({arg: kwargs[arg][i]})
-                    else:
+            for arg in kwargs:
+                if kwargs[arg] is None:
+                    form_kwargs.pop(arg)
+                elif isinstance(kwargs[arg], list) and kwargs[arg]:
+                    form_kwargs.update({arg: kwargs[arg][i]})
+                    if form_kwargs[arg] is None:
                         form_kwargs.pop(arg)
+                else:
+                    raise Exception("Key value arguments to forms must be given as ordered list.")
+
             form_list.append(form_class(**form_kwargs))
 
         if self.make_forms_crispy:

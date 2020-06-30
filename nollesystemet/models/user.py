@@ -107,7 +107,7 @@ class UserProfile(auth_models.UserProfile):
         """ :return Boolean indicating if observing_user has the right to see the profile of some user. """
         # If can see more than one user. Larger than 1 because all users can see their own profile
         return len(
-            [user.can_see(observing_user) for user in UserProfile.objects.all()]
+            [True for user in UserProfile.objects.all() if user.can_see(observing_user)]
         ) > min(1, UserProfile.objects.count() - 1)
 
     @staticmethod
@@ -115,7 +115,7 @@ class UserProfile(auth_models.UserProfile):
         """ :return Boolean indicating if observing_user has the right to edit the profile of some user. """
         # If can edit more than one user. Larger than 1 because all users can edit their own profile
         return len(
-            [user.can_edit(observing_user) for user in UserProfile.objects.all()]
+            [True for user in UserProfile.objects.all() if user.can_edit(observing_user)]
         ) > min(1, UserProfile.objects.count() - 1)
 
     def is_responsible_forfadder(self, potential_forfadder):

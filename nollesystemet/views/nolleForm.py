@@ -1,7 +1,6 @@
 import json
 from typing import Any
 
-from django.contrib.staticfiles import finders
 from django.urls import reverse_lazy, reverse
 from django.views.generic import TemplateView, FormView, UpdateView
 

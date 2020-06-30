@@ -39,8 +39,7 @@ class Registration(models.Model):
     def can_see_some(observing_user: UserProfile):
         """ :return Boolean indicating if observing_user has the right to see the registration of some user. """
         # If can see more than one user. Larger than 1 because all users can see their own profile
-        return len([registration.can_see(observing_user)
-                    for registration in Registration.objects.all()]) > \
+        return len([True for registration in Registration.objects.all() if registration.can_see(observing_user)]) > \
                len(Registration.objects.filter(user=observing_user))
 
     def can_edit(self, observing_user: UserProfile):
@@ -54,8 +53,8 @@ class Registration(models.Model):
     def can_edit_some(observing_user: UserProfile):
         """ :return Boolean indicating if observing_user has the right to see the registration of some user. """
         # If can see more than one user. Larger than 1 because all users can see their own profile
-        return len([registration.can_edit(observing_user)
-                    for registration in Registration.objects.all()]) > 0
+        return len([True for registration in Registration.objects.all()
+                    if registration.can_edit(observing_user)]) > 0
 
     @property
     def base_price(self):

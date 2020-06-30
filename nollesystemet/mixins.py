@@ -1,13 +1,16 @@
 import json
+import os
 import re
+import sys
 
 from django.apps import apps
+from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib.auth.mixins import PermissionRequiredMixin, UserPassesTestMixin
 from django.template import Template, Context
 from django.urls import reverse
 from django.views.generic.base import ContextMixin
-from django.contrib.staticfiles import finders
+import django.contrib.staticfiles.finders as finders
 
 class MenuMixin(ContextMixin):
     menu_items_static_file = None
@@ -15,7 +18,12 @@ class MenuMixin(ContextMixin):
     def get_context_data(self, **kwargs):
         context = {}
         try:
-            with open(finders.find(self.menu_items_static_file)) as json_file:
+            path = ""
+            if len(sys.argv) > 1 and sys.argv[1] == 'runserver':
+                path = finders.find(self.menu_items_static_file)
+            else:
+                path = os.path.join(settings.STATIC_ROOT, self.menu_items_static_file)
+            with open(path, encoding='utf-8') as json_file:
                 data = json.load(json_file)
                 order = data['order']
                 menu_items = data['menu_items']
@@ -23,7 +31,7 @@ class MenuMixin(ContextMixin):
             raise FileNotFoundError("menu_items_static_file not set or not able to be read.")
 
         if not order or not menu_items:
-            raise SyntaxError("order or menu_items not found in file %s" % finders.find(self.menu_items_static_file))
+            raise SyntaxError("order or menu_items not found in file %s" % path)
 
         menu = {'left': [], 'right': []}
         for items in order:
@@ -93,6 +101,7 @@ class MenuMixin(ContextMixin):
                             split = method_string.split(".")
                             model = apps.get_model(app_label=split[0], model_name=split[1])
                             methods_render |= getattr(model, (split[2]))(self.request.user.profile)
+                            print(method_string, "ans:", getattr(model, (split[2]))(self.request.user.profile), "user:", self.request.user.profile)
                     else:
                         methods_render = True
                     if "all" in conditions["methods"]:

@@ -4,9 +4,9 @@ from django.forms.widgets import Textarea, DateTimeInput
 from crispy_forms.layout import Layout, Fieldset, Field, Row, Column, HTML, Div
 
 import nollesystemet.models as models
-from .misc import CreateSeeUpdateModelForm, custom_inlineformset_factory
+from .misc import ModifiableModelForm, custom_inlineformset_factory
 
-class HappeningForm(CreateSeeUpdateModelForm):
+class HappeningForm(ModifiableModelForm):
     takes_registration = forms.TypedChoiceField(
         coerce=lambda x: x == 'True',
         choices=((True, 'Ja'), (False, 'Nej')),
@@ -73,8 +73,8 @@ class HappeningForm(CreateSeeUpdateModelForm):
     def get_is_editable(self, **kwargs):
         return True
 
-    def get_form_helper(self, submit_name=None, form_tag=True):
-        helper = super().get_form_helper(submit_name, False)
+    def get_form_helper(self, submit_name=None, delete_name=None, form_tag=True):
+        helper = super().get_form_helper(submit_name, delete_name, False)
         helper.layout = Layout(
             Fieldset("Systeminfo",
                      Div('takes_registration', css_id="reg-radio-div"),

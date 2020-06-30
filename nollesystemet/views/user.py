@@ -40,7 +40,8 @@ class ProfilePageView(mixins.FadderietMixin, MultipleObjectsUpdateView):
 
     def get_form_kwargs(self):
         return {
-            'observing_user': [None, self.request.user.profile]
+            'observing_user': [None, self.request.user.profile],
+            'exlude_fields': [None, ('nolle_group', 'user_type')]
         }
 
 
@@ -93,6 +94,14 @@ class UserUpdateView(mixins.FohserietMixin, MultipleObjectsUpdateView):
     def get_objects(self):
         user = apps.get_model(settings.USER_PROFILE_MODEL).objects.get(pk=self.kwargs['pk'])
         return user, user.auth_user
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs.update({
+            'observing_user': [self.request.user.profile, None],
+            'deletable': [True, None]
+        })
+        return kwargs
 
 class UserRegistrationsListView(mixins.FohserietMixin, ListView):
     model = models.Registration

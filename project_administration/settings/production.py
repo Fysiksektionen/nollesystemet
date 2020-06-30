@@ -16,7 +16,7 @@ TEMPLATE_DEBUG = False
 SITE_ID = 1
 
 ALLOWED_HOSTS = (
-    'f.kth.se',
+    '*',
 )
 
 ADMINS = (
@@ -101,6 +101,7 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(PUBLIC_ROOT, 'staticfiles')
 STATICFILES_DIRS = [
     os.path.join(PROJECT_ROOT, 'static'),
+
 ]
 
 MEDIA_URL = '/media/'
@@ -113,57 +114,6 @@ STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 )
-
-# Logging
-
-# LOGGING = {
-#     'version': 1,
-#     'disable_existing_loggers': False,
-#     'formatters': {
-#         'simple': {
-#             'format': '%(levelname)s %(message)s'
-#         },
-#     },
-#     'filters': {
-#         'require_debug_false': {
-#             '()': 'django.utils.log.RequireDebugFalse',
-#         }
-#     },
-#     'handlers': {
-#         'null': {
-#             'level': 'DEBUG',
-#             'class': 'logging.NullHandler',
-#         },
-#         'console': {
-#             'level': 'DEBUG',
-#             'class': 'logging.StreamHandler',
-#             'formatter': 'simple'
-#         },
-#         'mail_admins': {
-#             'level': 'ERROR',
-#             'class': 'django.utils.log.AdminEmailHandler',
-#             'filters': ['require_debug_false'],
-#             'include_html': True,
-#         }
-#     },
-#     'loggers': {
-#         'django': {
-#             'handlers': ['mail_admins'],
-#             'level': 'ERROR',
-#             'propagate': False,
-#         },
-#         'django.db.backends': {
-#             'handlers': ['null'],
-#             'level': 'DEBUG',
-#         },
-#         'py.warnings': {
-#             'handlers': ['null'],
-#             'level': 'WARNING',
-#             'propagate': False,
-#         }
-#     }
-# }
-
 
 # Crispy settings
 CRISPY_TEMPLATE_PACK = 'bootstrap4'

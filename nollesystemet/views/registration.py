@@ -100,7 +100,8 @@ class RegistrationUpdateView(mixins.FohserietMixin, UpdateView):
         kwargs = super().get_form_kwargs()
         kwargs.update({
             'observing_user': self.observing_user,
-            'editable': True
+            'editable': True,
+            'deletable': True
         })
         return kwargs
 

@@ -3,13 +3,17 @@
         {
             "name": "Administratör",
             "perms": [
-                "edit_user_profile"
+                "see_users",
+                "edit_users",
+                "edit_happening",
+                "create_happening"
             ]
         },
         {
             "name": "Arrangör",
             "perms": [
-                "edit_happening"
+                "edit_happening",
+                "create_happening"
             ]
         }
     ]

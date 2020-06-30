@@ -2,7 +2,7 @@ from crispy_forms.helper import FormHelper
 from django import forms
 from crispy_forms.layout import Layout, Fieldset, Field, Row, Column, HTML, Submit, Div
 
-from .misc import CreateSeeUpdateModelForm
+from .misc import ModifiableModelForm
 from nollesystemet.models import NolleFormAnswer, DynamicNolleFormQuestion, DynamicNolleFormQuestionAnswer
 
 
@@ -35,7 +35,7 @@ class DynamicQuestionCharField(forms.CharField):
             return DynamicNolleFormQuestionAnswer(question=self.question, value=cleaned_value)
 
 
-class NolleFormBaseForm(CreateSeeUpdateModelForm):
+class NolleFormBaseForm(ModifiableModelForm):
     class Meta:
         model = NolleFormAnswer
         fields = '__all__'
@@ -135,8 +135,8 @@ class NolleFormBaseForm(CreateSeeUpdateModelForm):
                         self.instance.dynamic_answers.add(DynamicNolleFormQuestionAnswer.objects.get(pk=pk))
 
 
-    def get_form_helper(self, submit_name=None, form_tag=True):
-        helper = super().get_form_helper(submit_name, form_tag)
+    def get_form_helper(self, submit_name=None, delete_name=None, form_tag=True):
+        helper = super().get_form_helper(submit_name, delete_name, form_tag)
         helper.layout = Layout(
             Fieldset(
                 "Om dig",
