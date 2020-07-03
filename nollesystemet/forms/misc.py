@@ -43,8 +43,7 @@ class ExtendedMetaModelForm(forms.ModelForm):
                             setattr(field, attr_name, attr_val)
 
 
-def get_formset_form_helper(input_names, input_placeholders, wrapper_class=None, input_css_class=None,
-                            formclass=None):
+def get_formset_form_helper(input_names, input_placeholders, wrapper_class=None, input_css_class=None, formclass=None):
     helper = FormHelper()
     helper.layout = Layout(
         Row(
@@ -60,6 +59,7 @@ def get_formset_form_helper(input_names, input_placeholders, wrapper_class=None,
     )
     helper.form_tag = False
     return helper
+
 
 def custom_inlineformset_factory(parent_model, object_model, model_fields, model_fields_placeholders, formclass, **kwargs):
     class FormClass(ExtendedMetaModelForm):
@@ -85,7 +85,7 @@ def custom_inlineformset_factory(parent_model, object_model, model_fields, model
     return FormsetClass
 
 
-def make_crispy_form(form_class, submit_button=None, form_action=None):
+def make_form_crispy(form_class, submit_button=None, form_action=None):
     class CrispyForm(form_class):
         def __init__(self, *args, **kwargs):
             self.helper = FormHelper()
@@ -156,31 +156,37 @@ class ModifiableModelForm(ExtendedMetaModelForm):
     @property
     def submit_button(self):
         val = self.submit_name if self.submit_name else ('Skicka' if self.is_new else 'Spara')
-        return '<input type="submit" name="submit" value="' + val +\
-               '" class="btn btn-primary" id="submit-id-submit">'
+        return """<button type="submit" name="submit" class="btn btn-primary" id="submit-id-submit">
+                   """ + val + """ <i class="fa fa-save" aria-hidden="true"></i>
+               </button>"""
 
     @property
     def delete_button(self):
-        val = self.delete_name if self.delete_name else 'Radera'
-        return '<input type="submit" name="delete" value="' + val +\
-               '" class="btn btn-primary btn btn-danger" id="submit-id-delete">'
+        if not self.is_new:
+            val = self.delete_name if self.delete_name else 'Radera'
+            return """<button type="submit" name="delete" class="btn btn-danger" id="submit-id-delete">
+                       """ + val + """ <i class="fa fa-trash" aria-hidden="true"></i>
+                   </button>"""
+        else:
+            return ""
 
-
-def nested_formset_factory(parent_model, child_model, parent_form, child_form):
-    class ParentFormClass(parent_form):
-        nested_formset_class = inlineformset_factory(
-            parent_model, child_model, form=child_form, extra=1
-        )
-
-        def __init__(self, *args, **kwargs):
-            super().__init__(*args, **kwargs)
-            self.nested_formset = self.nested_formset_class(instance=self.instance)
-
-        def is_valid(self):
-            return super().is_valid() and self.nested_formset.is_valid()
-
-    return modelformset_factory(parent_model, ParentFormClass, can_delete=True)
-
+    @property
+    def submit_delete_buttons(self):
+        if not self.is_new:
+            return """<div class="d-flex flex-row">
+                         <div class="d-flex justify-content-start col p-0">
+                             """ + self.submit_button + """
+                         </div>
+                         <div class="d-flex justify-content-end col p-0">
+                             """ + self.delete_button + """
+                         </div>
+                    </div>"""
+        else:
+            return """<div class="d-flex flex-row justify-content-start">
+                         <div class="d-flex justify-content-start col p-0">
+                             """ + self.submit_button + """
+                         </div>
+                    </div>"""
 
 
 

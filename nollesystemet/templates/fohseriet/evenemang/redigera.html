@@ -31,10 +31,7 @@
             {% include "fohseriet/elements/formset.html" with formset=drink_option_formset header="Dryck" %}
             {% include "fohseriet/elements/formset.html" with formset=extra_option_formset header="Extraval" %}
         </div>
-        <button type="submit" name="submit" class="btn btn-primary mt-4 mb-4" value="Spara">
-            Spara
-            <i class="fa fa-save" aria-hidden="true"></i>
-        </button>
+        {{ form.submit_delete_buttons | safe }}
     </form>
 {% endblock %}
 

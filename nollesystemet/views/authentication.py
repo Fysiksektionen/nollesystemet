@@ -33,14 +33,14 @@ class LoginCredentialsViewFohseriet(mixins.FohserietMixin, auth_views.login.Logi
     template_name = 'fohseriet/logga-in/cred.html'
     default_redirect_url = reverse_lazy('fohseriet:index')
 
-    form_class = forms.make_crispy_form(auth_views.login.LoginCred.form_class, 'Logga in')
+    form_class = forms.make_form_crispy(auth_views.login.LoginCred.form_class, 'Logga in')
 
 
 class LoginCredentialsViewFadderiet(mixins.FadderietMixin, auth_views.login.LoginCred):
     template_name = 'fadderiet/logga-in/nollan.html'
     default_redirect_url = reverse_lazy('fadderiet:index')
 
-    form_class = forms.make_crispy_form(auth_views.login.LoginCred.form_class, 'Logga in')
+    form_class = forms.make_form_crispy(auth_views.login.LoginCred.form_class, 'Logga in')
 
     extra_context = {
         'reset_password_url': reverse_lazy('fadderiet:aterstall-losenord:index'),
@@ -52,13 +52,13 @@ class RegisterView(mixins.FadderietMixin, auth_views.user.AuthUserCreateView):
     template_name = 'fadderiet/registrera-dig.html'
     success_url = reverse_lazy('fadderiet:logga-in:index')
 
-    form_class = forms.make_crispy_form(auth_views.user.AuthUserCreateView.form_class, 'Registrera')
+    form_class = forms.make_form_crispy(auth_views.user.AuthUserCreateView.form_class, 'Registrera')
 
 
 class PasswordChangeView(mixins.FadderietMixin, auth_views.password.PasswordChangeView):
     success_url = reverse_lazy('authentication:password_change_done')
     template_name = 'fadderiet/byt-losenord/index.html'
-    form_class = forms.make_crispy_form(auth_views.password.PasswordChangeView.form_class, submit_button='Byt lösenord')
+    form_class = forms.make_form_crispy(auth_views.password.PasswordChangeView.form_class, submit_button='Byt lösenord')
 
 
 class PasswordChangeDoneView(mixins.FadderietMixin, auth_views.password.PasswordChangeDoneView):
@@ -70,7 +70,7 @@ class PasswordResetView(mixins.FadderietMixin, auth_views.password.PasswordReset
     subject_template_name = 'fadderiet/aterstall-losenord-epost-amne.txt'
     success_url = reverse_lazy('fadderiet:aterstall-losenord:skickat')
     template_name = 'fadderiet/aterstall-losenord/index.html'
-    form_class = forms.make_crispy_form(auth_views.password.PasswordResetView.form_class, submit_button='Återställ lösenord')
+    form_class = forms.make_form_crispy(auth_views.password.PasswordResetView.form_class, submit_button='Återställ lösenord')
 
 
 class PasswordResetDoneView(mixins.FadderietMixin, auth_views.password.PasswordResetDoneView):
@@ -80,7 +80,7 @@ class PasswordResetDoneView(mixins.FadderietMixin, auth_views.password.PasswordR
 class PasswordResetConfirmView(mixins.FadderietMixin, auth_views.password.PasswordResetConfirmView):
     template_name = 'fadderiet/aterstall-losenord/lank.html'
     success_url = reverse_lazy('fadderiet:aterstall-losenord:klart')
-    form_class = forms.make_crispy_form(auth_views.password.PasswordResetConfirmView.form_class, submit_button='Sätt nytt lösenord')
+    form_class = forms.make_form_crispy(auth_views.password.PasswordResetConfirmView.form_class, submit_button='Sätt nytt lösenord')
 
 
 class PasswordResetCompleteView(mixins.FadderietMixin, auth_views.password.PasswordResetCompleteView):

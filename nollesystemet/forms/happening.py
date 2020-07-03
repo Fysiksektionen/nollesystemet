@@ -73,8 +73,8 @@ class HappeningForm(ModifiableModelForm):
     def get_is_editable(self, **kwargs):
         return True
 
-    def get_form_helper(self, submit_name=None, delete_name=None, form_tag=True):
-        helper = super().get_form_helper(submit_name, delete_name, False)
+    def get_form_helper(self, form_tag=True):
+        helper = super().get_form_helper(form_tag=False)
         helper.layout = Layout(
             Fieldset("Systeminfo",
                      Div('takes_registration', css_id="reg-radio-div"),
