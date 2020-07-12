@@ -12,7 +12,7 @@ from .misc import DownloadView
 
 class NolleFormInspectView(mixins.FohserietMixin, FormView):
     login_required = True
-    permission_required = 'nollesystemet:edit_user_info'
+    permission_required = 'nollesystemet.edit_users'
 
     template_name = "fohseriet/nolleenkaten/index.html"
 

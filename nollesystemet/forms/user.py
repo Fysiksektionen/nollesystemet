@@ -107,10 +107,11 @@ class AuthUserUpdateForm(ModifiableModelForm):
         return super().clean()
 
     def save(self, commit=True):
-        if 'password' in self.cleaned_data and self.cleaned_data['password']:
-            self.instance.set_password(self.cleaned_data["password"])
-        else:
-            self.instance.set_unusable_password()
+        if 'password' in self.cleaned_data:
+            if self.cleaned_data['password']:
+                self.instance.set_password(self.cleaned_data["password"])
+            else:
+                self.instance.set_unusable_password()
         return super().save(commit=commit)
 
 
