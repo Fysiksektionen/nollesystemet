@@ -2,8 +2,7 @@ from project_administration.settings.production import *
 
 TMP_PATH = os.path.abspath(os.path.join(PROJECT_ROOT, 'tmp'))
 
-DEBUG = TEMPLATE_DEBUG = True
-SECRET = '42'
+DEBUG = True
 
 if 'debug_toolbar' not in INSTALLED_APPS:
     INSTALLED_APPS += ('debug_toolbar',)

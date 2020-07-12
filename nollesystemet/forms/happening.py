@@ -70,9 +70,6 @@ class HappeningForm(ModifiableModelForm):
         self.initial.setdefault('user_types', [models.UserProfile.UserType.NOLLAN, models.UserProfile.UserType.FADDER])
         self.initial.setdefault('nolle_groups', models.NolleGroup.objects.all())
 
-    def get_is_editable(self, **kwargs):
-        return True
-
     def get_form_helper(self, form_tag=True):
         helper = super().get_form_helper(form_tag=False)
         helper.layout = Layout(
@@ -105,7 +102,6 @@ GroupBasePriceFormset = custom_inlineformset_factory(
     models.UserTypeBasePrice,
     ['user_type', 'price'],
     ['Grupp', 'Baspris'],
-    formclass="base-price reg-info",
     extra=1,
 )
 DrinkOptionFormset = custom_inlineformset_factory(
@@ -113,7 +109,6 @@ DrinkOptionFormset = custom_inlineformset_factory(
     models.DrinkOption,
     ['drink', 'price'],
     ['Dryck', 'Pris'],
-    formclass="drink-option",
     extra=1,
 )
 ExtraOptionFormset = custom_inlineformset_factory(
@@ -121,6 +116,5 @@ ExtraOptionFormset = custom_inlineformset_factory(
     models.ExtraOption,
     ['extra_option', 'price'],
     ['Tillval', 'Pris'],
-    formclass="extra-option",
     extra=1,
 )

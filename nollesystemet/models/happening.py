@@ -47,7 +47,7 @@ class Happening(models.Model):
 
     @staticmethod
     def can_create(observing_user: UserProfile):
-        return observing_user.has_perm('create_happening')
+        return observing_user.has_perm('nollesystemet.create_happening')
 
     def can_register(self, observing_user: UserProfile):
         return self.takes_registration and self.open_for_registration and \
@@ -61,8 +61,8 @@ class Happening(models.Model):
 
     def can_see_registered(self, observing_user: UserProfile):
         return self.can_edit(observing_user) or \
-               observing_user.has_perm('see_registration') or \
-               observing_user.has_perm('edit_registration')
+               observing_user.has_perm('nollesystemet.see_registration') or \
+               observing_user.has_perm('nollesystemet.edit_registration')
 
     @staticmethod
     def can_see_some_registered(observing_user: UserProfile):
@@ -70,7 +70,7 @@ class Happening(models.Model):
                     if happening.can_see_registered(observing_user)]) > 0
 
     def can_edit(self, observing_user: UserProfile):
-        return observing_user in self.editors.all() or observing_user.has_perm('edit_happening')
+        return observing_user in self.editors.all() or observing_user.has_perm('nollesystemet.edit_happening')
 
     @staticmethod
     def can_edit_some_registered(observing_user: UserProfile):

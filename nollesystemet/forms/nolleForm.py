@@ -75,11 +75,13 @@ class NolleFormBaseForm(ModifiableModelForm):
             },
             'food_preference': {
                 'label': 'Matpreferens',
-                'widget': forms.widgets.Textarea(attrs={'rows': 3})
+                'widget_class': forms.widgets.Textarea,
+                'widget_attrs': {'rows': 3},
             },
             'other': {
                 'label': 'Övrigt',
-                'widget': forms.widgets.Textarea(attrs={'rows': 3})
+                'widget_class': forms.widgets.Textarea,
+                'widget_attrs': {'rows': 3}
             },
             'about_the_form': {
                 'label': 'Om formuläret'
@@ -88,6 +90,7 @@ class NolleFormBaseForm(ModifiableModelForm):
 
     def __init__(self, user=None, **kwargs):
         super().__init__(**kwargs)
+        self.add_fields()
         if user:
             self.instance.user = user
 

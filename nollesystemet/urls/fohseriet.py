@@ -19,12 +19,12 @@ happening_urls = ([
 
 user_urls = ([
     path('', views.UsersListView.as_view(), name="index"),
+    path('skapa/', views.UserUpdateView.as_view(), name='skapa'),
     path('<int:pk>/redigera/', views.UserUpdateView.as_view(), name='redigera'),
     path('<int:pk>/anmalningar/', views.UserRegistrationsListView.as_view(), name='anmalningar'),
 ], 'anvandare')
 
 registration_urls = ([
-    path('<int:pk>/visa/', views.RegistrationSeeView.as_view(), name="visa"),
     path('<int:pk>/redigera/', views.RegistrationUpdateView.as_view(), name="redigera"),
 ], 'anmalan')
 

@@ -8,15 +8,13 @@ PROJECT_APP_ROOT = os.path.abspath(os.path.dirname(os.path.dirname(os.path.dirna
 PROJECT_ROOT = PROJECT_APP_ROOT
 PUBLIC_ROOT = os.path.abspath(os.path.join(PROJECT_ROOT, 'public'))
 
-SECRET_KEY = 'xb6-3)%wyspw@2*4rd^$a!@56ixbwq4g+2721(2)ica-r8_1#8'
+with open('/etc/django/secret_key.cnf') as f:
+    SECRET_KEY = f.read().strip()
 
 DEBUG = False
-TEMPLATE_DEBUG = False
-
-SITE_ID = 1
 
 ALLOWED_HOSTS = (
-    '*',
+    '18.156.68.18',
 )
 
 ADMINS = (
@@ -79,8 +77,12 @@ TEMPLATES = [
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'nollesystemet_db',
+        'USER': 'ejemyr',
+        'PASSWORD': 'password',
+        'HOST': 'localhost',
         'OPTIONS': {
-            'read_default_file': os.path.join(os.path.dirname(__file__), 'config_files/db_info.cnf')
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"
         }
     }
 }
@@ -97,14 +99,14 @@ LOCALE_PATHS = [
 ]
 
 # Static files (CSS, JavaScript, Images)
-STATIC_URL = '/static/'
+STATIC_URL = '/nollesystemet/static/'
 STATIC_ROOT = os.path.join(PUBLIC_ROOT, 'staticfiles')
 STATICFILES_DIRS = [
     os.path.join(PROJECT_ROOT, 'static'),
 
 ]
 
-MEDIA_URL = '/media/'
+MEDIA_URL = '/nollesystemet/media/'
 MEDIA_ROOT = os.path.join(PUBLIC_ROOT, 'mediafiles')
 MEDIAFILES_DIRS = [
     os.path.join(PROJECT_ROOT, 'media'),
@@ -148,8 +150,4 @@ def get_email_info(filename):
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST, EMAIL_USE_TLS, EMAIL_PORT, EMAIL_HOST_USER, EMAIL_HOST_PASSWORD = get_email_info('config_files/mail.cnf')
 
-
 PAGE_CALL_STACK_SIZE = 5
-
-TEMPUS_DOMINUS_LOCALIZE = True
-

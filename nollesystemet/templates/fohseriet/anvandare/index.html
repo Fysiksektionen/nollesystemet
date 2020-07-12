@@ -6,6 +6,15 @@
 
 
 {% block content-indented %}
+    {% if can_create %}
+        <div class="pb-3">
+            <a class="btn btn-primary" href="{% url 'fohseriet:anvandare:skapa' %}">
+                Skapa användare
+                <i class="fa fa-user-plus" aria-hidden="true"></i>
+            </a>
+        </div>
+    {% endif %}
+
     {% if object_list %}
         {% for user_object in object_list %}
             {% with user_object.user as profile %}
@@ -17,7 +26,11 @@
                             </div>
                             <div class="d-flex flex-fill hidden visible-lg col-8 justify-content-between" style="white-space: nowrap;">
                                 <div class="d-flex col">
-                                    {{ profile.nolle_group }}
+                                    {% if profile.nolle_group %}
+                                        {{ profile.nolle_group }}
+                                    {% else %}
+                                        -
+                                    {% endif %}
                                 </div>
                                 <div class="d-flex col">
                                     {{ profile.type }}

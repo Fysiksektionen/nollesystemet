@@ -7,8 +7,7 @@ from .fadderiet import fadderiet_urls
 from .fohseriet import fohseriet_urls
 
 urlpatterns = [
-    path('', views.hello_world),
+    path('', views.custom_redirect_view, kwargs={'redirect_name': 'fadderiet:index'}),
     path('fadderiet/', include(fadderiet_urls)),
     path('fohseriet/', include(fohseriet_urls)),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-
+]

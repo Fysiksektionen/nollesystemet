@@ -7,12 +7,12 @@ from .user import UserProfile
 class Registration(models.Model):
     """ Model representing a registration of a user to a happening. Contains information on options and alike. """
 
-    happening = models.ForeignKey(Happening, on_delete=models.CASCADE)
-    user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    happening = models.ForeignKey(Happening, on_delete=models.CASCADE, editable=False)
+    user = models.ForeignKey(UserProfile, on_delete=models.CASCADE, editable=False)
     food_preference = models.CharField(max_length=150)
     drink_option = models.ForeignKey(DrinkOption, blank=True, null=True, on_delete=models.SET_NULL)
     extra_option = models.ManyToManyField(ExtraOption, blank=True)
-    other = models.CharField(max_length=300)
+    other = models.CharField(max_length=300, blank=True)
 
     class Meta:
         permissions = [
@@ -43,7 +43,7 @@ class Registration(models.Model):
                len(Registration.objects.filter(user=observing_user))
 
     def can_edit(self, observing_user: UserProfile):
-        if observing_user.has_perm('edit_registration'):
+        if observing_user.has_perm('nollesystemet.edit_registration'):
             return True
         if self.happening.can_edit(observing_user):
             return True

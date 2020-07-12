@@ -9,12 +9,15 @@ from django.views.generic import ListView
 import nollesystemet.models as models
 import nollesystemet.forms as forms
 import nollesystemet.mixins as mixins
-from .misc import MultipleObjectsUpdateView
+from .misc import MultipleObjectsUpdateView, ModifiableModelFormView
 
 
-class ProfilePageView(mixins.FadderietMixin, MultipleObjectsUpdateView):
-    model_list = [apps.get_model(settings.AUTH_USER_MODEL), apps.get_model(settings.USER_PROFILE_MODEL)]
-    form_class_list = [forms.AuthUserUpdateForm, forms.ProfileUpdateForm]
+class ProfilePageView(mixins.FadderietMixin, ModifiableModelFormView):
+    model = models.UserProfile
+    form_class = forms.ProfileUpdateForm
+    deletable = False
+    submit_name = "Spara"
+    exclude_fields = ('nolle_group', 'user_type', 'groups')
 
     template_name = 'fadderiet/mina-sidor/profil.html'
     success_url = reverse_lazy('fadderiet:mina-sidor:profil')
@@ -25,24 +28,11 @@ class ProfilePageView(mixins.FadderietMixin, MultipleObjectsUpdateView):
         'change_password_url': reverse_lazy('fadderiet:byt-losenord:index')
     }
 
-    def get_objects(self):
-        return self.request.user, self.request.user.profile
+    def get_object(self, queryset=None):
+        return self.request.user.profile
 
-    def form_valid(self, forms):
-        self.request.user.profile.has_set_profile = True
-        return super().form_valid(forms)
-
-    def get_success_url(self):
-        if REDIRECT_FIELD_NAME in self.request.GET:
-            return self.request.GET[REDIRECT_FIELD_NAME]
-        else:
-            return super().get_success_url()
-
-    def get_form_kwargs(self):
-        return {
-            'observing_user': [None, self.request.user.profile],
-            'exlude_fields': [None, ('nolle_group', 'user_type')]
-        }
+    def get_is_editable_args(self):
+        return [self.request.user.profile]
 
 
 class UsersListView(mixins.FohserietMixin, ListView):
@@ -69,21 +59,19 @@ class UsersListView(mixins.FohserietMixin, ListView):
             'form': forms.ProfileUpdateForm(instance=user, editable=False)
         } for user in querryset]
 
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context.update({
-            'user_can_edit_user_info': self.request.user.has_perm('fohseriet.edit_user_info'),
-            'user_can_edit_registrations': self.request.user.has_perm(
-                'fohseriet.edit_user_registration') or models.Happening.objects.filter(
-                editors=self.request.user.profile.pk).count() > 0
+            'can_create': models.UserProfile.can_create(self.request.user.profile)
         })
         return context
 
 
-class UserUpdateView(mixins.FohserietMixin, MultipleObjectsUpdateView):
-    model_list = [models.UserProfile, apps.get_model(settings.AUTH_USER_MODEL)]
-    form_class_list = [forms.ProfileUpdateForm, forms.AuthUserGroupsUpdateForm]
+class UserUpdateView(mixins.FohserietMixin, ModifiableModelFormView):
+    model = models.UserProfile
+    form_class = forms.ProfileUpdateForm
+    deletable = True
+    submit_name = "Spara"
 
     template_name = 'fohseriet/anvandare/redigera.html'
     success_url = reverse_lazy('fohseriet:anvandare:index')
@@ -91,17 +79,13 @@ class UserUpdateView(mixins.FohserietMixin, MultipleObjectsUpdateView):
     login_required = True
     permission_required = 'nollesystemet.edit_user_info'
 
-    def get_objects(self):
-        user = apps.get_model(settings.USER_PROFILE_MODEL).objects.get(pk=self.kwargs['pk'])
-        return user, user.auth_user
+    def get_is_editable_args(self):
+        return [self.request.user.profile]
 
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs.update({
-            'observing_user': [self.request.user.profile, None],
-            'deletable': [True, None]
-        })
-        return kwargs
+    def get_object(self, queryset=None):
+        if 'pk' not in self.kwargs:
+            return None
+        return super().get_object(queryset=queryset)
 
 class UserRegistrationsListView(mixins.FohserietMixin, ListView):
     model = models.Registration
@@ -112,7 +96,7 @@ class UserRegistrationsListView(mixins.FohserietMixin, ListView):
 
     def query_test_func(self, registration):
         return self.request.user.has_perm(
-            'fohseriet.edit_user_registration') or self.request.user.profile in registration.happening.editors.all()
+            'nollesystemet.edit_user_registration') or self.request.user.profile in registration.happening.editors.all()
 
     def get_queryset(self):
         try:

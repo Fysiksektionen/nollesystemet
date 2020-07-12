@@ -10,8 +10,7 @@ from .model_fields import MultipleStringChoiceField
 
 class AuthUser(AbstractUser):
     """
-    User model for handling authentication and permissions. Makes it possible to authenticate either with
-    username and password (auth_backend = 'CRED') or using external CAS authentication (auth_backend = 'CAS').
+    User model for handling authentication and permissions.
     """
 
     # Remove unwanted inherited things
@@ -20,18 +19,7 @@ class AuthUser(AbstractUser):
     date_joined = None
 
     # Field for authorized authentication backends
-    auth_backend = MultipleStringChoiceField(separator=",", choices=None, max_length=150)
     objects = AuthUserManager()
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        auth_backend_names = [backend.backend_name for backend in get_backends()
-                              if hasattr(backend, 'backend_name')]
-        self._meta.get_field('auth_backend').choices = [*[(name, name) for name in auth_backend_names],
-                                                        ('__all__', 'All')]
-
-    def can_use_auth_method(self, backend_name):
-        return '__all__' in self.auth_backend.split(",") or backend_name in self.auth_backend.split(",")
 
     def clean(self):
         super().clean()
@@ -58,7 +46,7 @@ class UserProfile(models.Model):
     auth_user = AutoOneToOneField(settings.AUTH_USER_MODEL,
                                   on_delete=models.CASCADE,
                                   related_name="profile",
-                                  null=False,
+                                  null=True,
                                   unique=True)
 
     class Meta:

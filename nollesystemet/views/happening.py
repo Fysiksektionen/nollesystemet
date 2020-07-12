@@ -11,7 +11,7 @@ import authentication.models as auth_models
 import nollesystemet.models as models
 import nollesystemet.forms as forms
 import nollesystemet.mixins as mixins
-from nollesystemet.views.misc import DownloadView
+from nollesystemet.views.misc import DownloadView, ModifiableModelFormView
 
 
 class HappeningListViewFadderiet(mixins.FadderietMixin, ListView):
@@ -136,33 +136,23 @@ class HappeningDownloadView(mixins.FohserietMixin, DownloadView):
         return models.Registration.objects.filter(happening=self.happening)
 
 
-class HappeningUpdateView(mixins.FohserietMixin, UpdateView):
+class HappeningUpdateView(mixins.FohserietMixin, ModifiableModelFormView):
     model = models.Happening
     form_class = forms.HappeningForm
+    editable = True
+    deletable = True
 
     template_name = 'fohseriet/evenemang/redigera.html'
-
     default_back_url = reverse_lazy('fohseriet:evenemang:lista')
-
     login_required = True
     success_url = default_back_url
 
-    def post(self, request, *args, **kwargs):
-        if 'delete' in request.POST:
-            self.get_object().delete()
-            return HttpResponseRedirect(self.get_back_url())
-        else:
-            return super(HappeningUpdateView, self).post(request, *args, **kwargs)
-
-    def get(self, request, *args, **kwargs):
-        ret = super().get(request, *args, **kwargs)
-        self.success_url = self.back_url
-        return ret
-
     def test_func(self):
-        return self.request.user.has_perm(
-               'fohseriet.edit_user_registration') or (self.request.user.profile in models.Happening.objects.get(
-               pk=self.kwargs['pk']).editors.all() if 'pk' in self.kwargs else True)
+        self.object = self.get_object()
+        if self.object is None:
+            return models.Happening.can_create(self.request.user.profile)
+        else:
+            return self.object.can_edit(self.request.user.profile)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

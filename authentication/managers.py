@@ -45,5 +45,4 @@ class AuthUserManager(BaseUserManager):
         if extra_fields.get('is_superuser') is not True:
             raise ValueError('Superuser must have is_superuser=True.')
 
-        extra_fields.setdefault('auth_backend', '__all__')
         return self._create_user(username, password, **extra_fields)

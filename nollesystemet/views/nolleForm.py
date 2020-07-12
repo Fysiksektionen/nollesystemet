@@ -31,11 +31,7 @@ class NolleFormInspectView(mixins.FohserietMixin, FormView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        preview_form_kwargs = {
-            'editable': False,
-            'form_tag': False
-        }
-        context['preview_form'] = NolleFormBaseForm(**preview_form_kwargs)
+        context['preview_form'] = NolleFormBaseForm(editable=True, form_tag=False)
         return context
 
 class NolleFormView(mixins.FadderietMixin, UpdateView):

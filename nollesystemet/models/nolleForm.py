@@ -73,8 +73,8 @@ class NolleFormAnswer(models.Model):
     contact_relation = models.CharField(max_length=200, choices=[(val, val) for val in ['Mamma', 'Pappa', 'Bror', 'Syster', 'Släkting', 'Vän']])
     contact_phone_number = models.CharField(max_length=20)
 
-    food_preference = models.TextField()
-    other = models.CharField(max_length=400)
+    food_preference = models.TextField(blank=True)
+    other = models.TextField(blank=True)
 
     about_the_form = models.CharField(max_length=200, choices=[(val, val) for val in [
         'Toppen!',
@@ -95,7 +95,7 @@ class NolleFormAnswer(models.Model):
 
     @staticmethod
     def can_see_answers(observing_user: UserProfile):
-        if observing_user.has_perm('see_users') or observing_user.has_perm('edit_users'):
+        if observing_user.has_perm('nollesystemet.see_users') or observing_user.has_perm('nollesystemet.edit_users'):
             return True
         else:
             return False

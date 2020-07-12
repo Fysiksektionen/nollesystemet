@@ -7,7 +7,8 @@ from django.core.exceptions import ImproperlyConfigured
 from django.urls import reverse
 from django.http import QueryDict, HttpResponseRedirect, HttpResponse
 from django.views import View
-from django.views.generic import TemplateView, UpdateView
+from django.views.generic import TemplateView, UpdateView, FormView
+from django.views.generic.edit import ProcessFormView, BaseFormView, BaseUpdateView
 
 import authentication.models as auth_models
 import nollesystemet.mixins as mixins
@@ -46,6 +47,72 @@ def custom_redirect_view(request, redirect_name, keep_GET_params=True, default_G
         query_dict = None
 
     return custom_redirect(redirect_name, *url_args, query_dict=query_dict)
+
+
+class ModifiableModelFormView(UpdateView):
+    """
+    View class to handle a generic ModifiableModelForm.
+    Set input args controlling behaviour of form by overriding variables of methods.
+    Overridden method takes president over overridden variable.
+    """
+
+    editable = None
+    deletable = False
+    submit_name = "Skicka"
+    delete_name = "Radera"
+    form_tag = True
+    exclude_fields = None
+    is_editable_args = None
+    is_deletable_args = None
+
+    def get_is_editable(self):
+        return self.editable
+
+    def get_is_deletable(self):
+        return self.deletable
+
+    def get_submit_name(self):
+        return self.submit_name
+
+    def get_delete_name(self):
+        return self.delete_name
+
+    def get_exclude_fields(self):
+        return self.exclude_fields
+
+    def get_is_editable_args(self):
+        return self.is_editable_args
+
+    def get_is_deletable_args(self):
+        return self.is_deletable_args
+
+    def get_form_kwargs(self):
+        """ Collect all form kwargs """
+        kwargs = super().get_form_kwargs()
+        kwargs.update({
+            'editable': self.get_is_editable(),
+            'deletable': self.get_is_deletable(),
+            'submit_name': self.get_submit_name(),
+            'delete_name': self.get_delete_name(),
+            'form_tag': self.form_tag,
+            'exclude_fields': self.get_exclude_fields(),
+            'is_editable_args': self.get_is_editable_args(),
+            'is_deletable_args': self.get_is_deletable_args()
+        })
+        return kwargs
+
+    def post(self, request, *args, **kwargs):
+        """ Alter behaviour if delete is pressed. """
+        self.object = self.get_object()
+        if 'delete' in request.POST:
+            return self.form_delete(self.get_form())
+        else:
+            return super().post(request, *args, **kwargs)
+
+    def form_delete(self, form):
+        """Delete and redirect to the supplied URL."""
+        form.delete_instance()
+        return HttpResponseRedirect(self.get_success_url())
 
 
 class MultipleObjectsUpdateView(UpdateView):

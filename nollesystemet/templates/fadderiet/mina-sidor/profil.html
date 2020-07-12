@@ -5,11 +5,5 @@
 {% block title %}Min profil{% endblock %}
 
 {% block content-left-col %}
-    <form method="post">
-        {% csrf_token %}
-        {% for f in form %}
-            {% crispy f %}
-        {% endfor %}
-        <input type="submit" value="Spara" class="btn btn-primary">
-    </form>
+    {% crispy form %}
 {% endblock %}

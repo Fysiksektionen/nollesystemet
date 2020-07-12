@@ -1,4 +1,4 @@
-function deleteForm(prefix, form){
+function deleteForm(form){
     form.find("input[id*='DELETE']").each(function(){
         this.value = "on";
     });
@@ -20,43 +20,16 @@ function addform(prefix) {
     emptyFormElement.before(newForm);
 
     totalFormsElement.val(parseInt(numOfForms) + 1);
+    $(newForm).find(".remove-" + prefix + "-form-btn").click(function (){
+        deleteForm($(newForm));
+    });
 }
 
 function bindFormset(prefix) {
-    $(".add-" + prefix).click(function (){
+    $(".add-" + prefix + "-form-btn").click(function (){
         addform(prefix)
     });
-    $(".remove-" + prefix).click(function (){
-        deleteForm(prefix, $(this).closest("." + prefix + "-form"))
-    });
-}
-
-function addFormWithSubFormset(parentPrefix, childPrefix) {
-    let totalFormsElement = $('#id_' + parentPrefix + '-TOTAL_FORMS');
-    var numOfForms = totalFormsElement.val();
-    var emptyFormElement = $("." + parentPrefix + "-form.emptyform");
-
-    var temp = emptyFormElement.wrap('<p/>').parent().html().replace(/__prefix__/g, numOfForms);
-    var newFormHTML = temp.replace(/__parent_num__/g, numOfForms);
-
-    emptyFormElement.unwrap();
-
-    var newForm = $.parseHTML(newFormHTML);
-    $(newForm).removeAttr("style");
-    $(newForm).removeClass("emptyform");
-
-    emptyFormElement.before(newForm);
-
-    totalFormsElement.val(parseInt(numOfForms) + 1);
-
-    bindFormset(numOfForms + "-" + childPrefix);
-}
-
-function bindNestedFormset(parentPrefix, childPrefix) {
-    $(".remove-" + parentPrefix).click(function (){
-        deleteForm(parentPrefix, $(this).closest("." + parentPrefix + "-form"));
-    });
-    $(".add-" + parentPrefix).click(function (){
-        addFormWithSubFormset(parentPrefix, childPrefix);
+    $(".remove-" + prefix + "-form-btn").click(function (){
+        deleteForm($(this).closest("." + prefix + "-form"));
     });
 }

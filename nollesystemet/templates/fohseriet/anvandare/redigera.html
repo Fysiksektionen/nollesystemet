@@ -2,16 +2,14 @@
 {% load crispy_forms_tags %}
 {% load crispy_forms_filters %}
 
-{% block title %}Redigera användare{% endblock %}
+{% block title %}
+    {% if object.pk %}
+        Redigera användare
+    {% else %}
+        Skapa användare
+    {% endif %}
+{% endblock %}
 
 {% block content-left-col %}
-    <h3 style="font-style: italic;">{{ object.0.first_name }} {{ object.0.last_name }}</h3>
-    <form method="post" class="pt-5">
-        {% csrf_token %}
-        {% for f in form %}
-            {% crispy f %}
-        {% endfor %}
-        <input type="submit" value="Spara" class="btn btn-primary">
-            <i class="fa fa-send" aria-hidden="true"></i>
-    </form>
+    {% crispy form %}
 {% endblock %}

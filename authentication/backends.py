@@ -17,7 +17,7 @@ class UserCredentialsBackend(ModelBackend):
     def user_can_authenticate(self, user: AuthUser):
         """ Restricts authentication to users with correct backend setting in AuthUser. """
 
-        return super().user_can_authenticate(user) and user.can_use_auth_method(self.backend_name)
+        return super().user_can_authenticate(user)
 
 
 class CASBackend(ModelBackend):
@@ -28,7 +28,7 @@ class CASBackend(ModelBackend):
     def user_can_authenticate(self, user: AuthUser):
         """ Restricts authentication to users with correct backend setting in AuthUser. """
 
-        return super().user_can_authenticate(user) and user.can_use_auth_method(backend_name=self.backend_name)
+        return super().user_can_authenticate(user)
 
     def authenticate(self, request, **kwargs):
         """

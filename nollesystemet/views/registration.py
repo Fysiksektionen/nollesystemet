@@ -5,6 +5,7 @@ from django.views.generic import UpdateView
 import nollesystemet.models as models
 import nollesystemet.forms as forms
 import nollesystemet.mixins as mixins
+from nollesystemet.views import ModifiableModelFormView
 
 
 class RegistrationView(mixins.FadderietMixin, UpdateView):
@@ -71,12 +72,16 @@ class RegistrationView(mixins.FadderietMixin, UpdateView):
         kwargs.update(**dynamic_extra_context)
         return super().get_context_data(**kwargs)
 
-class RegistrationUpdateView(mixins.FohserietMixin, UpdateView):
+class RegistrationUpdateView(mixins.FohserietMixin, ModifiableModelFormView):
     model = models.Registration
     form_class = forms.RegistrationForm
     template_name = 'fohseriet/anmalan/redigera.html'
 
     login_required = True
+
+    editable = True
+    deletable = True
+    form_tag = True
 
     def setup(self, request, *args, **kwargs):
         super().setup(request, *args, **kwargs)
@@ -90,7 +95,7 @@ class RegistrationUpdateView(mixins.FohserietMixin, UpdateView):
         self.registration_user = self.registration.user
         self.observing_user = self.request.user.profile
 
-        self.default_back_url = reverse('fohseriet:anmalan:visa', kwargs={'pk': self.registration.pk})
+        self.default_back_url = reverse('fohseriet:evenemang:anmalda', kwargs={'pk': self.happening.pk})
         self.success_url = self.default_back_url
 
     def test_func(self):
@@ -100,42 +105,5 @@ class RegistrationUpdateView(mixins.FohserietMixin, UpdateView):
         kwargs = super().get_form_kwargs()
         kwargs.update({
             'observing_user': self.observing_user,
-            'editable': True,
-            'deletable': True
-        })
-        return kwargs
-
-
-class RegistrationSeeView(mixins.FohserietMixin, UpdateView):
-    model = models.Registration
-    form_class = forms.RegistrationForm
-    template_name = 'fohseriet/anmalan/visa.html'
-
-    default_back_url = reverse_lazy('foseriet:anvandare:anmalningar')
-
-    login_required = True
-
-    def setup(self, request, *args, **kwargs):
-        super().setup(request, *args, **kwargs)
-        try:
-            self.registration = models.Registration.objects.get(pk=self.kwargs['pk'])
-        except models.Registration.DoesNotExist:
-            self.raise_exception = True
-            self.handle_no_permission()
-
-        self.happening = self.registration.happening
-        self.registration_user = self.registration.user
-        self.observing_user = self.request.user.profile
-
-        self.success_url = self.back_url
-
-    def test_func(self):
-        return self.registration.can_see(self.request.user.profile)
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs.update({
-            'observing_user': self.observing_user,
-            'editable': False
         })
         return kwargs

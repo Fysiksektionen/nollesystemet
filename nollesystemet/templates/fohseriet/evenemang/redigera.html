@@ -12,15 +12,7 @@
 
 {% block content-left-col %}
     <form method="post">
-        <div class="d-flex justify-content-between">
-            {% include "common/elements/back-button.html" %}
-            {% if object %}
-                <button type="submit" name="delete" class="btn btn-danger my-4" value="Delete">
-                    Radera
-                    <i class="fa fa-remove" aria-hidden="true"></i>
-                </button>
-            {% endif %}
-        </div>
+        {% include "common/elements/back-button.html" %}
 
         {% csrf_token %}
         {{ form.errors }}

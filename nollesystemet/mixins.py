@@ -11,6 +11,7 @@ from django.template import Template, Context
 from django.urls import reverse
 from django.views.generic.base import ContextMixin
 import django.contrib.staticfiles.finders as finders
+import logging
 
 class MenuMixin(ContextMixin):
     menu_items_static_file = None
@@ -23,6 +24,8 @@ class MenuMixin(ContextMixin):
                 path = finders.find(self.menu_items_static_file)
             else:
                 path = os.path.join(settings.STATIC_ROOT, self.menu_items_static_file)
+
+            logging.error("Path: " + path)
             with open(path, encoding='utf-8') as json_file:
                 data = json.load(json_file)
                 order = data['order']
@@ -101,7 +104,6 @@ class MenuMixin(ContextMixin):
                             split = method_string.split(".")
                             model = apps.get_model(app_label=split[0], model_name=split[1])
                             methods_render |= getattr(model, (split[2]))(self.request.user.profile)
-                            print(method_string, "ans:", getattr(model, (split[2]))(self.request.user.profile), "user:", self.request.user.profile)
                     else:
                         methods_render = True
                     if "all" in conditions["methods"]:
@@ -151,7 +153,6 @@ class MenuMixin(ContextMixin):
 
 
 class RedirectToGETArgMixin:
-    # TODO: Add logic when logic is missing.
     def get_success_url(self):
         if REDIRECT_FIELD_NAME in self.request.GET:
             self.success_url = self.request.GET[REDIRECT_FIELD_NAME]
@@ -217,7 +218,6 @@ class NollesystemetMixin(BackUrlMixin, MenuMixin, RedirectToGETArgMixin,
 
     def test_func(self):
         return True
-
 
 class FadderietMixin(NollesystemetMixin):
     menu_items_static_file = 'fadderiet/resources/menu_info.json'

@@ -25,23 +25,28 @@ class RegistrationForm(ModifiableModelForm):
             'drink_option': {
                 'label': 'Dryck',
                 'required': False,
-                'widget': forms.RadioSelect(),
+                'widget_class': forms.RadioSelect,
                 'empty_label': None,
             },
             'extra_option': {
                 'label': 'Extra val',
                 'required': False,
-                'widget': forms.CheckboxSelectMultiple(),
+                'widget_class': forms.CheckboxSelectMultiple,
             },
             'other': {
                 'label': 'Övrigt',
                 'required': False,
-                'widget': widgets.Textarea(attrs={'rows': 4, 'disabled': False}),
+                'widget_class': widgets.Textarea,
+                'widget_attrs': {'rows': 4, 'disabled': False}
             },
         }
 
     def __init__(self, happening=None, user=None, observing_user=None, **kwargs):
-        super().__init__((happening, user, observing_user), **kwargs)
+        if 'is_editable_args' in kwargs and kwargs['is_editable_args'] is None:
+            kwargs.pop('is_editable_args')
+            super().__init__(is_editable_args=(happening, user, observing_user), **kwargs)
+        else:
+            super().__init__(**kwargs)
 
         self.happening = self.instance.happening if happening is None else happening
         self.user = self.instance.user if user is None else user
@@ -50,7 +55,7 @@ class RegistrationForm(ModifiableModelForm):
         self.update_field_querysets()
         self.update_nonused_fields()
 
-    def get_is_editable(self, happening, user, observing_user, editable=True, **kwargs):
+    def get_is_editable(self, happening, user, observing_user, **kwargs):
         enabled = None
         if self.is_new:  # New registration
             if happening is None:  # Error, system does not know what happening to tie the registration to
@@ -83,7 +88,7 @@ class RegistrationForm(ModifiableModelForm):
             else:  # Anonymous can't edit
                 enabled = False
 
-        return enabled and editable
+        return enabled
 
     def update_field_querysets(self):
         self.fields['drink_option'].queryset = self.happening.drinkoption_set.all()

@@ -1,8 +1,11 @@
+import sys
+
 from django.contrib.auth.models import Group
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 import authentication.models as auth_models
+
 
 class NolleGroup(models.Model):
     """
@@ -38,6 +41,7 @@ class UserProfile(auth_models.UserProfile):
     Objects of this model should be the model to interact with form other model in nollessytemet,
     like Happening and Registration.
     """
+
     class UserType(models.IntegerChoices):
         """
         Enum type for choices of UserProfile.user_type
@@ -46,6 +50,7 @@ class UserProfile(auth_models.UserProfile):
         NOLLAN = 2, _("nØllan")
         SENIOR = 3, _("Senior")
         EXTERNAL = 4, _("Extern")
+        ADMIN = 5, _("Administrativ")
 
     class Program(models.IntegerChoices):
         """
@@ -55,7 +60,7 @@ class UserProfile(auth_models.UserProfile):
         CTMAT = 2, _("Teknisk matematik")
 
     user_type = models.PositiveSmallIntegerField(verbose_name="Användartyp",
-                                                 choices=UserType.choices, blank=True, null=True)
+                                                 choices=UserType.choices, blank=False, null=False)
     nolle_group = models.ForeignKey(NolleGroup, verbose_name="nØllegrupp", blank=True, null=True,
                                     on_delete=models.SET_NULL)
 
@@ -74,7 +79,6 @@ class UserProfile(auth_models.UserProfile):
             ("edit_users", "Can edit any user profile"),
         ]
 
-
     @property
     def type(self):
         return UserProfile.UserType(self.user_type).label
@@ -83,24 +87,34 @@ class UserProfile(auth_models.UserProfile):
         """ :return Boolean indicating if user has specified permission. """
         return self.auth_user.has_perm(codename)
 
+    @staticmethod
+    def can_create(observing_user):
+        """ :return Boolean indicating if observing_user has the right to create a new user. """
+        return observing_user.has_perm('nollesystemet.edit_users')
+
     def can_see(self, observing_user):
         """ :return Boolean indicating if observing_user has the right to see the profile of calling user. """
-        if self.can_edit(observing_user):                       # Has permission to edit the user
+        if self.can_edit(observing_user):  # Has permission to edit the user
             return True
-        if NolleGroup.is_forfadder(observing_user):             # Is forfadder for the user
+        if NolleGroup.is_forfadder(observing_user):  # Is forfadder for the user
             if self.nolle_group in NolleGroup.get_forfadder_group(observing_user, accept_multiple=True):
                 return True
-        if observing_user.has_perm('see_users'):                # Has correct permission
+        if observing_user.has_perm('nollesystemet.see_users'):  # Has correct permission
             return True
         return False
 
     def can_edit(self, observing_user):
         """ :return Boolean indicating if observing_user has the right to edit the profile of calling user. """
-        if observing_user == self:                      # Is their own profile
+        if observing_user == self:  # Is their own profile
             return True
-        if observing_user.has_perm('edit_users'):       # Has correct permission
+        if observing_user.has_perm('nollesystemet.edit_users'):  # Has correct permission
             return True
         return False
+
+    @staticmethod
+    def can_edit_groups(observing_user):
+        """ :return Boolean indicating if observing_user has the right to edit the groups of calling user. """
+        return observing_user.has_perm('nollesystemet.edit_users')
 
     @staticmethod
     def can_see_some_user(observing_user):
