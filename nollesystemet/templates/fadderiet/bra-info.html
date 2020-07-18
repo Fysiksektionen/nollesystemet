@@ -5,5 +5,5 @@
 {% endblock %}
 
 {% block content-indented %}
-    Här finns bra info
+    {{ site.texts.body|safe|linebreaks }}
 {% endblock %}

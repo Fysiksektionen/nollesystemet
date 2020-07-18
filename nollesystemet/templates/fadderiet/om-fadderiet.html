@@ -5,5 +5,5 @@
 {% endblock %}
 
 {% block content-indented %}
-    Här finns info om fadderiet
+    {{ site.texts.body|safe|linebreaks }}
 {% endblock %}

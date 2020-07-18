@@ -28,41 +28,39 @@ class HappeningForm(ModifiableModelForm):
             'description': {
                 'label': 'Beskrivning',
                 'help_text': 'Bör inte innehålla pris eller tid. Det syns automatiskt efter beskrivningen.',
-                'widget': Textarea(attrs={'rows': 5})
+                'widget_class': Textarea,
+                'widget_attrs': {'rows': 5}
             },
             'start_time': {
                 'label': 'Start-tid',
-                'widget': DateTimeInput(),
+                'widget_class': DateTimeInput,
             },
             'end_time': {
                 'label': 'Slut-tid',
-                'widget': DateTimeInput(),
+                'widget_class': DateTimeInput,
+            },
+            'food': {
+                'label': 'Serverar mat',
             },
             'takes_registration': {
                 'label': 'Kräver anmälan',
                 'required': True
             },
-            'external_registration': {
-                'label': 'Accepterar icke-användare',
-            },
             'user_types': {
                 'label': 'Välkomna grupper',
-                'widget': forms.CheckboxSelectMultiple(),
+                'widget_class': forms.CheckboxSelectMultiple,
             },
             'nolle_groups': {
                 'label': 'Välkomna nØllegrupper',
-                'widget': forms.CheckboxSelectMultiple(),
+                'widget_class': forms.CheckboxSelectMultiple,
                 'help_text': "Välj alla för att välkomna alla grupper."
-            },
-            'food': {
-                'label': 'Serverar mat',
-            },
-            'open_for_registration': {
-                'label': 'Öppen för anmälan',
             },
             'editors': {
                 'label': 'Eventadministratörer',
             },
+            'status': {
+                'label': "Evenemangsstatus",
+            }
         }
 
     def __init__(self, **kwargs):
@@ -74,7 +72,8 @@ class HappeningForm(ModifiableModelForm):
         helper = super().get_form_helper(form_tag=False)
         helper.layout = Layout(
             Fieldset("Systeminfo",
-                     Div('takes_registration', css_id="reg-radio-div"),
+                     Row('takes_registration', css_id="reg-radio-div"),
+                     Row('status', css_class="reg-info"),
                      Row(
                          Column(Field('user_types')),
                          Column(Field('nolle_groups')),
@@ -96,6 +95,7 @@ class HappeningForm(ModifiableModelForm):
                      )
         )
         return helper
+
 
 GroupBasePriceFormset = custom_inlineformset_factory(
     models.Happening,

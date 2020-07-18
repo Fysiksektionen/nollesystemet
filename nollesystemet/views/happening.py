@@ -28,10 +28,11 @@ class HappeningListViewFadderiet(mixins.FadderietMixin, ListView):
         return [
             {
                 'happening': happening,
+                'can_register': happening.can_register(self.request.user.profile),
                 'is_registered': happening.is_registered(self.request.user.profile)
             }
             for happening in querryset
-            if happening.can_register(self.request.user.profile)
+            if happening.is_visible_to(self.request.user.profile)
         ]
 
 class HappeningListViewFohseriet(mixins.FohserietMixin, ListView):
@@ -51,7 +52,10 @@ class HappeningListViewFohseriet(mixins.FohserietMixin, ListView):
             'can_edit': happening.can_edit(self.request.user.profile),
             'can_see_registered': happening.can_see_registered(self.request.user.profile),
             'num_of_registered': models.Registration.objects.filter(happening=happening).count()
-        } for happening in querryset]
+        }
+            for happening in querryset
+            if happening.can_edit(self.request.user.profile)
+        ]
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -64,7 +68,7 @@ class HappeningRegisteredListView(mixins.FohserietMixin, ListView):
     model = models.Registration
     template_name = 'fohseriet/evenemang/anmalda.html'
 
-    default_back_url = reverse_lazy('fohseriet:evenemang:lista')
+    back_url = reverse_lazy('fohseriet:evenemang:lista')
 
     ordering = 'user__first_name'
 
@@ -143,9 +147,9 @@ class HappeningUpdateView(mixins.FohserietMixin, ModifiableModelFormView):
     deletable = True
 
     template_name = 'fohseriet/evenemang/redigera.html'
-    default_back_url = reverse_lazy('fohseriet:evenemang:lista')
+    back_url = reverse_lazy('fohseriet:evenemang:lista')
     login_required = True
-    success_url = default_back_url
+    success_url = back_url
 
     def test_func(self):
         self.object = self.get_object()

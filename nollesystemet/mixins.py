@@ -2,16 +2,22 @@ import json
 import os
 import re
 import sys
+import urllib
 
 from django.apps import apps
 from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib.auth.mixins import PermissionRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.views import redirect_to_login
+from django.http import HttpResponseRedirect
 from django.template import Template, Context
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.views.generic.base import ContextMixin
 import django.contrib.staticfiles.finders as finders
 import logging
+
+import nollesystemet.models as models
+
 
 class MenuMixin(ContextMixin):
     menu_items_static_file = None
@@ -55,7 +61,8 @@ class MenuMixin(ContextMixin):
                     if not 'selected_url_regex' in info:
                         info['selected_url_regex'] = '.*'
                     if re.search(menu[info['align']][-1]['url'] + info['selected_url_regex'], self.request.path):
-                        menu[info['align']][-1]['classes'] = (info['classes'] + ' ' if 'classes' in info else '') + 'selected'
+                        menu[info['align']][-1]['classes'] = \
+                            (info['classes'] + ' ' if 'classes' in info else '') + 'selected'
                     break
 
         if menu:
@@ -145,7 +152,8 @@ class MenuMixin(ContextMixin):
                 if side in context['menu']:
                     for i, menu_item in enumerate(context['menu'][side]):
                         if 'template_content' in menu_item:
-                            context['menu'][side][i]['label'] = Template(menu_item['template_content']).render(Context({**context, 'user': self.request.user, 'request': self.request}))
+                            context['menu'][side][i]['label'] = Template(menu_item['template_content']).render(
+                                Context({**context, 'user': self.request.user, 'request': self.request}))
                         else:
                             context['menu'][side][i]['label'] = menu_item['name']
 
@@ -160,12 +168,18 @@ class RedirectToGETArgMixin:
 
 
 class BackUrlMixin:
-    default_back_url = None
-    accepted_back_urls = None
+    back_url = None
+    force_get_redirect = False
 
     def setup(self, request, *args, **kwargs):
         super().setup(request, *args, **kwargs)
-        self.back_url = self.get_back_url()
+        if self.force_get_redirect:
+            if REDIRECT_FIELD_NAME in request.GET:
+                self.back_url = request.GET[REDIRECT_FIELD_NAME]
+            else:
+                raise Exception("View must be called with a next url GET-parameter.")
+        elif self.back_url is None:
+            self.back_url = self.get_back_url(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -176,20 +190,49 @@ class BackUrlMixin:
 
         return context
 
-    def get_back_url(self):
-        last_url = self.request.session.get('last_url', None)
-        back_url = self.default_back_url
-        if last_url:
-            if self.accepted_back_urls:
-                if last_url in self.accepted_back_urls:
-                    back_url = last_url
-            else:
-                back_url = last_url
+    def get_back_url(self, request, *args, **kwargs):
+        back_url = None
+        if REDIRECT_FIELD_NAME in request.GET:
+            back_url = request.GET[REDIRECT_FIELD_NAME]
 
         return back_url
 
 
-class NollesystemetMixin(BackUrlMixin, MenuMixin, RedirectToGETArgMixin,
+class SiteMixin:
+    site_name = None
+    site_texts = []
+    site_images = []
+
+    def setup(self, request, *args, **kwargs):
+        if self.site_name:
+            if self.site_name is None:
+                raise NameError("Site is enabled but has no name. This is not permitted.")
+
+        super().setup(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        super_context = super().get_context_data(**kwargs)
+
+        if self.site_name:
+            site_context = {}
+            site = models.Site.get_populated_site(self.site_name, self.site_texts, self.site_images, True)
+
+            texts_list = site.texts.values_list('key', 'text')
+            images_list = site.images.values_list('key', 'image')
+
+            site_context.update({
+                'texts': {key_text_pair[0]: key_text_pair[1] for key_text_pair in texts_list},
+                'images': {key_image_pair[0]: key_image_pair[1] for key_image_pair in images_list}
+            })
+
+            super_context.update({
+                'site': site_context
+            })
+
+        return super_context
+
+
+class NollesystemetMixin(SiteMixin, BackUrlMixin, MenuMixin, RedirectToGETArgMixin,
                          PermissionRequiredMixin, UserPassesTestMixin):
     """
     Mixin that all views of the project should inherit from. It overrides the error-throwing and default behaviour of
@@ -204,10 +247,11 @@ class NollesystemetMixin(BackUrlMixin, MenuMixin, RedirectToGETArgMixin,
     """
 
     login_required = False
+    permission_denied_url = None
 
     def dispatch(self, request, *args, **kwargs):
         if self.login_required and not request.user.is_authenticated:
-            return self.handle_no_permission() # TODO: Handle this.
+            return self.handle_no_permission()
         return super().dispatch(request, *args, **kwargs)
 
     def has_permission(self):
@@ -219,10 +263,25 @@ class NollesystemetMixin(BackUrlMixin, MenuMixin, RedirectToGETArgMixin,
     def test_func(self):
         return True
 
+    def handle_no_permission(self):
+        if self.permission_denied_url:
+            if self.raise_exception or self.request.user.is_authenticated:
+                return HttpResponseRedirect(
+                    self.permission_denied_url + '?' +
+                    urllib.parse.urlencode({'denier': self.request.path})
+                )
+            return redirect_to_login(self.request.get_full_path(), self.get_login_url(), self.get_redirect_field_name())
+        else:
+            return super().handle_no_permission()
+
+
 class FadderietMixin(NollesystemetMixin):
     menu_items_static_file = 'fadderiet/resources/menu_info.json'
+    login_url = reverse_lazy('fadderiet:logga-in:index')
+    permission_denied_url = reverse_lazy('fadderiet:saknar-rattigheter')
 
 
 class FohserietMixin(NollesystemetMixin):
     menu_items_static_file = 'fohseriet/resources/menu_info.json'
-
+    login_url = reverse_lazy('fohseriet:logga-in:index')
+    permission_denied_url = reverse_lazy('fohseriet:saknar-rattigheter')

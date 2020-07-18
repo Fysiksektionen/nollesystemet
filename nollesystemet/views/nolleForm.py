@@ -10,9 +10,9 @@ from nollesystemet.forms import NolleFormBaseForm, NolleFormFileUploadForm
 from .misc import DownloadView
 
 
-class NolleFormInspectView(mixins.FohserietMixin, FormView):
+class NolleFormManageView(mixins.FohserietMixin, FormView):
     login_required = True
-    permission_required = 'nollesystemet.edit_users'
+    permission_required = 'nollesystemet.edit_nolleForm'
 
     template_name = "fohseriet/nolleenkaten/index.html"
 

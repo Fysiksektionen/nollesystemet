@@ -85,7 +85,15 @@
         "nolleenkaten": {
             "name": "nØlleenkäten",
             "url_name": "fadderiet:nolleenkaten",
-            "align": "left"
+            "align": "left",
+            "conditions": {
+                "logged-in": "True",
+                "methods": {
+                    "all": [
+                        "nollesystemet.NolleFormAnswer.can_fill_out"
+                    ]
+                }
+            }
         }
     }
 }

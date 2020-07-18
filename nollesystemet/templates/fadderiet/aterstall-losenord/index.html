@@ -4,7 +4,14 @@
 {% block title-centered %}Återställ lösenord{% endblock %}
 
 {% block centered-content-col-4 %}
-    <p class="text-center">Har du glömt ditt lösenord? <br> Fyll i den mejladdress du använt på sidan så skickar vi instruktioner för att återställa lösenordet.</p>
+    <div class="text-center">
+        <p>
+            Har du glömt ditt lösenord?
+        </p>
+        <p class="text-center">
+            Fyll i den mejladdress du använt på sidan så skickar vi instruktioner för att återställa lösenordet.
+        </p>
+    </div>
     {% crispy form %}
 {% endblock %}
 

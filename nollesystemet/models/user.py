@@ -56,6 +56,7 @@ class UserProfile(auth_models.UserProfile):
         """
         Enum type for choices of UserProfile.user_type
         """
+        NONE = 0, _("Inget")
         CTFYS = 1, _("Teknisk fysik")
         CTMAT = 2, _("Teknisk matematik")
 
@@ -64,7 +65,7 @@ class UserProfile(auth_models.UserProfile):
     nolle_group = models.ForeignKey(NolleGroup, verbose_name="nØllegrupp", blank=True, null=True,
                                     on_delete=models.SET_NULL)
 
-    program = models.PositiveSmallIntegerField(blank=True, null=True, choices=Program.choices, editable=False)
+    program = models.PositiveSmallIntegerField(blank=False, null=False, choices=Program.choices, default=Program.NONE)
 
     kth_id = models.CharField(max_length=20, blank=True)
     phone_number = models.CharField(max_length=15, blank=True)
@@ -138,3 +139,9 @@ class UserProfile(auth_models.UserProfile):
             return False
         else:
             return self.nolle_group in NolleGroup.get_forfadder_group(potential_forfadder, accept_multiple=True)
+
+    def is_nollan(self):
+        return self.user_type == UserProfile.UserType.NOLLAN
+
+    def is_fadder(self):
+        return self.user_type == UserProfile.UserType.NOLLAN

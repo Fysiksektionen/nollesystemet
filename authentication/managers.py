@@ -17,16 +17,14 @@ class AuthUserManager(BaseUserManager):
             raise ValueError('The given username must be set')
         username = self.model.normalize_username(username)
 
-        extra_fields.setdefault('auth_backend', 'CRED')
         extra_fields.setdefault('email', username + "@f.kth.se")
 
         user = self.model(username=username, **extra_fields)
 
-        user.auth_backend = 'CRED'
         user.set_password(password)
         user.save(using=self._db)
 
-        user_profile = apps.get_model(utils.get_setting('USER_PROFILE_MODEL'))(auth_user=user)
+        user_profile = apps.get_model(utils.get_setting('USER_PROFILE_MODEL'))()
         user_profile.save()
 
         return user

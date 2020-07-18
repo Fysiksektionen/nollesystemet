@@ -1,11 +1,12 @@
 import collections
 import csv
+import urllib
 from abc import abstractmethod
 from typing import Any, Callable
 
 from django.core.exceptions import ImproperlyConfigured
-from django.urls import reverse
-from django.http import QueryDict, HttpResponseRedirect, HttpResponse
+from django.urls import reverse, reverse_lazy
+from django.http import QueryDict, HttpResponseRedirect, HttpResponse, HttpRequest
 from django.views import View
 from django.views.generic import TemplateView, UpdateView, FormView
 from django.views.generic.edit import ProcessFormView, BaseFormView, BaseUpdateView
@@ -18,9 +19,35 @@ from nollesystemet.models import NolleGroup
 class FadderietMenuView(mixins.FadderietMixin, TemplateView):
     pass
 
-
 class FohserietMenuView(mixins.FohserietMixin, TemplateView):
     pass
+
+class AccessDeniedView(TemplateView):
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if 'denier' in self.request.GET:
+            path = urllib.parse.unquote(self.request.GET['denier'])
+            if not bool(urllib.parse.urlparse(path).netloc):  # Relative path given
+                path = self.request.build_absolute_uri(path)
+            context['denied_site'] = path
+        return context
+
+class AccessDeniedViewFadderiet(mixins.FadderietMixin, AccessDeniedView):
+    template_name = "fadderiet/saknar_rattigheter.html"
+
+class AccessDeniedViewFohseriet(mixins.FohserietMixin, AccessDeniedView):
+    template_name = "fohseriet/saknar_rattigheter.html"
+
+
+class FohserietIndexView(FohserietMenuView, TemplateView):
+    template_name = 'fohseriet/index.html'
+    site_name = "Fohseriet: index"
+    site_texts = ['title', 'text']
+    site_images = ['banner']
+    login_required = True
+
+    def test_func(self):
+        return not self.request.user.profile.is_nollan()
 
 
 def custom_redirect(url_name, *args, query_dict=None, **kwargs):
@@ -58,8 +85,8 @@ class ModifiableModelFormView(UpdateView):
 
     editable = None
     deletable = False
-    submit_name = "Skicka"
-    delete_name = "Radera"
+    submit_name = None
+    delete_name = None
     form_tag = True
     exclude_fields = None
     is_editable_args = None
@@ -227,18 +254,6 @@ class MultipleObjectsUpdateView(UpdateView):
         from django.views.generic.edit import FormMixin
         return FormMixin.get_success_url(self)
 
-
-class ScheduleView(mixins.FadderietMixin, TemplateView):
-    template_name = "fadderiet/schema.html"
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['nolle_groups'] = NolleGroup.objects.all()
-        try:
-            context['users_nolle_group'] = self.request.user.profile.nolle_group if self.request.user else ''
-        except:
-            pass
-        return context
 
 class DownloadView(View):
     # {'title': '', 'accessor': ''} or

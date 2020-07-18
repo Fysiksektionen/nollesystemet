@@ -42,18 +42,25 @@ class RegistrationForm(ModifiableModelForm):
         }
 
     def __init__(self, happening=None, user=None, observing_user=None, **kwargs):
-        if 'is_editable_args' in kwargs and kwargs['is_editable_args'] is None:
-            kwargs.pop('is_editable_args')
-            super().__init__(is_editable_args=(happening, user, observing_user), **kwargs)
-        else:
-            super().__init__(**kwargs)
+        if 'instance' not in kwargs:
+            if happening is None or user is None:
+                kwargs['editable'] = False
 
-        self.happening = self.instance.happening if happening is None else happening
-        self.user = self.instance.user if user is None else user
+        if 'is_editable_args' in kwargs:
+            kwargs.pop('is_editable_args')
+        super().__init__(is_editable_args=(happening, user, observing_user), **kwargs)
+
+        self.happening = self.instance.happening if not self.is_new else happening
+        self.user = self.instance.user if not self.is_new else user
         self.observing_user = observing_user
 
         self.update_field_querysets()
         self.update_nonused_fields()
+
+    def delete_instance(self):
+        if self.instance.pk is not None:
+            self.instance.delete()
+        self.__init__(happening=self.happening, user=self.user, observing_user=self.observing_user)
 
     def get_is_editable(self, happening, user, observing_user, **kwargs):
         enabled = None

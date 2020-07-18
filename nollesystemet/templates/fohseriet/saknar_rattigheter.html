@@ -1,0 +1,15 @@
+{% extends "fohseriet/base-sites/base-content.html" %}
+
+{% load static %}
+{% block title %}
+    Du är inte värdig.
+{% endblock %}
+
+{% block content-indented %}
+    <p>
+        Du har inte rätt att besöka sidan <a href="{{ denied_site }}">{{ denied_site }}</a>. Försök att logga in med ett annat konto.
+    </p>
+    <p>
+        Känns det helt fel? Mejla <a href="mailto:nollesystemet@f.kth.se">nollesystemet@f.kth.se</a> för att få hjälp.
+    </p>
+{% endblock %}

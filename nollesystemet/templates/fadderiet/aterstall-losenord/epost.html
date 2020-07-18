@@ -1,14 +1,75 @@
-{% load i18n %}{% autoescape off %}
-{% blocktrans %}You're receiving this email because you requested a password reset for your user account at {{ site_name }}.{% endblocktrans %}
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <style>
+        body {
+            font-family: "Poppins", -apple-system, system-ui, "BlinkMacSystemFont", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+        .outer-div {
+            margin: auto;
+            width: 100%;
+            position: relative;
+        }
+        .header-div {
+            background-color: #069080;
+            margin: auto;
+            height: auto;
+            padding: 20px;
+            color: #ffffff;
+        }
+        .content-div {
+            background-color: #fafafa;
+            margin: auto;
+            padding: 20px;
+        }
+        .footer-div {
+            height: 40px;
+            margin-top: 30px;
+            font-size: smaller;
+        }
+        .vertical-center {
+            margin: 0;
+            position: absolute;
+            top: 50%;
+            -ms-transform: translateY(-50%);
+            transform: translateY(-50%);
+        }
+        .rounded-content-box {
+            border-radius: 20px;
+            background-color: #f0f0f0;
+            border: 1px solid #b1b1b1;
+            padding: 20px;
+            margin: 20px 0;
+        }
 
-{% trans "Please go to the following page and choose a new password:" %}
-{% block reset_link %}
-{{ protocol }}://{{ domain }}{% url 'fadderiet:aterstall-losenord:lank' uidb64=uid token=token %}
-{% endblock %}
-{% trans 'Your username, in case you’ve forgotten:' %} {{ user.get_username }}
 
-{% trans "Thanks for using our site!" %}
-
-{% blocktrans %}The {{ site_name }} team{% endblocktrans %}
-
-{% endautoescape %}
+    </style>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Sofia">
+    <title>Återställ lösenord</title>
+</head>
+<body>
+<div class="outer-div">
+    <div class="header-div" style="position: relative;">
+        <h1 style="margin: 0">Återställ lösenord</h1>
+    </div>
+    <div class="content-div">
+        <div class="rounded-content-box">
+            <p>
+                Följ länken nedan för att återställa ditt lösenord.
+            </p>
+            {% block reset_link %}
+                {{ protocol }}://{{ domain }}{% url 'fadderiet:aterstall-losenord:lank' uidb64=uid token=token %}
+            {% endblock %}
+            <p>
+                Ditt användarnamn är: <i>{{ user.get_username }}</i>.
+            </p>
+        </div>
+        <div class="footer-div">
+            Du får detta mejl i egenskap av användare av Fysiksektionens anmälningssystem <i>nØllesystemet</i>. Samtliga personuppgifter lagras enligt vår personuppgiftspolicy som återfinns här: <a href="https://f.kth.se/personuppgifter">Personuppgiftspolicy</a>.
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -15,20 +15,6 @@ body{
   background-size: 100%;
 }
 
-
-
-.center-cropped {
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  img {
-    width: 100%;
-    top: 50%;
-    position: relative;
-    transform: translateY(-50%);
-  }
-}
-
 form {
   margin-top: 1em;
   margin-bottom: 3em;

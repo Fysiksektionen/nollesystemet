@@ -20,13 +20,19 @@ body {
   background: $background;
 }
 
-#menu {
+#menu, #schedule-navbar {
   background-color: $fadderiet;
-  a {
+  a, span {
     color: $white;
   }
 
   .navbar-collapse {
+    a {
+      &:active {
+        outline: none;
+      }
+    }
+
     @media only screen and (min-width: $xl-size) {
       .nav-item {
         border-bottom: 2px solid transparent;
@@ -69,34 +75,6 @@ body {
         .nav-item-border {
           border-left: none;
         }
-      }
-    }
-  }
-}
-
-#schedule-navbar {
-  a, span {
-    color: $white;
-  }
-
-  .nav-item {
-    .nav-link {
-      border-bottom: 2px solid transparent;
-
-      &:not(.active):hover {
-        border-bottom: 1px solid white;
-
-        .nav-link-border:hover {
-          border-bottom: 1px solid transparent;
-        }
-      }
-
-      &.active {
-        border-bottom: 2px solid white;
-      }
-
-      .nav-link-border {
-        border-bottom: none;
       }
     }
   }

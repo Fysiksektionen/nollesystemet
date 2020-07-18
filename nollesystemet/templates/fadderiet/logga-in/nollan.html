@@ -4,17 +4,12 @@
 {% block title-centered %}Logga in{% endblock %}
 
 {% block centered-content-col-4 %}
-    <h2 class="p-3 text-center my-3">Välkommen nØllan!</h2>
-
     {% crispy form %}
 
     <div class="text-center">
         <p>
             Har du glömt ditt användarnamn eller lösenord? <br>
-            Klicka <a href="{{ reset_password_url }}" class="">här</a> för att återställa det.
-        </p>
-        <p>
-            Har du inte redan ett konto? Registrera dig <a href="{{ register_url }}" class="">här</a>.
+            Klicka här för att återställa det: <br/> <a href="{{ reset_password_url }}" class="">Återställ lösenord</a>
         </p>
     </div>
 {% endblock %}

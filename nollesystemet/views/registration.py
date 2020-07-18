@@ -8,7 +8,9 @@ import nollesystemet.mixins as mixins
 from nollesystemet.views import ModifiableModelFormView
 
 
-class RegistrationView(mixins.FadderietMixin, UpdateView):
+class RegistrationView(mixins.FadderietMixin, ModifiableModelFormView):
+    """ View for user to register. """
+
     model = models.Registration
     form_class = forms.RegistrationForm
     template_name = 'fadderiet/evenemang/anmalan.html'
@@ -16,6 +18,9 @@ class RegistrationView(mixins.FadderietMixin, UpdateView):
     success_url = reverse_lazy('fadderiet:evenemang:index')
 
     login_required = True
+
+    deletable = False
+    form_tag = True
 
     def setup(self, request, *args, **kwargs):
         super().setup(request, *args, **kwargs)
@@ -66,13 +71,15 @@ class RegistrationView(mixins.FadderietMixin, UpdateView):
         return self.registration
 
     def get_context_data(self, **kwargs):
-        dynamic_extra_context = {
+        extra_context = {
             'happening': self.happening
         }
-        kwargs.update(**dynamic_extra_context)
+        kwargs.update(**extra_context)
         return super().get_context_data(**kwargs)
 
 class RegistrationUpdateView(mixins.FohserietMixin, ModifiableModelFormView):
+    """ View for admin to edit registration. """
+
     model = models.Registration
     form_class = forms.RegistrationForm
     template_name = 'fohseriet/anmalan/redigera.html'
@@ -83,6 +90,8 @@ class RegistrationUpdateView(mixins.FohserietMixin, ModifiableModelFormView):
     deletable = True
     form_tag = True
 
+    force_get_redirect = True
+
     def setup(self, request, *args, **kwargs):
         super().setup(request, *args, **kwargs)
         try:
@@ -91,12 +100,7 @@ class RegistrationUpdateView(mixins.FohserietMixin, ModifiableModelFormView):
             self.raise_exception = True
             self.handle_no_permission()
 
-        self.happening = self.registration.happening
-        self.registration_user = self.registration.user
-        self.observing_user = self.request.user.profile
-
-        self.default_back_url = reverse('fohseriet:evenemang:anmalda', kwargs={'pk': self.happening.pk})
-        self.success_url = self.default_back_url
+        self.success_url = self.back_url
 
     def test_func(self):
         return self.registration.can_edit(self.request.user.profile)
@@ -104,6 +108,6 @@ class RegistrationUpdateView(mixins.FohserietMixin, ModifiableModelFormView):
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs.update({
-            'observing_user': self.observing_user,
+            'observing_user': self.request.user.profile,
         })
         return kwargs

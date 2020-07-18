@@ -1,13 +1,17 @@
 {% extends "fohseriet/base-sites/centerd.html" %}
 {% load crispy_forms_tags %}
 
-{% block title-centered %}Logga in{% endblock %}
+{% block title-centered %}Visa dig värdig.{% endblock %}
 
 {% block centered-content %}
     <div class="d-flex flex-column col-xl-4 col-lg-5 col-md-6 col-sm-8">
-        <h2 class="p-3 text-center my-3">Visa dig värdig.</h2>
-        <div class="form-group justify-content-center">
-            {% crispy form %}
+        {% crispy form %}
+
+        <div class="text-center">
+            <p>
+                Har du glömt ditt användarnamn eller lösenord? <br>
+                Klicka här för att återställa det: <br/> <a href="{{ reset_password_url }}" class="">Återställ lösenord</a>
+            </p>
         </div>
     </div>
 {% endblock %}

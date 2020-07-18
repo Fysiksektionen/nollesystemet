@@ -13,6 +13,9 @@ from .misc import MultipleObjectsUpdateView, ModifiableModelFormView
 
 
 class ProfilePageView(mixins.FadderietMixin, ModifiableModelFormView):
+    site_name = "Fadderiet: Profil"
+    site_texts = ['intro']
+
     model = models.UserProfile
     form_class = forms.ProfileUpdateForm
     deletable = False
@@ -87,12 +90,15 @@ class UserUpdateView(mixins.FohserietMixin, ModifiableModelFormView):
             return None
         return super().get_object(queryset=queryset)
 
+
 class UserRegistrationsListView(mixins.FohserietMixin, ListView):
     model = models.Registration
     template_name = 'fohseriet/anvandare/anmalningar.html'
 
     login_required = True
     permission_required = 'nollesystemet.edit_user_info'
+
+    back_url = reverse_lazy('fohseriet:anvandare:index')
 
     def query_test_func(self, registration):
         return self.request.user.has_perm(
@@ -110,6 +116,5 @@ class UserRegistrationsListView(mixins.FohserietMixin, ListView):
         context = super().get_context_data(**kwargs)
         context.update({
             'user_of_registrations': models.UserProfile.objects.get(pk=self.kwargs['pk']),
-            'back_url': reverse('fohseriet:anvandare:index'),
         })
         return context

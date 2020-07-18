@@ -99,14 +99,14 @@ LOCALE_PATHS = [
 ]
 
 # Static files (CSS, JavaScript, Images)
-STATIC_URL = '/nollesystemet/static/'
+STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(PUBLIC_ROOT, 'staticfiles')
 STATICFILES_DIRS = [
     os.path.join(PROJECT_ROOT, 'static'),
 
 ]
 
-MEDIA_URL = '/nollesystemet/media/'
+MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(PUBLIC_ROOT, 'mediafiles')
 MEDIAFILES_DIRS = [
     os.path.join(PROJECT_ROOT, 'media'),

@@ -1,7 +1,7 @@
 {% extends "fohseriet/base-sites/centerd.html" %}
 {% load crispy_forms_tags %}
 
-{% block title-centered %}Logga in{% endblock %}
+{% block title-centered %}Visa dig värdig.{% endblock %}
 
 {% block centered-content %}
     <div class="d-flex flex-column col-xl-4 col-lg-6 col-md-8">
@@ -11,19 +11,9 @@
             {% endif %}
         </div>
 
-        <h2 class="p-3 text-center my-3">Hur vill du logga in?</h2>
-
-        <div class="d-flex justify-content-between">
-            <a href="{{ cred_login_url }}" class="btn btn-primary col-5 py-3 d-flex justify-content-center align-content-center">
-                <div class="my-auto">
-                    Via nØllesystemet
-                </div>
-            </a>
-            <a href="{{ cas_login_url }}" class="btn btn-primary col-5 py-3 d-flex justify-content-center align-content-center">
-                <div class="my-auto">
-                    Via KTH
-                </div>
-            </a>
+        <div class="d-flex flex-column">
+            <a href="{{ cred_login_url }}" class="btn btn-primary btn-block py-3 my-3">Via nØllesystemet</a>
+            <a href="{{ cas_login_url }}" class="btn btn-primary btn-block py-3 my-3">Via KTH</a>
         </div>
     </div>
 {% endblock %}

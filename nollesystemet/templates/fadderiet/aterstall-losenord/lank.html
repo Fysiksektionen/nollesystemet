@@ -5,9 +5,19 @@
 
 {% block centered-content-col-4 %}
     {% if validlink %}
-        <p>Fyll i ditt nya lösenord två gånger för verifikation.</p>
+        <p>
+            Fyll i ditt nya lösenord två gånger för verifikation.
+        </p>
         {% crispy form %}
     {% else %}
-        <p>Lösenordslänken är ogiltig. Eventuellt är den redan använd. Be om en ny länk <a href="{% url 'fadderiet:aterstall-losenord:index' %}">här</a>.</p>
+        <p>
+            Lösenordslänken är ogiltig.
+        </p>
+        <p>
+            Eventuellt är den redan använd eller så har du loggat in efter att länken skickades (då vet du ju lösenordet).
+        </p>
+        <p>
+            Be om en ny länk <a href="{% url 'fadderiet:aterstall-losenord:index' %}">här</a>.
+        </p>
     {% endif %}
 {% endblock %}

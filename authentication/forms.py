@@ -14,7 +14,6 @@ class UserCreationForm(auth_forms.UserCreationForm):
 
     def save(self, commit=True):
         user = super().save(commit=False)
-        user.auth_backend = 'CRED'
         if commit:
             user.save()
             user.profile.save()

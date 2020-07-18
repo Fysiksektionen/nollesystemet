@@ -30,6 +30,10 @@ class AuthUser(AbstractUser):
         self.full_clean()
         return super().save(*args, **kwargs)
 
+    @property
+    def can_set_password(self):
+        return self.has_usable_password()
+
 
 class UserProfile(models.Model):
     """

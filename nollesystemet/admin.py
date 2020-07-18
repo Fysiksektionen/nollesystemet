@@ -32,4 +32,32 @@ admin.site.register(models.UserTypeBasePrice)
 admin.site.register(models.ExtraOption)
 admin.site.register(models.DrinkOption)
 
+class SiteTextAdmin(admin.TabularInline):
+    model = models.SiteText
+    extra = 0
 
+    def has_add_permission(self, request, obj):
+        return False
+
+class SiteImageAdmin(admin.TabularInline):
+    model = models.SiteImage
+    extra = 0
+
+    def has_add_permission(self, request, obj):
+        return False
+
+class SiteAdmin(admin.ModelAdmin):
+    list_display = ('name', 'number_of_texts', 'number_of_images')
+    inlines = [SiteTextAdmin, SiteImageAdmin]
+
+    def number_of_texts(self, obj):
+        return obj.texts.all().count()
+
+    def number_of_images(self, obj):
+        return obj.images.all().count()
+
+    def has_add_permission(self, obj):
+        return False
+
+
+admin.site.register(models.Site, SiteAdmin)

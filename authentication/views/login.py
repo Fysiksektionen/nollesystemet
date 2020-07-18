@@ -83,6 +83,16 @@ class LoginCred(auth_views.LoginView):
         django_login(self.request, form.get_user())
         return _login_success_redirect(self.request, form.get_user(), self.get_redirect_url())
 
+    def get(self, request, *args, **kwargs):
+        # Determine redirect url from GET-params or from calling url
+        next_url = utils.get_redirect_url(request, default_url=self.default_redirect_url)
+
+        # If the user is already authenticated, proceed to next page
+        if request.user.is_authenticated:
+            return _login_success_redirect(request, request.user, next_url)
+
+        return super().get(request, *args, **kwargs)
+
 
 class LoginCas(View):
     """ Redirects to the CAS login URL, or verifies the CAS ticket, if provided. """
@@ -102,7 +112,6 @@ class LoginCas(View):
             return _login_success_redirect(request, request.user, next_url)
 
         service_url = utils.get_service_url(request, next_url)
-        print(str(utils.get_setting('CAS_SERVER_URL')))
         client = cas.CASClient(version=2, service_url=service_url, server_url=str(utils.get_setting('CAS_SERVER_URL')))
 
         # If a ticket was provided, attempt to authenticate with it

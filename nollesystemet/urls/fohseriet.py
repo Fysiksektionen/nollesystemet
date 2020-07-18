@@ -29,13 +29,13 @@ registration_urls = ([
 ], 'anmalan')
 
 nolle_form_urls = ([
-    path('', views.NolleFormInspectView.as_view(), name="index"),
+    path('', views.NolleFormManageView.as_view(), name="index"),
     path('ladda-ned-svar/', views.NolleFormDownloadView.as_view(), name="ladda-ned-svar"),
 ], 'nolleenkaten')
 
 fohseriet_urls = ([
-    path('', views.misc.FohserietMenuView.as_view(template_name='fohseriet/index.html'), name='index'),
-
+    path('', views.misc.FohserietIndexView.as_view(), name='index'),
+    path('saknar-rattigheter/', views.misc.AccessDeniedViewFohseriet.as_view(), name='saknar-rattigheter'),
     path('logga-in/', include(login_urls)),
     path('logga-ut/', views.authentication.LogoutViewFohseriet.as_view(), name='logga-ut'),
     path('evenemang/', include(happening_urls)),

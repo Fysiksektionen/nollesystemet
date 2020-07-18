@@ -5,5 +5,6 @@
 {% block title %}Min profil{% endblock %}
 
 {% block content-left-col %}
+    {{ site.texts.intro|safe|linebreaks }}
     {% crispy form %}
 {% endblock %}

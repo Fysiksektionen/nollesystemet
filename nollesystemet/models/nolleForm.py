@@ -85,11 +85,16 @@ class NolleFormAnswer(models.Model):
 
     dynamic_answers = models.ManyToManyField(DynamicNolleFormQuestionAnswer, editable=False)
 
+    class Meta:
+        permissions = [
+            ("edit_nolleForm", "Can edit the nolleForm form"),
+        ]
+
     @staticmethod
     def can_fill_out(observing_user: UserProfile):
-        if NolleFormAnswer.objects.exists(user=observing_user):
+        if len(NolleFormAnswer.objects.filter(user=observing_user)) > 0:
             return False    # There is already an answer of this user.
-        if observing_user.user_type != UserProfile.UserType.NOLLAN:
+        if not observing_user.is_nollan():
             return False    # User is not NOLLAN.
         return True
 

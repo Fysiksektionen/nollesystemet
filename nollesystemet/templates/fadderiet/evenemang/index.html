@@ -14,14 +14,24 @@
                             <a class="navbar-brand font-weight-bolder">
                                 {{ happening.name }}
                             </a>
-                            <div class="d-flex">
-                                {% if list_item.is_registered %}
-                                    <i class="fa fa-user my-auto" aria-hidden="true" style="color: green;"></i>
-                                    <i class="fa fa-check my-auto" aria-hidden="true" style="color: green; font-size: x-small;"></i>
-                                {% else %}
-                                    <i class="fa fa-user my-auto" aria-hidden="true" style="color: darkgray;"></i>
-                                    <i class="fa fa-check my-auto" aria-hidden="true" style="color: transparent; font-size: x-small;"></i>
-                                {% endif %}
+                            <div class="d-flex align-content-end">
+                                <div class="d-flex justify-content-center" style="width: 2rem;">
+                                    {% if list_item.is_registered %}
+                                        <i class="fa fa-user-check my-auto" aria-hidden="true" style="color: green;"></i>
+                                    {% else %}
+                                        {% if happening.takes_registration %}
+                                            {% if happening.is_open_for_registration %}
+                                                <i class="fa fa-user my-auto text-secondary" aria-hidden="true"></i>
+                                            {% elif happening.has_closed %}
+                                                <i class="fa fa-user-times my-auto" aria-hidden="true" style="color: red;"></i>
+                                            {% else %}
+                                                <i class="fa fa-user-lock my-auto" aria-hidden="true" style="color: darkgray;"></i>
+                                            {% endif %}
+                                        {% else %}
+                                            <i class="fa fa-user-slash my-auto" aria-hidden="true" style="color: darkgray;"></i>
+                                        {% endif %}
+                                    {% endif %}
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -46,13 +56,31 @@
                             </div>
                             <div class="d-flex flex-column align-content-md-end col-md-4">
                                 <div class="d-flex justify-content-md-end">
-                                    <a class="btn btn-primary px-3" href="{% url 'fadderiet:evenemang:anmalan' happening.pk %}">
-                                        {% if list_item.is_registered %}
+                                    {% if list_item.is_registered %}
+                                        <a class="btn btn-primary px-3" href="{% url 'fadderiet:evenemang:anmalan' happening.pk %}">
                                             Se din anmälan
+                                        </a>
+                                    {% else %}
+                                        {% if happening.takes_registration %}
+                                            {% if happening.is_open_for_registration %}
+                                                <a class="btn btn-primary px-3" href="{% url 'fadderiet:evenemang:anmalan' happening.pk %}">
+                                                    Anmäl dig
+                                                </a>
+                                            {% elif happening.has_closed %}
+                                                <a class="btn btn-darkgray disabled px-3">
+                                                    Anmälan har stängt
+                                                </a>
+                                            {% else %}
+                                                <a class="btn btn-darkgray disabled px-3">
+                                                    Anmälan har inte öppnat
+                                                </a>
+                                            {% endif %}
                                         {% else %}
-                                            Anmäl dig
+                                            <a class="btn btn-darkgray disabled px-3">
+                                                Ingen anmälan
+                                            </a>
                                         {% endif %}
-                                    </a>
+                                    {% endif %}
                                 </div>
                                 {% if list_item.is_registered %}
                                     <p class="text-center border-dark border py-4 rounded-lg mt-md-auto mt-3 bg-warning">

@@ -10,11 +10,9 @@
         {% endif %}
     </div>
 
-    <h2 class="p-3 text-center my-3">Vem är du?</h2>
-
-    <div class="d-flex justify-content-between">
-        <a href="{{ cred_login_url }}" class="btn btn-primary col-5 py-3">nØllan</a>
-        <a href="{{ cas_login_url }}" class="btn btn-primary col-5 py-3">Fadder</a>
+    <div class="d-flex flex-column">
+        <a href="{{ cred_login_url }}" class="btn btn-primary btn-block py-3 my-3">nØllan</a>
+        <a href="{{ cas_login_url }}" class="btn btn-primary btn-block py-3 my-3">Fadder</a>
     </div>
 
 {% endblock %}

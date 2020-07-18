@@ -1,12 +1,11 @@
 from django.apps import apps
 from django.conf import settings
 from django.db import models
-
-from multiselectfield import MultiSelectField
+from django.utils.translation import gettext_lazy as _
 
 import authentication.models as auth_models
 from .user import UserProfile, NolleGroup
-from .fields import MultipleChoiceEnumModelField
+import nollesystemet.models.fields as fields
 
 def _is_editor_condition():
     return {'pk__in': [user.pk for user in UserProfile.objects.all()
@@ -18,21 +17,29 @@ class Happening(models.Model):
     Stores information on the event and available options at a registration.
     """
 
+    class HappeningStatus(models.IntegerChoices):
+        """
+        Enum type for status of a happening.
+        """
+        UNPUBLISHED = 1, _("Ej publicerad")
+        PUBLISHED = 2, _("Publicerad")
+        OPEN = 3, _("Öppen för anmälan")
+        CLOSED = 4, _("Stängd för anmälan")
+        COMPLETED = 5, _("Genomfört")
+
     name = models.CharField(max_length=50, unique=True)
     description = models.CharField(max_length=300)
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
     image_file_path = models.CharField(max_length=50)
-
-    open_for_registration = models.BooleanField(default=False)
-    takes_registration = models.BooleanField()
-    published = models.BooleanField(default=False, editable=False)
-
-    user_types = MultipleChoiceEnumModelField(UserProfile.UserType, blank=False, null=False,
-                                              default=[UserProfile.UserType.NOLLAN, UserProfile.UserType.FADDER])
-    nolle_groups = models.ManyToManyField(NolleGroup, related_name="happening_nolle_group")
-
     food = models.BooleanField(default=True)
+
+    takes_registration = models.BooleanField(default=False)
+    status = models.PositiveSmallIntegerField(choices=HappeningStatus.choices,
+                                              default=HappeningStatus.UNPUBLISHED)
+    user_types = fields.MultipleChoiceEnumModelField(UserProfile.UserType, blank=False, null=False,
+                                                     default=[UserProfile.UserType.NOLLAN, UserProfile.UserType.FADDER])
+    nolle_groups = models.ManyToManyField(NolleGroup, related_name="happening_nolle_group")
 
     editors = models.ManyToManyField(UserProfile, limit_choices_to=_is_editor_condition)
 
@@ -49,10 +56,13 @@ class Happening(models.Model):
     def can_create(observing_user: UserProfile):
         return observing_user.has_perm('nollesystemet.create_happening')
 
+    def can_attend(self, observing_user: UserProfile):
+        return observing_user.user_type in self.user_types and \
+               (observing_user.nolle_group in self.nolle_groups.all() or
+                self.nolle_groups.all().count() == NolleGroup.objects.all().count())
+
     def can_register(self, observing_user: UserProfile):
-        return self.takes_registration and self.open_for_registration and \
-               observing_user.user_type in self.user_types and \
-               observing_user.nolle_group in self.nolle_groups.all()
+        return self.is_open_for_registration() and self.can_attend(observing_user)
 
     @staticmethod
     def can_register_to_some(observing_user: UserProfile):
@@ -76,6 +86,20 @@ class Happening(models.Model):
     def can_edit_some_registered(observing_user: UserProfile):
         return len([True for happening in Happening.objects.all()
                     if happening.can_edit(observing_user)]) > 0
+
+    def is_published(self):
+        return self.status in [Happening.HappeningStatus.PUBLISHED,
+                               Happening.HappeningStatus.OPEN,
+                               Happening.HappeningStatus.CLOSED]
+
+    def is_open_for_registration(self):
+        return self.takes_registration and self.status == Happening.HappeningStatus.OPEN
+
+    def has_closed(self):
+        return self.status in [Happening.HappeningStatus.CLOSED, Happening.HappeningStatus.COMPLETED]
+
+    def is_visible_to(self, user: UserProfile):
+        return self.is_published() and self.can_attend(user)
 
     def is_registered(self, user: UserProfile):
         return apps.get_model('nollesystemet.Registration').objects.filter(happening=self, user=user).exists()

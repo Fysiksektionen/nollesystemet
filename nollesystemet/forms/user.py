@@ -6,9 +6,16 @@ from crispy_forms.bootstrap import UneditableField
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Fieldset, Field, Row, Column, HTML
 from django.contrib.auth import password_validation
+from django.contrib.auth.forms import PasswordResetForm as AuthPasswordResetForm
 
 from nollesystemet.models import UserProfile
 from .misc import ExtendedMetaModelForm, ModifiableModelForm, MultipleModelsModifiableForm
+
+
+class PasswordResetForm(AuthPasswordResetForm):
+    def get_users(self, email):
+        users = super(PasswordResetForm, self).get_users(email)
+        return [user for user in users if user.has_usable_password()]
 
 
 class AuthUserUpdateForm(ModifiableModelForm):
@@ -68,7 +75,7 @@ class AuthUserUpdateForm(ModifiableModelForm):
                      Row(Column(Field('password')), Column(Field('confirm_password')))
                      )
         )
-        if self.is_editable and self.instance.pk is not None:
+        if self.is_editable and self.instance.pk is not None and self.instance.can_set_password:
             self.helper.layout.fields[0].append(
                 HTML("<a href='{{ change_password_url }}' class='btn btn-primary'>Byt lösenord</a>")
             )
@@ -164,7 +171,8 @@ class ProfileUpdateForm(MultipleModelsModifiableForm):
             },
             'food_preference': {
                 'label': 'Matpreferens',
-                'widget_class': forms.widgets.Textarea
+                'widget_class': forms.widgets.Textarea,
+                'widget_attrs': {'rows': 3}
             },
             'kth_id': {
                 'required': False,

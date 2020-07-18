@@ -58,7 +58,6 @@ class Command(BaseCommand):
                 admin.groups.add(group)
 
 
-
         # 3) Create NolleGroups.
         with open(finders.find('resources/nolle_groups.json')) as json_file:
             data = json.load(json_file)

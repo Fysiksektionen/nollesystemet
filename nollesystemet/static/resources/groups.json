@@ -6,7 +6,8 @@
                 "see_users",
                 "edit_users",
                 "edit_happening",
-                "create_happening"
+                "create_happening",
+                "edit_nolleForm"
             ]
         },
         {

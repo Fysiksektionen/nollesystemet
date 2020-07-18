@@ -3,10 +3,23 @@ from django.core import exceptions
 from django.forms.fields import TypedMultipleChoiceField, MultipleChoiceField
 
 
+class SingleChoiceEnumModelField(models.CharField):
+    def __init__(self, enum_class, **kwargs):
+        self.enum_class = enum_class
+        kwargs["choices"] = enum_class.choices
+        kwargs['max_length'] = max([len(str(val)) for val in self.enum_class.values])
+        super().__init__(**kwargs)
+
+    def deconstruct(self):
+        name, path, args, kwargs = super().deconstruct()
+        args.append(self.enum_class)
+        return name, path, args, kwargs
+
 class MultipleChoiceEnumModelField(models.CharField):
-    def __init__(self, enum_class, separator=",", **kwargs):
+    def __init__(self, enum_class, separator=",", none_is_all=False, **kwargs):
         self.separator = separator
         self.enum_class = enum_class
+        self.none_is_all = none_is_all
         kwargs["choices"] = enum_class.choices
         max_length = len(self.separator.join([str(pair[0]) for pair in kwargs["choices"]]))
         kwargs['max_length'] = max_length
@@ -35,6 +48,13 @@ class MultipleChoiceEnumModelField(models.CharField):
                 return [self.parse_to_choice(val) for val in value]
             else:
                 return value
+
+    def clean(self, value, model_instance):
+        super().clean(value, model_instance)
+        if self.none_is_all:
+            if value == "" or value is None:
+                value = [self.enum_class.__getattr__(enum_entity.name) for enum_entity in self.enum_class]
+        return value
 
     def get_prep_value(self, value):
         return self.separator.join([str(val.value) for val in value])
