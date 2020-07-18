@@ -1,4 +1,6 @@
 import os
+import json
+from urllib.parse import urljoin
 
 from django.urls import reverse_lazy
 
@@ -10,6 +12,10 @@ PUBLIC_ROOT = os.path.abspath(os.path.join(PROJECT_ROOT, 'public'))
 
 with open('/etc/django/secret_key.cnf') as f:
     SECRET_KEY = f.read().strip()
+
+with open(os.path.join(os.path.dirname(__file__), 'config_files/settings.json')) as f:
+    data = json.load(f)
+    ROOT_URL = data['ROOT_URL']
 
 DEBUG = False
 
@@ -99,14 +105,14 @@ LOCALE_PATHS = [
 ]
 
 # Static files (CSS, JavaScript, Images)
-STATIC_URL = '/static/'
+STATIC_URL = urljoin(ROOT_URL, '/static/')
 STATIC_ROOT = os.path.join(PUBLIC_ROOT, 'staticfiles')
 STATICFILES_DIRS = [
     os.path.join(PROJECT_ROOT, 'static'),
 
 ]
 
-MEDIA_URL = '/media/'
+MEDIA_URL = urljoin(ROOT_URL, '/media/')
 MEDIA_ROOT = os.path.join(PUBLIC_ROOT, 'mediafiles')
 MEDIAFILES_DIRS = [
     os.path.join(PROJECT_ROOT, 'media'),
