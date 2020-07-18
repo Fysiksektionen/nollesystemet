@@ -8,8 +8,8 @@ from .fohseriet import fohseriet_urls
 
 urlpatterns = [
     path('', views.custom_redirect_view, kwargs={'redirect_name': 'fadderiet:index'}),
-    path('fadderiet/', include(fadderiet_urls)),
-    path('fohseriet/', include(fohseriet_urls)),
+    path('fadderiet/', include(fadderiet_urls, namespace='fadderiet')),
+    path('fohseriet/', include(fohseriet_urls, namespace='fohseriet')),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

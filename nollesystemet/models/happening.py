@@ -5,7 +5,7 @@ from django.utils.translation import gettext_lazy as _
 
 import authentication.models as auth_models
 from .user import UserProfile, NolleGroup
-import nollesystemet.models.fields as fields
+from .fields import MultipleChoiceEnumModelField
 
 def _is_editor_condition():
     return {'pk__in': [user.pk for user in UserProfile.objects.all()
@@ -37,8 +37,8 @@ class Happening(models.Model):
     takes_registration = models.BooleanField(default=False)
     status = models.PositiveSmallIntegerField(choices=HappeningStatus.choices,
                                               default=HappeningStatus.UNPUBLISHED)
-    user_types = fields.MultipleChoiceEnumModelField(UserProfile.UserType, blank=False, null=False,
-                                                     default=[UserProfile.UserType.NOLLAN, UserProfile.UserType.FADDER])
+    user_types = MultipleChoiceEnumModelField(UserProfile.UserType, blank=False, null=False,
+                                              default=[UserProfile.UserType.NOLLAN, UserProfile.UserType.FADDER])
     nolle_groups = models.ManyToManyField(NolleGroup, related_name="happening_nolle_group")
 
     editors = models.ManyToManyField(UserProfile, limit_choices_to=_is_editor_condition)
