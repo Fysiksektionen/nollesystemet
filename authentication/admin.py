@@ -9,5 +9,11 @@ from django.contrib import admin, auth
 
 from .models import AuthUser
 
-admin.site.register(AuthUser)
+class AuthUserAdmin(admin.ModelAdmin):
+    model = AuthUser
+    list_display = ['username', 'email']
+    fields = ('username', 'last_login', 'email', 'groups', 'is_superuser', 'is_staff', 'is_active')
+    readonly_fields = ('last_login', )
 
+
+admin.site.register(AuthUser, AuthUserAdmin)

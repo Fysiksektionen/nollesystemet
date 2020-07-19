@@ -1,10 +1,26 @@
 import os
 import json
-from urllib.parse import urljoin
 
 from django.urls import reverse_lazy
 
-gettext_noop = lambda s: s
+
+def join_urls(*args):
+    for arg in args:
+        if not isinstance(arg, str):
+            raise TypeError("Argument %s is not a string" % str(arg))
+
+    if len(args) > 0:
+        path = '/'.join([arg.strip('/') for arg in args])
+        if len(args[0]) > 0 and args[0][0] == '/' and path[0] != '/':
+            path = '/' + path
+
+        if len(args) > 1:
+            if len(args[-1]) > 0 and args[-1][-1] == '/' and path[-1] != '/':
+                path = path + '/'
+        else:
+            if len(args[-1]) > 1 and args[-1][-1] == '/' and path[-1] != '/':
+                path = path + '/'
+    return path
 
 PROJECT_APP_ROOT = os.path.abspath(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 PROJECT_ROOT = PROJECT_APP_ROOT
@@ -105,14 +121,14 @@ LOCALE_PATHS = [
 ]
 
 # Static files (CSS, JavaScript, Images)
-STATIC_URL = urljoin(ROOT_URL, '/static/')
+STATIC_URL = join_urls(ROOT_URL, '/static/')
 STATIC_ROOT = os.path.join(PUBLIC_ROOT, 'staticfiles')
 STATICFILES_DIRS = [
     os.path.join(PROJECT_ROOT, 'static'),
 
 ]
 
-MEDIA_URL = urljoin(ROOT_URL, '/media/')
+MEDIA_URL = join_urls(ROOT_URL, '/media/')
 MEDIA_ROOT = os.path.join(PUBLIC_ROOT, 'mediafiles')
 MEDIAFILES_DIRS = [
     os.path.join(PROJECT_ROOT, 'media'),

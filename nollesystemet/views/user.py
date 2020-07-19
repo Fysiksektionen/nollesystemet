@@ -13,9 +13,6 @@ from .misc import MultipleObjectsUpdateView, ModifiableModelFormView
 
 
 class ProfilePageView(mixins.FadderietMixin, ModifiableModelFormView):
-    site_name = "Fadderiet: Profil"
-    site_texts = ['intro']
-
     model = models.UserProfile
     form_class = forms.ProfileUpdateForm
     deletable = False

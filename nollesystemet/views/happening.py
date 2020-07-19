@@ -178,6 +178,11 @@ class HappeningUpdateView(mixins.FohserietMixin, ModifiableModelFormView):
             return None
         return super().get_object(queryset=queryset)
 
+    def get_initial(self):
+        initial = super().get_initial()
+        initial['takes_registration'] = False
+        return initial
+
     def form_valid(self, form):
         context = self.get_context_data(form=form)
         drink_option_formset = context['drink_option_formset']

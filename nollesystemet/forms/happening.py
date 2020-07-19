@@ -73,7 +73,7 @@ class HappeningForm(ModifiableModelForm):
         helper.layout = Layout(
             Fieldset("Systeminfo",
                      Row('takes_registration', css_id="reg-radio-div"),
-                     Row('status', css_class="reg-info"),
+                     Row('status'),
                      Row(
                          Column(Field('user_types')),
                          Column(Field('nolle_groups')),

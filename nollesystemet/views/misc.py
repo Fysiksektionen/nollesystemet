@@ -41,7 +41,7 @@ class AccessDeniedViewFohseriet(mixins.FohserietMixin, AccessDeniedView):
 
 class FohserietIndexView(FohserietMenuView, TemplateView):
     template_name = 'fohseriet/index.html'
-    site_name = "Fohseriet: index"
+    site_name = "Fohseriet: Index"
     site_texts = ['title', 'text']
     site_images = ['banner']
     login_required = True

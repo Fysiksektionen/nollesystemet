@@ -36,13 +36,13 @@ happening_urls = ([
 fadderiet_urls = ([
     path('', views.misc.FadderietMenuView.as_view(
         template_name='fadderiet/index.html',
-        site_name="Fadderiet: index",
+        site_name="Fadderiet: Index",
         site_texts=['title', 'valkommen_text'],
         site_images=['banner']),
          name='index'),
     path('schema/', views.FadderietMenuView.as_view(
         template_name='fadderiet/schema.html',
-        site_name="Fadderiet: schema",
+        site_name="Fadderiet: Schema",
         site_texts=['intro'],
         site_images=['schema']),
          name='schema'),

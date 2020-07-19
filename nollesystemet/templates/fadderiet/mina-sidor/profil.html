@@ -5,6 +5,8 @@
 {% block title %}Min profil{% endblock %}
 
 {% block content-left-col %}
-    {{ site.texts.intro|safe|linebreaks }}
+    <p>
+        Här kan du redigera din profil. Fyll gärna i alla fält så mottagningen kan nå dig om något skulle hända. Ingen av denna information kommer släppas utanför de innersta i mottagningen.
+    </p>
     {% crispy form %}
 {% endblock %}

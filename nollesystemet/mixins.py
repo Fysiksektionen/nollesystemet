@@ -203,13 +203,6 @@ class SiteMixin:
     site_texts = []
     site_images = []
 
-    def setup(self, request, *args, **kwargs):
-        if self.site_name:
-            if self.site_name is None:
-                raise NameError("Site is enabled but has no name. This is not permitted.")
-
-        super().setup(request, *args, **kwargs)
-
     def get_context_data(self, **kwargs):
         super_context = super().get_context_data(**kwargs)
 
