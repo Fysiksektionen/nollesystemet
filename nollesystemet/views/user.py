@@ -40,32 +40,36 @@ class UsersListView(mixins.FohserietMixin, ObjectsAdministrationListView):
     model = models.UserProfile
     template_name = 'fohseriet/anvandare/index.html'
 
-    login_required = True
-    permission_required = 'nollesystemet.edit_user_info'
-
     ordering = 'first_name'
 
-    extra_context = {
-        'user_types': models.UserProfile.UserType.names,
-        'nolle_groups': models.NolleGroup.objects.all()
-    }
-
     form_class = forms.UserAdministrationForm
+
+    login_required = True
+
+    def test_func(self):
+        return models.UserProfile.can_see_some_user(self.request.user.profile)
 
     def get_queryset(self):
         self.queryset = models.UserProfile.objects.all()
         querryset = super().get_queryset()
+        querryset = [user for user in querryset if user.can_see(self.request.user.profile)]
         return [{
             'user': user,
             'can_edit': user.can_edit(self.request.user.profile),
-            'can_see': user.can_see(self.request.user.profile),
+            'can_see_registrations': user.can_see_registration(self.request.user.profile),
             'form': forms.ProfileUpdateForm(instance=user, editable=False)
         } for user in querryset]
 
     def get_context_data(self, **kwargs):
+        if not self.request.user.profile.has_perm('nollesystemet.edit_user'):
+            kwargs['form'] = None
         context = super().get_context_data(**kwargs)
         context.update({
-            'can_create': models.UserProfile.can_create(self.request.user.profile)
+            'num_of_users_per_type': [
+                (user_type.label, models.UserProfile.objects.filter(user_type=user_type).count())
+                for user_type in models.UserProfile.UserType
+            ],
+            'num_of_users_total': models.UserProfile.objects.all().count()
         })
         return context
 
@@ -99,10 +103,19 @@ class UserUpdateView(mixins.FohserietMixin, ModifiableModelFormView):
     submit_name = "Spara"
 
     template_name = 'fohseriet/anvandare/redigera.html'
+
+    back_url = reverse_lazy('fohseriet:anvandare:index')
     success_url = reverse_lazy('fohseriet:anvandare:index')
 
     login_required = True
-    permission_required = 'nollesystemet.edit_user_info'
+
+    def test_func(self):
+        if not hasattr(self, 'object'):
+            self.object = self.get_object()
+        if self.object:
+            return self.object.can_edit(self.request.user.profile)
+        else:
+            return False
 
     def get_is_editable_args(self):
         return [self.request.user.profile]

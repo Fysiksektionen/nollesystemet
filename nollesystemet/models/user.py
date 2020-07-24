@@ -117,6 +117,10 @@ class UserProfile(auth_models.UserProfile):
             return True
         return False
 
+    def can_see_registration(self, observing_user):
+        """ :return Boolean indicating if observing_user has the right to see the registrations of calling user. """
+        return self.can_see(observing_user)
+
     @staticmethod
     def can_edit_groups(observing_user):
         """ :return Boolean indicating if observing_user has the right to edit the groups of calling user. """
@@ -149,7 +153,7 @@ class UserProfile(auth_models.UserProfile):
         return self.user_type == UserProfile.UserType.NOLLAN
 
     def is_fadder(self):
-        return self.user_type == UserProfile.UserType.NOLLAN
+        return self.user_type == UserProfile.UserType.FADDER
 
     @staticmethod
     def create_new_user(username, email, password=None, **kwargs):

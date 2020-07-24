@@ -44,4 +44,7 @@ fohseriet_urls = ([
     path('anvandare/', include(user_urls)),
     path('anmalan/', include(registration_urls)),
     path('nolleenkaten/', include(nolle_form_urls)),
+    path('<path:url>/', views.FohserietMenuView.as_view(
+        template_name="fohseriet/sidan-finns-inte.html"
+    ))
 ], 'fohseriet')

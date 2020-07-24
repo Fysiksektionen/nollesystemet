@@ -71,6 +71,9 @@ fadderiet_urls = ([
     path('aterstall-losenord/', include(password_reset_urls)),
     path('byt-losenord/', include(password_change_urls)),
     path('mina-sidor/', include(my_pages_urls)),
+    path('<path:url>/', views.FadderietMenuView.as_view(
+        template_name="fadderiet/sidan-finns-inte.html"
+    ))
 
 ], 'fadderiet')
 

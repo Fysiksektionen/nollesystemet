@@ -3,7 +3,6 @@ import json
 
 from django.urls import reverse_lazy
 
-
 def join_urls(*args):
     for arg in args:
         if not isinstance(arg, str):

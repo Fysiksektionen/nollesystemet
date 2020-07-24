@@ -34,10 +34,10 @@ class AccessDeniedView(TemplateView):
         return context
 
 class AccessDeniedViewFadderiet(mixins.FadderietMixin, AccessDeniedView):
-    template_name = "fadderiet/saknar_rattigheter.html"
+    template_name = "fadderiet/saknar-rattigheter.html"
 
 class AccessDeniedViewFohseriet(mixins.FohserietMixin, AccessDeniedView):
-    template_name = "fohseriet/saknar_rattigheter.html"
+    template_name = "fohseriet/saknar-rattigheter.html"
 
 
 class FohserietIndexView(FohserietMenuView, TemplateView):
