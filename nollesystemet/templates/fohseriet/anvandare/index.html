@@ -1,20 +1,14 @@
-{% extends "fohseriet/base-sites/base-content.html" %}
+{% extends "fohseriet/base-sites/objects-list-admin-site.html" %}
 {% load crispy_forms_tags %}
 {% load crispy_forms_filters %}
 
 {% block title %}Användare{% endblock %}
 
+{% block information %}
+    <h5>Antal användare: {{ num_of_users }}</h5>
+{% endblock %}
 
-{% block content-indented %}
-    {% if can_create %}
-        <div class="pb-3">
-            <a class="btn btn-primary" href="{% url 'fohseriet:anvandare:skapa' %}">
-                Skapa användare
-                <i class="fa fa-user-plus" aria-hidden="true"></i>
-            </a>
-        </div>
-    {% endif %}
-
+{% block object_list %}
     {% if object_list %}
         {% for user_object in object_list %}
             {% with user_object.user as profile %}
@@ -67,58 +61,4 @@
     {% else %}
         Systemet har inga användare. Känns det helt fel? Mejla <a href="mailto:nollesystemet@f.kth.se">nollesystemet@f.kth.se</a> för att få hjälp.
     {% endif %}
-
-{% endblock %}
-
-{% block extrapostscript %}
-    {{ block.super }}
-    <script>
-        {#$( document ).ready(function() {#}
-        {#    update_active_rows_table();#}
-        {# });#}
-
-        $('#search-bar').on("keyup", function () {
-            update_active_rows_table();
-        });
-
-        $('#filter-elements button').click(function () {
-            $(this).toggleClass('active-button');
-            update_active_rows_table();
-        });
-
-        function check_all_button_constraints(buttonList, rowElement) {
-            var tempBool = false;
-            for (var i = 0; i < buttonList.length; ++i) {
-                var buttonElement = buttonList[i];
-                var groupName = buttonElement.dataset.groupName;
-                var columnId = '#' + buttonElement.dataset.columnId;
-                var isActive = $(buttonElement).hasClass('active-button');
-                var containsGroup = $(rowElement.find(columnId)[0]).text().indexOf(groupName) > -1;
-                if (isActive && containsGroup) {
-                    tempBool = true;
-                }
-            }
-            return tempBool;
-        }
-
-        function update_active_rows_table() {
-            var tableId = '#user-table-body';
-            var searchValue = $('#search-bar').val().toLowerCase();
-            var should_be_active = new Array($(tableId + " tr").length);
-            for (var i = 0; i < should_be_active.length; ++i) { should_be_active[i] = true; }
-
-            var nolle_group_buttons = $('#nolle-groups button');
-            var user_type_buttons = $('#user-types button');
-
-            $(tableId + " tr").filter(function (index, element) {
-                $(element).show();
-                if (!(($(this).text().toLowerCase().indexOf(searchValue) > -1) &&
-                    check_all_button_constraints(nolle_group_buttons, $(this)) &&
-                    check_all_button_constraints(user_type_buttons, $(this)))) {
-                    $(element).hide();
-                }
-
-            });
-        }
-    </script>
 {% endblock %}

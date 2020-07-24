@@ -1,3 +1,6 @@
+import csv
+from io import StringIO
+
 import django.forms as forms
 from django.apps import apps
 from django.conf import settings
@@ -7,9 +10,12 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Fieldset, Field, Row, Column, HTML
 from django.contrib.auth import password_validation
 from django.contrib.auth.forms import PasswordResetForm as AuthPasswordResetForm
+from django.core.exceptions import ValidationError
+from django.urls import reverse_lazy
+from django.db.models import Q
 
-from nollesystemet.models import UserProfile
-from .misc import ExtendedMetaModelForm, ModifiableModelForm, MultipleModelsModifiableForm
+from nollesystemet.models import UserProfile, NolleGroup
+from .misc import ExtendedMetaModelForm, ModifiableModelForm, MultipleModelsModifiableForm, CsvFileAdministrationForm
 
 
 class PasswordResetForm(AuthPasswordResetForm):
@@ -252,3 +258,27 @@ class ProfileUpdateForm(MultipleModelsModifiableForm):
             auth_user = apps.get_model(settings.AUTH_USER_MODEL)()
             self.instance.auth_user = auth_user
         return [auth_user, auth_user]
+
+
+class UserAdministrationForm(CsvFileAdministrationForm):
+    model = UserProfile
+    verbose_name_singular = "Användare"
+    verbose_name_plural = "Användare"
+
+    form_tag = True
+
+    create_object_url = reverse_lazy('fohseriet:anvandare:skapa')
+    download_url = reverse_lazy('fohseriet:anvandare:ladda-ned')
+
+    file_columns = ['username', 'email', 'password',
+                    'user_type', 'first_name', 'last_name', 'program', 'kth_id', 'phone_number', 'nolle_group']
+
+    required_columns = ['username', 'email', 'user_type', 'first_name', 'last_name']
+    val_or_none_columns = ['password', 'program', 'nolle_group']
+    val_or_blank_str_columns = ['kth_id', 'phone_number']
+
+    enum_columns = [('user_type', UserProfile.UserType, False), ('program', UserProfile.Program, False)]
+    object_columns = [('nolle_group', NolleGroup, True)]
+
+    def delete_all(self):
+        UserProfile.objects.filter(~Q(user_type=UserProfile.UserType.ADMIN)).delete()

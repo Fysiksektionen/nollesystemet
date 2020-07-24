@@ -7,29 +7,7 @@
 {% endblock %}
 
 {% block content-indented %}
-    <p>
-        Det här är Färgglada Fadderiets helt egna typ-någonting-som-liknar-en-mina-vänner-bok!
-        Det hela går ut på att du svarar på en massa snabba enkla frågor om dig själv, så att
-        vi kan avgöra vilken nØllegrupp som passar dig bäst. På det sättet tror vi att du kommer
-        att uppskatta mottagningen ännu mer. Det finns gott om utrymme att meddela oss saker som
-        du tror att vi behöver veta, men även saker som vi uppenbarligen inte behöver veta men
-        som är genuint roliga/fyndiga/färgglada/kreativa. Det som mest skiljer detta från en
-        riktig mina-vänner-bok, är att det bara är vi Mottagningsansvariga som kommer att se
-        enkäten. Den är alltså helt konfidentiell.
-    </p>
-    <p>
-        Enkäten är indelad i två delar, en med nödvändig information där vi vill att ni talar
-        sanning och kanske tänker efter lite, och sedan en jätterolig del så att vi kan veta
-        vad du är för filur innan du kommit till KTH!
-    </p>
-    <p>
-        Vi hoppas att du kommer att trivas med din nØllegrupp och ha superduperkul under
-        mottagningen. Vi ses den 14:e augusti!
-    </p>
-    <p>
-        Hälsningar
-        Färglada Fadderiet
-    </p>
+    {{ site.texts.body|linebreaks }}
     <div class="col-md-7 px-0">
         {% crispy form %}
     </div>

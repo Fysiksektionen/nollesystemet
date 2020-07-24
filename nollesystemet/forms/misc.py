@@ -1,9 +1,17 @@
+import csv
+from io import StringIO
+
 import django.forms as forms
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Field, Row, Column, Button, Submit, Div, HTML
+
+from django.core.exceptions import ValidationError
 from django.forms import inlineformset_factory, modelformset_factory
 from django.forms.formsets import DELETION_FIELD_NAME
+from django.templatetags.static import static
 
+
+from .widgets import *
 
 class ExtendedMetaModelForm(forms.ModelForm):
     """
@@ -126,6 +134,8 @@ class ModifiableModelForm(ExtendedMetaModelForm):
         self.submit_name = submit_name
         self.delete_name = delete_name
 
+        self.add_fields(**kwargs)
+
         # Exclude dynamically unwanted fields (not rendered by Layout when not present)
         if exclude_fields is not None:
             for field_name in exclude_fields:
@@ -144,6 +154,9 @@ class ModifiableModelForm(ExtendedMetaModelForm):
         self.helper = self.get_form_helper(form_tag)
         # Add Submit and Delete to form Layout
         self.append_submits()
+
+    def add_fields(self, **kwargs):
+        pass
 
     def get_is_editable(self, *args):
         """ Tells if form is deletable. Run *before* self.is_editable is set. """
@@ -311,3 +324,256 @@ class MultipleModelsModifiableForm(ModifiableModelForm):
         for form in self.extra_forms:
             form.delete_instance()
         super().delete_instance()
+
+
+class ObjectsAdministrationForm(forms.Form):
+    model = None
+    verbose_name_singular = None
+    verbose_name_plural = None
+
+    can_create = None
+    can_delete = None
+    can_upload = None
+    can_download = None
+
+    form_tag = None
+
+    create_object_url = "#"
+    download_url = "#"
+
+    file_type = None
+    upload_objects_file = forms.FileField(label='',
+                                          required=False,
+                                          allow_empty_file=False)
+    upload_objects_file_data = None
+    upload_js_file = "fohseriet/js/script-upload_objects_file.js"
+
+    def __init__(self, can_create=None, can_delete=None, can_upload=None, can_download=None, **kwargs):
+        super().__init__(**kwargs)
+
+        # Load permissions
+        self.can_create = self.can_create if self.can_create is not None else can_create or False
+        self.can_delete = self.can_delete if self.can_delete is not None else can_delete or False
+        self.can_upload = self.can_upload if self.can_upload is not None else can_upload or False
+        self.can_download = self.can_download if self.can_download is not None else can_download or False
+
+        # Set model related stuff
+        if self.model is None:
+            if 'model' not in kwargs:
+                raise NotImplementedError("Please specify the model of the administration form.")
+            else:
+                self.model = kwargs['model']
+        self.verbose_name_singular = self.verbose_name_singular or self.model.verbose_name
+        self.verbose_name_plural = self.verbose_name_plural or self.model.verbose_name
+        self.fields['upload_objects_file'].label = "Ladda upp %s" % self.verbose_name_plural
+
+        # Allow subclasses to add fields dynamically
+        self.add_fields(**kwargs)
+
+        # Get crispy form helper
+        self.form_tag = self.form_tag if self.form_tag is not None else kwargs.get('form_tag', True)
+        self.helper = self.get_form_helper(self.form_tag)
+
+        if self.file_type:
+            if isinstance(self.file_type, str):
+                self.file_type = self.file_type.lower()
+            elif isinstance(self.file_type, list):
+                self.file_type = [file_type.lower() for file_type in self.file_type]
+            else:
+                raise TypeError("file_type must be either a string or a list of strings.")
+
+    def add_fields(self, **kwargs):
+        """ Method for child classes to add extra fields to the form. Passed the kwargs of __init__. """
+        pass
+
+    def get_form_helper(self, form_tag=True):
+        """ Returns the crispy forms form helper to be used. """
+        helper = FormHelper()
+        helper.form_method = 'post'
+        helper.form_tag = form_tag
+
+        button_classes = "btn col mb-4"
+
+        helper.layout = Layout(
+            Row(
+                Column(
+                    HTML(
+                        """
+                        <a class="%s" href="%s">
+                        %s
+                        <i class="fa fa-plus" aria-hidden="true"></i>
+                        </a>
+                        """ %
+                        (button_classes + " btn-primary", self.create_object_url,
+                         "Skapa ny %s" % self.verbose_name_singular.lower())
+                    ),
+                ),
+                Column()
+            ),
+            Row(
+                Column(
+                    HTML(
+                        """
+                        <a class="%s" href="%s" type="submit" download>
+                            %s
+                            <i class="fa fa-download" aria-hidden="true"></i>
+                        </a>
+                        """ %
+                        (button_classes + " btn-success", self.download_url,
+                         "Ladda ned %s" % self.verbose_name_plural.lower())
+                    ),
+                ),
+                Column(
+                    HTML(
+                        """
+                        <button class="%s" name="delete" type="submit">
+                            %s
+                            <i class="fa fa-trash" aria-hidden="true"></i>
+                        </button>
+                        """ %
+                        (button_classes + " btn-danger", "Radera alla %s" % self.verbose_name_plural.lower())
+                    ),
+                )
+            ),
+            Row(
+                Column(
+                    'upload_objects_file',
+                    HTML(
+                        """
+                        <script type="text/javascript" id="script-upload_objects_file" src="%s"></script>
+                        """ % (static(self.upload_js_file))
+                    ),
+                    css_class='col-12'
+                ),
+            ),
+        )
+        return helper
+
+    def delete_all(self):
+        self.model.objects.all().delete()
+
+    def clean_upload_objects_file(self):
+        """ Cleans and verifies uploaded file. """
+        self.upload_objects_file_data = None
+        if self.cleaned_data['upload_objects_file']:
+            if self.file_type:
+                ending = self.cleaned_data['upload_objects_file'].name.split('.')[1]
+                if isinstance(self.file_type, str):
+                    if ending.lower() != self.file_type.lower():
+                        raise ValidationError("Fel filtyp. Accepterad filtyp är '%s'. Du laddade upp en fil av typ '%s'." %
+                                              (self.file_type, ending))
+                elif isinstance(self.file_type, list):
+                    if ending not in [file_type.lower() for file_type in self.file_type]:
+                        raise ValidationError("Fel filtyp. Accepterade filtyper är '%s'."
+                                              "Du laddade upp en fil av typ '%s'." % (','.join(self.file_type), ending))
+
+            self.upload_objects_file_data = self.read_and_verify_file_content()
+
+    def read_and_verify_file_content(self):
+        """
+        Method to read the file into memory in the desired form.
+        Override this in child classes for custom read and validation. Raise ValidationError on bad file content.
+        :return file content as a python object for later use.
+        """
+
+        file = self.files.get('upload_objects_file')
+        if file:
+            return file.read()
+        else:
+            return None
+
+class CsvFileAdministrationForm(ObjectsAdministrationForm):
+    """
+    Administration form with csv file upload. Subclass and fill the validation and parsing arrays.
+
+    All columns in 'file_columns' must exist in either 'required_columns',
+    'val_or_none_columns' or 'val_or_blank_str_columns'.
+
+    Use 'enum_columns' and 'object_columns' to parse values at read.
+
+    File data is saved as a list of the rows parsed as dicts with file_columns as keys.
+    """
+
+    file_type = 'csv'
+    delimiter = ';'
+
+    file_columns = None  # [column_name, ...]
+
+    # Value exists validators
+    required_columns = None  # [column_name, ...]
+    val_or_none_columns = None  # [column_name, ...]
+    val_or_blank_str_columns = None  # [column_name, ...]
+
+    #
+    enum_columns = None  # [(column_name, Enum class, is_nullable), ...]
+    object_columns = None  # [(column_name, model, is_nullable), ...]
+
+    def __init__(self, can_create=None, can_delete=None, can_upload=None, can_download=None, **kwargs):
+        super().__init__(can_create=can_create, can_delete=can_delete, can_upload=can_upload, can_download=can_download,
+                         **kwargs)
+
+        self.validation_arrays = [self.required_columns, self.val_or_none_columns, self.val_or_blank_str_columns]
+        self.parsing_arrays = [self.enum_columns, self.object_columns]
+        for column_name in self.file_columns:
+            in_arrays = [array for array in self.validation_arrays if column_name in array]
+            if len(in_arrays) > 1:
+                raise Exception("%s is defined in multiple validation column arrays. Exactly one allowed." % column_name)
+            elif len(in_arrays) == 0:
+                raise Exception("%s is not defined in any validation column arrays. Exactly one allowed." % column_name)
+
+        for column_name in self.file_columns:
+            in_arrays = [array for array in self.parsing_arrays if column_name in [tup[0] for tup in array]]
+            if len(in_arrays) > 1:
+                raise Exception("%s is defined in multiple parsing column arrays. Maximum one allowed." % column_name)
+
+    def read_and_verify_file_content(self):
+        file = self.files.get('upload_objects_file')
+        if file:
+            try:
+                file = file.read().decode('utf-8')
+                user_reader = csv.DictReader(StringIO(file), delimiter=self.delimiter, fieldnames=self.file_columns)
+                next(user_reader)
+            except:
+                raise ValidationError("Filen kunde inte läsas.\n"
+                                      "Se till att den har utf-8 format och %s som avskiljare." % self.delimiter)
+
+            errors = []
+            users = []
+            for row, user_info in enumerate(user_reader):
+                for column_name in self.file_columns:
+                    if not user_info[column_name]:
+                        if column_name in self.required_columns:
+                            errors.append("%s saknas (på rad %d)." % (column_name, row + 1))
+                        elif column_name in self.val_or_none_columns:
+                            user_info[column_name] = None
+                        elif column_name in self.val_or_blank_str_columns:
+                            user_info[column_name] = ""
+
+                for column_name, enum_class, is_nullable in self.enum_columns:
+                    try:
+                        user_info[column_name] = enum_class.__getattr__(user_info[column_name])
+                    except AttributeError:
+                        if is_nullable:
+                            user_info[column_name] = None
+                        else:
+                            errors.append("%s kan inte göras till %s (på rad %d)." %
+                                          (user_info[column_name], enum_class.__name__(), row + 1))
+
+                for column_name, model, is_nullable in self.object_columns:
+                    try:
+                        user_info[column_name] = model.objects.get(name=user_info[column_name])
+                    except model.DoesNotExist:
+                        if is_nullable:
+                            user_info[column_name] = None
+                        else:
+                            errors.append("%s kan inte göras till %s (på rad %d)." %
+                                          (user_info[column_name], model.__name__(), row + 1))
+
+                users.append(user_info)
+
+            if errors:
+                raise ValidationError("\n".join(errors))
+            else:
+                return users
+        else:
+            raise ValidationError("Filen hittades inte.")

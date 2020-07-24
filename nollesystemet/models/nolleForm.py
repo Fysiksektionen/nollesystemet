@@ -1,6 +1,7 @@
 from django.db import models
 from .user import UserProfile
 
+
 class DynamicNolleFormQuestion(models.Model):
     """ Model for a dynamic question of the NolleForm. Stores info only on the question itself, not any answers. """
 
@@ -18,18 +19,60 @@ class DynamicNolleFormQuestion(models.Model):
     def __init__(self, *args, question_info=None, **kwargs):
         super().__init__(*args, **kwargs)
         if question_info is not None:
-            try:
-                self.number_label = question_info['number_label']
-                self.title = question_info['title']
-                self.question_type = self.QuestionType.__getattr__(question_info['question_type'])
-            except:
-                raise Exception('Error in loading ' + str(__class__) + ' from file-data')
+            errors = self.validate_question_info(question_info)
+            if errors:
+                raise SyntaxError('Error in loading %s. Errors: %s' % (DynamicNolleFormQuestion, ", ".join(errors)))
 
+            self.number_label = question_info['number_label']
+            self.title = question_info['title']
+            self.question_type = self.QuestionType.__getattr__(question_info['question_type'])
             self.save()
 
             if self.question_type != self.QuestionType.TEXT:
                 for answer in question_info['answers']:
                     DynamicNolleFormQuestionAnswer(question=self, value=answer).save()
+
+    @staticmethod
+    def validate_question_info(question_info):
+        error_messages = []
+        for key in ['number_label', 'title', 'question_type']:
+            if key not in question_info:
+                error_messages.append("%s missing." % key)
+
+        if question_info['question_type'] not in DynamicNolleFormQuestion.QuestionType.names:
+            error_messages.append("question_type %s is not a valid question type. Alternatives are: %s." %
+                              (question_info['question_type'],
+                               ", ".join(DynamicNolleFormQuestion.QuestionType.names))
+                              )
+
+        question_type = DynamicNolleFormQuestion.QuestionType.__getattr__(question_info['question_type'])
+        if question_type != DynamicNolleFormQuestion.QuestionType.TEXT:
+            if 'answers' not in question_info:
+                error_messages.append("%s missing." % key)
+
+        return error_messages
+
+    @staticmethod
+    def validate_questions_from_dict(questions_info_dict):
+        error_messages = []
+        if 'dynamic_questions' in questions_info_dict:
+            for i, question_info in enumerate(questions_info_dict['dynamic_questions']):
+                question_errors = DynamicNolleFormQuestion.validate_question_info(question_info)
+                if error_messages:
+                    error_messages.append("Errors in question number %d: %s." % (i, ", ".join(question_errors)))
+        else:
+            error_messages.append("'dynamic_questions' not found in dictionary root.")
+
+        return error_messages
+
+    @staticmethod
+    def set_questions_from_dict(questions_info_dict):
+        if not DynamicNolleFormQuestion.validate_questions_from_dict(questions_info_dict):
+            DynamicNolleFormQuestion.objects.all().delete()
+            for question_info in questions_info_dict['dynamic_questions']:
+                DynamicNolleFormQuestion(question_info=question_info)
+        else:
+            raise SyntaxError("Error in parsing dynamic_questions")
 
 
 class DynamicNolleFormQuestionAnswer(models.Model):
@@ -70,7 +113,9 @@ class NolleFormAnswer(models.Model):
     phone_number = models.CharField(max_length=20)
 
     contact_name = models.CharField(max_length=100)
-    contact_relation = models.CharField(max_length=200, choices=[(val, val) for val in ['Mamma', 'Pappa', 'Bror', 'Syster', 'Släkting', 'Vän']])
+    contact_relation = models.CharField(max_length=200, choices=[(val, val) for val in
+                                                                 ['Mamma', 'Pappa', 'Bror', 'Syster', 'Släkting',
+                                                                  'Vän']])
     contact_phone_number = models.CharField(max_length=20)
 
     food_preference = models.TextField(blank=True)
@@ -92,15 +137,6 @@ class NolleFormAnswer(models.Model):
 
     @staticmethod
     def can_fill_out(observing_user: UserProfile):
-        if len(NolleFormAnswer.objects.filter(user=observing_user)) > 0:
-            return False    # There is already an answer of this user.
         if not observing_user.is_nollan():
-            return False    # User is not NOLLAN.
+            return False  # User is not NOLLAN.
         return True
-
-    @staticmethod
-    def can_see_answers(observing_user: UserProfile):
-        if observing_user.has_perm('nollesystemet.see_users') or observing_user.has_perm('nollesystemet.edit_users'):
-            return True
-        else:
-            return False

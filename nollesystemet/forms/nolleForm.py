@@ -1,3 +1,5 @@
+import json
+import io
 from crispy_forms.helper import FormHelper
 from django import forms
 from crispy_forms.layout import Layout, Fieldset, Field, Row, Column, HTML, Submit, Div
@@ -5,9 +7,8 @@ from crispy_forms.layout import Layout, Fieldset, Field, Row, Column, HTML, Subm
 from .misc import ModifiableModelForm
 from nollesystemet.models import NolleFormAnswer, DynamicNolleFormQuestion, DynamicNolleFormQuestionAnswer
 
-
 class NolleFormFileUploadForm(forms.Form):
-    nolle_form_file = forms.FileField(label='nØlleformulärets fil',
+    nolle_form_file = forms.FileField(label='Fil med frågor (*.json)',
                                       required=True,
                                       allow_empty_file=False,
                                       help_text="Här laddar du upp en fil som uppdaterar innehållet i nØlleformuläret.")
@@ -18,9 +19,28 @@ class NolleFormFileUploadForm(forms.Form):
         self.helper = FormHelper()
         self.helper.layout = Layout(
             'nolle_form_file',
-            Submit('submit', 'Uppdatera formulär')
+            Submit('submit', 'Uppdatera formulär', css_class="col-5"),
         )
         self.helper.form_method = 'post'
+
+    def update_nolleForm(self):
+        if self.cleaned_data and 'json_data' in self.cleaned_data:
+            NolleFormAnswer.objects.all().delete()
+            DynamicNolleFormQuestion.set_questions_from_dict(self.cleaned_data['json_data'])
+        else:
+            raise AttributeError("Form is not bound and cleaned. 'json_data' not found.")
+
+    def clean_nolle_form_file(self):
+        try:
+            data = json.load(self.cleaned_data['nolle_form_file'])
+            self.cleaned_data['json_data'] = data
+        except:
+            raise forms.ValidationError("File is not a valid json file.")
+
+        validation_errors = DynamicNolleFormQuestion.validate_questions_from_dict(data)
+        if validation_errors:
+            raise forms.ValidationError("\n".join(validation_errors))
+
 
 class DynamicQuestionCharField(forms.CharField):
     def __init__(self, question, **kwargs):
@@ -90,7 +110,6 @@ class NolleFormBaseForm(ModifiableModelForm):
 
     def __init__(self, user=None, **kwargs):
         super().__init__(**kwargs)
-        self.add_fields()
         if user:
             self.instance.user = user
 
@@ -120,6 +139,11 @@ class NolleFormBaseForm(ModifiableModelForm):
                     pks = list(self.instance.dynamic_answers.filter(question=question).values_list('pk'))
                     self.initial['q_' + str(question.pk)] = [str(tup[0]) for tup in pks]
             self.fields['q_' + str(question.pk)].label = '<strong>' + question.number_label + '</strong>. ' + question.title
+
+        if not self.is_editable:
+            for field_name in self.fields:
+                self.fields[field_name].disabled = True
+                self.fields[field_name].widget.disabled = True
 
     def save(self, commit=True):
         super().save(commit=commit)

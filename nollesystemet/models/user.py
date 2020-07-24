@@ -1,7 +1,12 @@
 import sys
 
+from django.apps import apps
+from django.conf import settings
 from django.contrib.auth.models import Group
+from django.core.exceptions import ValidationError
 from django.db import models
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
 from django.utils.translation import gettext_lazy as _
 
 import authentication.models as auth_models
@@ -145,3 +150,35 @@ class UserProfile(auth_models.UserProfile):
 
     def is_fadder(self):
         return self.user_type == UserProfile.UserType.NOLLAN
+
+    @staticmethod
+    def create_new_user(username, email, password=None, **kwargs):
+        auth_user = apps.get_model(settings.AUTH_USER_MODEL)(username=username, email=email)
+        if password:
+            auth_user.set_password(password)
+        else:
+            auth_user.set_unusable_password()
+
+        try:
+            auth_user.save()
+        except ValidationError as e:
+            raise e
+
+        if 'kth_id' in kwargs and kwargs['kth_id'] is None:
+            kwargs.pop('kth_id')
+        user_profile = UserProfile(**kwargs, auth_user=auth_user)
+        try:
+            user_profile.save()
+        except ValidationError as e:
+            apps.get_model(settings.AUTH_USER_MODEL).objects.get(pk=auth_user.pk).delete()
+            raise e
+
+        return user_profile
+
+@receiver(models.signals.post_delete, sender=UserProfile)
+def delete_file(sender, instance, *args, **kwargs):
+    """ Deletes auth_user of deleted UserProfile """
+    if instance.auth_user:
+        apps.get_model(settings.AUTH_USER_MODEL).objects.get(username=instance.auth_user.username).delete()
+
+

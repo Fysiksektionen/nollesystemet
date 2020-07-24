@@ -12,6 +12,8 @@ $theme-colors: (
         "black": #000000,
         "fohseriet": $fohseriet,
         "chill-white": $chill-white,
+        "success": #004225,
+        "danger": #890000
 );
 
 @import "../../scss/basestyle";

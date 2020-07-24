@@ -1,6 +1,7 @@
 import json
 from typing import Any
 
+from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy, reverse
 from django.views.generic import TemplateView, FormView, UpdateView
 
@@ -21,23 +22,25 @@ class NolleFormManageView(mixins.FohserietMixin, FormView):
 
     def form_valid(self, form):
         models.NolleFormAnswer.objects.all().delete()
-        models.DynamicNolleFormQuestion.objects.all().delete()
-        with form.files['nolle_form_file'] as json_file:
-            data = json.load(json_file)
-            for question_info in data['dynamic_questions']:
-                models.DynamicNolleFormQuestion(question_info=question_info)
-
+        form.update_nolleForm()
         return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['preview_form'] = NolleFormBaseForm(editable=True, form_tag=False)
+        context['num_of_answers'] = models.NolleFormAnswer.objects.all().count()
         return context
 
 class NolleFormView(mixins.FadderietMixin, UpdateView):
-    login_required = True
+    site_name = 'Fadderiet: nØlleenkäten'
+    site_texts = ['body']
+
     template_name = "fadderiet/nolleenkaten/visa.html"
     form_class = NolleFormBaseForm
+    login_required = True
+
+    def test_func(self):
+        return models.NolleFormAnswer.can_fill_out(self.request.user.profile)
 
     def get_object(self, queryset=None):
         try:
@@ -60,7 +63,8 @@ class NolleFormView(mixins.FadderietMixin, UpdateView):
 
 class NolleFormDownloadView(mixins.FohserietMixin, DownloadView):
     login_required = True
-    permission_required = 'nollesystemet:edit_user_info'
+    permission_required = 'nollesystemet:edit_nolleForm'
+    file_name = "Svar_nolleenkaten"
 
     @staticmethod
     def get_field_value(answer, field_name):
@@ -89,7 +93,14 @@ class NolleFormDownloadView(mixins.FohserietMixin, DownloadView):
             for field_name in form.fields
         ]
 
-    file_name = "Svar_nolleenkaten"
-
     def get_queryset(self):
         return models.NolleFormAnswer.objects.all()
+
+
+class NolleFormDeleteView(mixins.FohserietMixin, FormView):
+    login_required = True
+    permission_required = 'nollesystemet:edit_nolleForm'
+
+    def get(self, request, *args, **kwargs):
+        models.NolleFormAnswer.objects.all().delete()
+        return HttpResponseRedirect(reverse('fohseriet:nolleenkaten:index'))

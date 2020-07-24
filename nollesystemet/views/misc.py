@@ -8,11 +8,12 @@ from django.core.exceptions import ImproperlyConfigured
 from django.urls import reverse, reverse_lazy
 from django.http import QueryDict, HttpResponseRedirect, HttpResponse, HttpRequest
 from django.views import View
-from django.views.generic import TemplateView, UpdateView, FormView
-from django.views.generic.edit import ProcessFormView, BaseFormView, BaseUpdateView
+from django.views.generic import TemplateView, UpdateView, FormView, ListView
+from django.views.generic.edit import ProcessFormView, BaseFormView, BaseUpdateView, FormMixin
 
 import authentication.models as auth_models
 import nollesystemet.mixins as mixins
+import nollesystemet.forms as forms
 from nollesystemet.models import NolleGroup
 
 
@@ -256,10 +257,7 @@ class MultipleObjectsUpdateView(UpdateView):
 
 
 class DownloadView(View):
-    # {'title': '', 'accessor': ''} or
-    # {'title': '', 'function': },
     csv_data_structure: Any = []
-
     file_name = None
 
     def get_file_name(self):
@@ -318,3 +316,73 @@ class DownloadView(View):
 
         writer.writerows(row_data)
         return response
+
+
+class ObjectsAdministrationListView(FormMixin, ListView):
+
+    form_class = forms.ObjectsAdministrationForm
+    file_upload_success = None
+    file_upload_information = None
+
+    def setup(self, request, *args, **kwargs):
+        super(ObjectsAdministrationListView, self).setup(request, *args, **kwargs)
+        if not issubclass(self.form_class, forms.ObjectsAdministrationForm):
+            raise TypeError("Only subclasses of nollesystemet.forms.ObjectsAdministrationForm "
+                            "are allowed as form of this view.")
+        self.object_list = self.get_queryset()
+        self.file_upload_success = kwargs.get('file_upload_success', None)
+        self.file_upload_information = kwargs.get('file_upload_information', None)
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs.update({
+            'can_create': True,
+            'can_delete': True,
+            'can_upload': True,
+            'can_download': True
+        })
+        return kwargs
+
+    def post(self, request, *args, **kwargs):
+        """
+        Handle POST requests: instantiate a form instance with the passed
+        POST variables and then check if it's valid.
+        """
+        form = self.get_form()
+        if 'delete' in request.POST:
+            form.delete_all()
+            return self.form_valid(form)
+        elif form.is_valid():
+            if form.upload_objects_file_data is not None:
+                self.handle_uploaded_file(form.upload_objects_file_data)
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
+
+    # PUT is a valid HTTP verb for creating (with a known URL) or editing an
+    # object, note that browsers only support POST for now.
+    def put(self, *args, **kwargs):
+        return self.post(*args, **kwargs)
+
+    def get_context_data(self, file_upload_success=None, file_upload_information=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'file_upload_success': file_upload_success,
+            'file_upload_information': file_upload_information,
+        })
+        return context
+
+    def form_valid(self, form):
+        """If the form is valid, go back to page with fresh form."""
+        return self.render_to_response(self.get_context_data(form=form,
+                                                             object_list=self.get_queryset(),
+                                                             file_upload_success=self.file_upload_success,
+                                                             file_upload_information=self.file_upload_information))
+
+    def handle_uploaded_file(self, file_data):
+        """
+        Method for inherited views to handle the data of the uploaded file.
+        Also set the values of 'file_upload_success' and 'file_upload_information' for response to user.
+        """
+        self.file_upload_success = True
+        self.file_upload_information = "Uppladdning lyckades!"

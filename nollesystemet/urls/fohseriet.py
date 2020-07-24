@@ -22,6 +22,7 @@ user_urls = ([
     path('skapa/', views.UserUpdateView.as_view(), name='skapa'),
     path('<int:pk>/redigera/', views.UserUpdateView.as_view(), name='redigera'),
     path('<int:pk>/anmalningar/', views.UserRegistrationsListView.as_view(), name='anmalningar'),
+    path('ladda-ned/', views.NolleFormDownloadView.as_view(), name="ladda-ned"),
 ], 'anvandare')
 
 registration_urls = ([
@@ -31,6 +32,7 @@ registration_urls = ([
 nolle_form_urls = ([
     path('', views.NolleFormManageView.as_view(), name="index"),
     path('ladda-ned-svar/', views.NolleFormDownloadView.as_view(), name="ladda-ned-svar"),
+    path('radera-svar/', views.NolleFormDeleteView.as_view(), name="radera-svar"),
 ], 'nolleenkaten')
 
 fohseriet_urls = ([

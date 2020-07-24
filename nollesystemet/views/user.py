@@ -2,6 +2,7 @@ from django.apps import apps
 from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.core.exceptions import ValidationError
 from django.urls import reverse_lazy, reverse
 from django.views.generic import ListView
 
@@ -9,7 +10,7 @@ from django.views.generic import ListView
 import nollesystemet.models as models
 import nollesystemet.forms as forms
 import nollesystemet.mixins as mixins
-from .misc import MultipleObjectsUpdateView, ModifiableModelFormView
+from .misc import ModifiableModelFormView, ObjectsAdministrationListView
 
 
 class ProfilePageView(mixins.FadderietMixin, ModifiableModelFormView):
@@ -35,7 +36,7 @@ class ProfilePageView(mixins.FadderietMixin, ModifiableModelFormView):
         return [self.request.user.profile]
 
 
-class UsersListView(mixins.FohserietMixin, ListView):
+class UsersListView(mixins.FohserietMixin, ObjectsAdministrationListView):
     model = models.UserProfile
     template_name = 'fohseriet/anvandare/index.html'
 
@@ -48,6 +49,8 @@ class UsersListView(mixins.FohserietMixin, ListView):
         'user_types': models.UserProfile.UserType.names,
         'nolle_groups': models.NolleGroup.objects.all()
     }
+
+    form_class = forms.UserAdministrationForm
 
     def get_queryset(self):
         self.queryset = models.UserProfile.objects.all()
@@ -66,6 +69,28 @@ class UsersListView(mixins.FohserietMixin, ListView):
         })
         return context
 
+    def handle_uploaded_file(self, file_data):
+        errors = []
+        users = []
+        for user_info in file_data:
+            try:
+                user = models.UserProfile.create_new_user(**user_info)
+                users.append(user)
+            except ValidationError as e:
+                errors.append("Fel vid skapande av användare '%s': %s" % (
+                    user_info['first_name'] + ' ' + user_info['last_name'], ", ".join(e.messages)
+                ))
+
+        self.file_upload_information = ""
+        self.file_upload_success = True
+
+        if errors:
+            self.file_upload_success = False
+            self.file_upload_information += "\n".join(errors)
+        if users:
+            self.file_upload_information += "Följande användare laddes upp: %s" % (
+                ", ".join([user.name for user in users])
+            )
 
 class UserUpdateView(mixins.FohserietMixin, ModifiableModelFormView):
     model = models.UserProfile
