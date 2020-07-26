@@ -117,7 +117,7 @@ class UserProfile(auth_models.UserProfile):
             return True
         return False
 
-    def can_see_registration(self, observing_user):
+    def can_see_registrations(self, observing_user):
         """ :return Boolean indicating if observing_user has the right to see the registrations of calling user. """
         return self.can_see(observing_user)
 

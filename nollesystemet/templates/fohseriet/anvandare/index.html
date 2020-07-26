@@ -14,59 +14,61 @@
 {% endblock %}
 
 {% block object_list %}
-        {% for user_object in object_list %}
-            {% with user_object.user as profile %}
-                <div class="card my-2 bg-chill-white text-black">
-                    <div class="card-header card" data-toggle="collapse" href="#collapse{{ forloop.counter }}">
-                        <div class="d-flex flex-nowrap justify-content-between">
-                            <div class="font-weight-bolder col-lg-6 col-12">
-                                {{ profile.name }}
+    {% for user_object in object_list %}
+        {% with user_object.user as profile %}
+            <div class="card my-2 bg-chill-white text-black">
+                <div class="card-header card" data-toggle="collapse" href="#collapse{{ forloop.counter }}">
+                    <div class="d-flex flex-nowrap justify-content-between">
+                        <div class="font-weight-bolder col-lg-6 col-12">
+                            {{ profile.name }}
+                        </div>
+                        <div class="d-flex col-lg-6 visible-lg justify-content-between" style="white-space: nowrap;">
+                            <div class="d-flex col">
+                                {% if profile.nolle_group %}
+                                    {{ profile.nolle_group }}
+                                {% else %}
+                                    -
+                                {% endif %}
                             </div>
-                            <div class="d-flex col-lg-6 visible-lg justify-content-between" style="white-space: nowrap;">
-                                <div class="d-flex col">
-                                    {% if profile.nolle_group %}
-                                        {{ profile.nolle_group }}
-                                    {% else %}
-                                        -
-                                    {% endif %}
-                                </div>
-                                <div class="d-flex col">
-                                    {{ profile.type }}
-                                </div>
+                            <div class="d-flex col">
+                                {{ profile.type }}
                             </div>
                         </div>
                     </div>
-                    <div id="collapse{{ forloop.counter }}" class="collapse">
-                        <div class="d-flex card-body flex-wrap">
-                            <div class="d-flex flex-column col-lg-7">
-                                {% crispy user_object.form %}
-                            </div>
-                            <div class="d-flex col-lg-5">
-                                <div class="d-flex flex-fill">
-                                    <div class="d-flex flex-fill flex-column align-content-center justify-content-start">
-                                        <div class="d-flex flex-column align-items-center">
-                                            {% if user_object.can_edit %}
-                                                <a class="col-10 col-sm-8 col-md-6 col-lg-10 col-xl-9 btn btn-primary my-2" href="{% url 'fohseriet:anvandare:redigera' profile.pk %}?next={{ request.path|urlencode }}">
-                                                    Redigera
-                                                    <i class="fa fa-edit" aria-hidden="true"></i>
-                                                </a>
-                                            {% endif %}
-                                            {% if user_object.can_see_registrations %}
-                                                <a class="col-10 col-sm-8 col-md-6 col-lg-10 col-xl-9 btn btn-primary my-2" href="{% url 'fohseriet:anvandare:anmalningar' profile.pk %}?next={{ request.path|urlencode }}">
-                                                    Anmälningar
-                                                    <i class="fa fa-list" aria-hidden="true"></i>
-                                                </a>
-                                            {% endif %}
-                                        </div>
+                </div>
+                <div id="collapse{{ forloop.counter }}" class="collapse">
+                    <div class="d-flex card-body flex-wrap">
+                        <div class="d-flex flex-column col-lg-7">
+                            {% crispy user_object.form %}
+                        </div>
+                        <div class="d-flex col-lg-5">
+                            <div class="d-flex flex-fill">
+                                <div class="d-flex flex-fill flex-column align-content-center justify-content-start">
+                                    <div class="d-flex flex-column align-items-center">
+                                        {% if user_object.can_edit %}
+                                            <a class="col-10 col-sm-8 col-md-6 col-lg-10 col-xl-9 btn btn-primary my-2" href="{% url 'fohseriet:anvandare:redigera' profile.pk %}?next={{ request.path|urlencode }}">
+                                                Redigera
+                                                <i class="fa fa-edit" aria-hidden="true"></i>
+                                            </a>
+                                        {% endif %}
+                                        {% if user_object.can_see_registrations %}
+                                            <a class="col-10 col-sm-8 col-md-6 col-lg-10 col-xl-9 btn btn-primary my-2" href="{% url 'fohseriet:anvandare:anmalningar' profile.pk %}?next={{ request.path|urlencode }}">
+                                                Anmälningar
+                                                <i class="fa fa-list" aria-hidden="true"></i>
+                                            </a>
+                                        {% endif %}
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            {% endwith %}
-        {% endfor %}
+            </div>
+        {% endwith %}
+    {% endfor %}
 {% endblock %}
 {% block empty_object_list %}
-    Systemet har inga användare som du har rätt att se. Känns det helt fel? Mejla <a href="mailto:nollesystemet@f.kth.se">nollesystemet@f.kth.se</a> för att få hjälp.
+    <p>
+        Systemet har inga användare som du har rätt att se. Känns det helt fel? Mejla <a href="mailto:nollesystemet@f.kth.se">nollesystemet@f.kth.se</a> för att få hjälp.
+    </p>
 {% endblock %}

@@ -56,7 +56,7 @@ class UsersListView(mixins.FohserietMixin, ObjectsAdministrationListView):
         return [{
             'user': user,
             'can_edit': user.can_edit(self.request.user.profile),
-            'can_see_registrations': user.can_see_registration(self.request.user.profile),
+            'can_see_registrations': user.can_see_registrations(self.request.user.profile),
             'form': forms.ProfileUpdateForm(instance=user, editable=False)
         } for user in querryset]
 
@@ -131,25 +131,38 @@ class UserRegistrationsListView(mixins.FohserietMixin, ListView):
     template_name = 'fohseriet/anvandare/anmalningar.html'
 
     login_required = True
-    permission_required = 'nollesystemet.edit_user_info'
 
     back_url = reverse_lazy('fohseriet:anvandare:index')
 
-    def query_test_func(self, registration):
-        return self.request.user.has_perm(
-            'nollesystemet.edit_user_registration') or self.request.user.profile in registration.happening.editors.all()
+    def setup(self, request, *args, **kwargs):
+        super(UserRegistrationsListView, self).setup(request, *args, **kwargs)
+        try:
+            self.user_of_registrations = models.UserProfile.objects.get(pk=self.kwargs['pk'])
+        except:
+            self.user_of_registrations = None
+
+    def test_func(self):
+        if self.user_of_registrations:
+            return self.user_of_registrations.can_see_registrations(self.request.user.profile)
+        else:
+            return False
 
     def get_queryset(self):
         try:
             self.queryset = models.Registration.objects.filter(user=models.UserProfile.objects.get(pk=self.kwargs['pk']))
-            return [{'registration': registration, 'user_can_edit': self.query_test_func(registration)} for registration
-                    in super().get_queryset()]
+            return [
+                {
+                    'registration': registration,
+                    'can_edit': registration.can_edit(self.request.user.profile),
+                    'form': forms.RegistrationForm(instance=registration, editable=False)
+                } for registration in super().get_queryset()
+            ]
         except:
             return None
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context.update({
-            'user_of_registrations': models.UserProfile.objects.get(pk=self.kwargs['pk']),
+            'user_of_registrations': self.user_of_registrations,
         })
         return context
