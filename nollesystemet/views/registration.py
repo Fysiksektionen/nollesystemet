@@ -16,11 +16,15 @@ class RegistrationView(mixins.FadderietMixin, ModifiableModelFormView):
     template_name = 'fadderiet/evenemang/anmalan.html'
 
     success_url = reverse_lazy('fadderiet:evenemang:index')
+    back_url = reverse_lazy('fadderiet:evenemang:index')
 
     login_required = True
 
     deletable = False
     form_tag = True
+
+    site_name = "Fadderiet: Registrera dig (skicka bekräftelsemail)"
+    site_texts = ['mail_betalningsinfo_html', 'mail_betalningsinfo_text']
 
     def setup(self, request, *args, **kwargs):
         super().setup(request, *args, **kwargs)
@@ -57,8 +61,12 @@ class RegistrationView(mixins.FadderietMixin, ModifiableModelFormView):
             kwargs.update({
                 'editable': False
             })
+
         kwargs.update({
             'observing_user': self.observing_user,
+            'extra_email_context': {
+                **mixins.SiteMixin.get_site_context(self)['texts']
+            }
         })
         return kwargs
 
@@ -71,11 +79,11 @@ class RegistrationView(mixins.FadderietMixin, ModifiableModelFormView):
         return self.registration
 
     def get_context_data(self, **kwargs):
-        extra_context = {
-            'happening': self.happening
-        }
-        kwargs.update(**extra_context)
-        return super().get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'happening': self.happening,
+        })
+        return context
 
 class RegistrationUpdateView(mixins.FohserietMixin, ModifiableModelFormView):
     """ View for admin to edit registration. """

@@ -1,5 +1,5 @@
 {
-    "order": ["hantera-event", "hantera-andvandare", "nolleenkaten","fadderiet", ["logga-in", "logga-ut"]],
+    "order": ["hantera-event", "hantera-anvandare", "nolleenkaten","fadderiet", ["logga-in", "logga-ut"]],
     "menu_items": {
         "index": {
             "name": "Start",
@@ -19,8 +19,8 @@
                 }
             }
         },
-        "hantera-andvandare": {
-            "name": "Hantera andvändare",
+        "hantera-anvandare": {
+            "name": "Hantera användare",
             "url_name": "fohseriet:anvandare:index",
             "align": "left",
             "conditions": {

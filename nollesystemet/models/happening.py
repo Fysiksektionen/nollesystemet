@@ -28,7 +28,7 @@ class Happening(models.Model):
         COMPLETED = 5, _("Genomfört")
 
     name = models.CharField(max_length=50, unique=True)
-    description = models.CharField(max_length=300)
+    description = models.CharField(max_length=500)
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
     image_file_path = models.CharField(max_length=50)
@@ -43,6 +43,14 @@ class Happening(models.Model):
 
     editors = models.ManyToManyField(UserProfile, limit_choices_to=_is_editor_condition)
 
+    contact_name = models.CharField(max_length=150, blank=False, null=False)
+    contact_phone = models.CharField(max_length=20)
+    contact_email = models.EmailField(blank=False, null=False)
+
+    location = models.CharField(max_length=200, blank=False, null=False)
+
+    include_drink_in_price = models.BooleanField(default=False)
+
     class Meta(auth_models.UserProfile.Meta):
         permissions = [
             ("create_happening", "Can create happenings"),
@@ -55,6 +63,10 @@ class Happening(models.Model):
     @staticmethod
     def can_create(observing_user: UserProfile):
         return observing_user.has_perm('nollesystemet.create_happening')
+
+    @staticmethod
+    def user_is_editor(observing_user: UserProfile):
+        return len([True for happening in Happening.objects.all() if observing_user in happening.editors.all()]) > 0
 
     def can_attend(self, observing_user: UserProfile):
         return observing_user.user_type in self.user_types and \
@@ -87,6 +99,10 @@ class Happening(models.Model):
         return len([True for happening in Happening.objects.all()
                     if happening.can_edit(observing_user)]) > 0
 
+    @property
+    def num_of_registered(self):
+        return self.registration_set.count()
+
     def is_published(self):
         return self.status in [Happening.HappeningStatus.PUBLISHED,
                                Happening.HappeningStatus.OPEN,
@@ -104,11 +120,17 @@ class Happening(models.Model):
     def is_registered(self, user: UserProfile):
         return apps.get_model('nollesystemet.Registration').objects.filter(happening=self, user=user).exists()
 
-    def get_baseprice(self, registration):
-        try:
-            return self.usertypebaseprice_set.get(user_type=registration.user.user_type).price
-        except UserTypeBasePrice.DoesNotExist:
-            return 0
+    def get_baseprice(self, argument):
+        if isinstance(argument, apps.get_model('nollesystemet.Registration')):
+            try:
+                return self.usertypebaseprice_set.get(user_type=argument.user.user_type).price
+            except UserTypeBasePrice.DoesNotExist:
+                return None
+        elif isinstance(argument, apps.get_model('nollesystemet.UserProfile').UserType):
+            try:
+                return self.usertypebaseprice_set.get(user_type=argument).price
+            except UserTypeBasePrice.DoesNotExist:
+                return None
 
 
 class UserTypeBasePrice(models.Model):
@@ -122,7 +144,7 @@ class UserTypeBasePrice(models.Model):
         unique_together = ['happening', 'user_type']
 
     def __str__(self):
-        return "%s (+%d kr)" % (self.user_type, self.price)
+        return "%s: %s (+%d kr)" % (str(self.happening), UserProfile.UserType(self.user_type).label, self.price)
 
 
 class DrinkOption(models.Model):
@@ -136,7 +158,7 @@ class DrinkOption(models.Model):
         unique_together = ['happening', 'drink']
 
     def __str__(self):
-        return "%s (+%d kr)" % (self.drink, self.price)
+        return "%s: %s (+%d kr)" % (str(self.happening), self.drink, self.price)
 
 
 class ExtraOption(models.Model):
@@ -150,4 +172,4 @@ class ExtraOption(models.Model):
         unique_together = ['happening', 'extra_option']
 
     def __str__(self):
-        return "%s (+%d kr)" % (self.extra_option, self.price)
+        return "%s: %s (+%d kr)" % (str(self.happening), self.extra_option, self.price)

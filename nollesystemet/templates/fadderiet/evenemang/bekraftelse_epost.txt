@@ -1,20 +1,13 @@
 Anmälan till {{ happening }}
 
 Tack för att fyllt i anmälan till {{ happening }}.
-Nedan kan du se vad du fyllde i samt den information som fanns i eventbeskrivningen.
 
 Betalning:
-Du ska ha betalat din billjet innan du kommer till evenemanget. Det gör du genom att:
-- swisha till 123 503 97 21 eller
-- betala via bankgiro på XXXX-XXXX.
-Du ska betala {{ registration.get_full_price }} kr.
-
+{{ mail_betalningsinfo_text|safe|linebreaks }}
+{% include "common/elements/registration-price-info.html" with registration=registration only %}
 
 Frågor?
-Har du några frågor kring evenemanget? Mejla ansvarig arrangör på: {{ happening.contact.email }} eller ring på {{ happening.contact.phone_number }}.
-
-Vill du se din anmälan? Följ länken: {{ registration_url }}
-
+Har du några frågor kring evenemanget? Kontakta ansvarig arrangör: {{ happening.contact_name }}{% if happening.contact_email %}, {{ happening.contact_email }}{% endif %}{% if happening.contact_phone %}, {{ happening.contact_phone }}{% endif %}.
 
 ---------------------------------------------------------
-Du får detta mejl i egenskap av användare av Fysiksektionens anmälningssystem <i>nØllesystemet</i>. Samtliga personuppgifter lagras enligt vår personuppgiftspolicy som återfinns här: https://f.kth.se/personuppgifter
+Du får detta mejl i egenskap av användare av Fysiksektionens anmälningssystem nØllesystemet. Samtliga personuppgifter lagras enligt vår personuppgiftspolicy som återfinns här: https://f.kth.se/personuppgifter

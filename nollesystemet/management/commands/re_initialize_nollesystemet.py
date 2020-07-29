@@ -41,21 +41,21 @@ class Command(BaseCommand):
 
         # 2) Check that a superuser with username 'admin' exists. Else create one. Assign authenticaiton groups.
         try:
-            admin = auth_models.AuthUser.objects.get(username='admin')
-            admin.is_staff = True
-            admin.is_superuser = True
-            admin.save()
-
-        except auth_models.AuthUser.DoesNotExist:
-            admin = auth_models.AuthUser.objects.create_superuser(username='admin',
-                                                                  password='password')
-            admin.profile.first_name = "Admin"
-            admin.profile.last_name = "Superuser"
-            admin.profile.save()
+            admin = UserProfile.objects.get(auth_user__username='admin')
+            admin.auth_user.is_staff = True
+            admin.auth_user.is_superuser = True
+            admin.auth_user.save()
+        except UserProfile.DoesNotExist:
+            admin = UserProfile.objects.create_superuser(username='admin',
+                                                         password=None,
+                                                         email='nollesystemet@f.kth.se',
+                                                         first_name="Admin",
+                                                         last_name="Superuser"
+                                                         )
 
         for group in authentication_groups:
-            if group not in admin.groups.all():
-                admin.groups.add(group)
+            if group not in admin.auth_user.groups.all():
+                admin.auth_user.groups.add(group)
 
 
         # 3) Create NolleGroups.

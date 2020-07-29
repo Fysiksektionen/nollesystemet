@@ -268,7 +268,6 @@ class UserAdministrationForm(CsvFileAdministrationForm):
     form_tag = True
 
     create_object_url = reverse_lazy('fohseriet:anvandare:skapa')
-    download_url = reverse_lazy('fohseriet:anvandare:ladda-ned')
 
     file_columns = ['username', 'email', 'password',
                     'user_type', 'first_name', 'last_name', 'program', 'kth_id', 'phone_number', 'nolle_group']
@@ -279,6 +278,11 @@ class UserAdministrationForm(CsvFileAdministrationForm):
 
     enum_columns = [('user_type', UserProfile.UserType, False), ('program', UserProfile.Program, False)]
     object_columns = [('nolle_group', NolleGroup, True)]
+
+    can_create = True
+    can_delete = True
+    can_upload = True
+    can_download = False
 
     def delete_all(self):
         UserProfile.objects.filter(~Q(user_type=UserProfile.UserType.ADMIN)).delete()

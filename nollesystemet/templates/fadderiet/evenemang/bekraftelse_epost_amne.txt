@@ -1,1 +1,1 @@
-Bekräftelse av anmälan till {{ registration.happening.name }}
+Anmälan till {{ registration.happening.name }}

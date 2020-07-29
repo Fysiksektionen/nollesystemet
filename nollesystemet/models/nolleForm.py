@@ -1,4 +1,6 @@
 from django.db import models
+from django.dispatch import receiver
+
 from .user import UserProfile
 
 
@@ -30,7 +32,11 @@ class DynamicNolleFormQuestion(models.Model):
 
             if self.question_type != self.QuestionType.TEXT:
                 for answer in question_info['answers']:
-                    DynamicNolleFormQuestionAnswer(question=self, value=answer).save()
+                    if isinstance(answer, dict):
+                        DynamicNolleFormQuestionAnswer(question=self, value=answer['value'],
+                                                       group=answer['group']).save()
+                    elif isinstance(answer, str):
+                        DynamicNolleFormQuestionAnswer(question=self, value=answer).save()
 
     @staticmethod
     def validate_question_info(question_info):
@@ -44,13 +50,23 @@ class DynamicNolleFormQuestion(models.Model):
                               (question_info['question_type'],
                                ", ".join(DynamicNolleFormQuestion.QuestionType.names))
                               )
+        if error_messages:
+            return error_messages
+        else:
+            question_type = DynamicNolleFormQuestion.QuestionType.__getattr__(question_info['question_type'])
+            if question_type != DynamicNolleFormQuestion.QuestionType.TEXT:
+                if 'answers' not in question_info:
+                    error_messages.append("answers missing.")
+                else:
+                    for answer_info in question_info['answers']:
+                        if isinstance(answer_info, dict):
+                            for key in ['value', 'group']:
+                                if key not in answer_info:
+                                    error_messages.append("'%s' missing in answer." % key)
+                        elif not isinstance(answer_info, str):
+                            error_messages.append("Wrong answer data type.")
 
-        question_type = DynamicNolleFormQuestion.QuestionType.__getattr__(question_info['question_type'])
-        if question_type != DynamicNolleFormQuestion.QuestionType.TEXT:
-            if 'answers' not in question_info:
-                error_messages.append("%s missing." % key)
-
-        return error_messages
+            return error_messages
 
     @staticmethod
     def validate_questions_from_dict(questions_info_dict):
@@ -83,9 +99,10 @@ class DynamicNolleFormQuestionAnswer(models.Model):
 
     question = models.ForeignKey(DynamicNolleFormQuestion, models.CASCADE, null=False, blank=False)
     value = models.CharField(max_length=400)
+    group = models.CharField(max_length=400, blank=True, null=True)
 
     class Meta:
-        unique_together = ('question', 'value')
+        unique_together = [('question', 'value'), ('question', 'group')]
 
     def __str__(self):
         return str(self.value)
@@ -98,35 +115,31 @@ class NolleFormAnswer(models.Model):
     """
 
     user = models.OneToOneField(UserProfile,
-                                models.CASCADE,
+                                on_delete=models.CASCADE,
                                 limit_choices_to={'user_type__is': UserProfile.UserType.NOLLAN},
                                 editable=False)
 
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
-    nick_name = models.CharField(max_length=50, blank=True)
 
     age = models.PositiveSmallIntegerField()
-    age_feeling = models.PositiveSmallIntegerField(blank=True)
+    age_feeling = models.PositiveSmallIntegerField(blank=True, null=True)
 
     home_address = models.CharField(max_length=200)
     phone_number = models.CharField(max_length=20)
 
     contact_name = models.CharField(max_length=100)
     contact_relation = models.CharField(max_length=200, choices=[(val, val) for val in
-                                                                 ['Mamma', 'Pappa', 'Bror', 'Syster', 'Släkting',
-                                                                  'Vän']])
+                                                                 ['Förälder', 'Syskon', 'Släkting', 'Vän']])
     contact_phone_number = models.CharField(max_length=20)
 
     food_preference = models.TextField(blank=True)
+    can_photograph = models.BooleanField()
+
     other = models.TextField(blank=True)
 
-    about_the_form = models.CharField(max_length=200, choices=[(val, val) for val in [
-        'Toppen!',
-        'Bra',
-        'Dåligt',
-        'Sämst'
-    ]])
+    about_the_form = models.CharField(max_length=200, choices=[(val, val) for val in
+                                                               ['Askalas!', 'Dunder', 'Lagom bra', 'Risigt']])
 
     dynamic_answers = models.ManyToManyField(DynamicNolleFormQuestionAnswer, editable=False)
 
@@ -134,9 +147,20 @@ class NolleFormAnswer(models.Model):
         permissions = [
             ("edit_nolleForm", "Can edit the nolleForm form"),
         ]
+        verbose_name = 'Fomulärsvar'
 
     @staticmethod
     def can_fill_out(observing_user: UserProfile):
         if not observing_user.is_nollan():
             return False  # User is not NOLLAN.
         return True
+
+@receiver(models.signals.post_save, sender=NolleFormAnswer)
+def update_user_profile_from_nolleForm(sender, instance, *args, **kwargs):
+    """ Deletes auth_user of deleted UserProfile """
+    common_fields = ['first_name', 'last_name', 'phone_number', 'contact_name',
+                     'contact_relation', 'contact_phone_number', 'food_preference']
+    if instance:
+        for field_name in common_fields:
+            setattr(instance.user, field_name, getattr(instance, field_name))
+        instance.user.save()

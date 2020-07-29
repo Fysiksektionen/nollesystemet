@@ -2,6 +2,7 @@ import os
 import json
 
 from django.urls import reverse_lazy
+from django.utils.log import DEFAULT_LOGGING
 
 def join_urls(*args):
     for arg in args:
@@ -36,11 +37,10 @@ DEBUG = False
 
 ALLOWED_HOSTS = (
     '18.156.68.18',
+    'leoenge.se',
 )
 
-ADMINS = (
-    ('admin', 'ejemyr@kth.se'),
-)
+ADMINS = [('admin', 'ejemyr@fysiksektionen.se')]
 MANAGERS = ADMINS
 
 # Application definition
@@ -69,7 +69,7 @@ MIDDLEWARE = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
-    'nollesystemet.middleware.PageCallStackMiddleware',
+    # 'nollesystemet.middleware.PageCallStackMiddleware',
 )
 
 # Templates
@@ -168,7 +168,19 @@ def get_email_info(filename):
     return options['host'], options['use_tls'] == 'True', int(options['port']), options['username'], options['password']
 
 
+SERVER_EMAIL = 'cejemyr@gmail.com'
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST, EMAIL_USE_TLS, EMAIL_PORT, EMAIL_HOST_USER, EMAIL_HOST_PASSWORD = get_email_info('config_files/mail.cnf')
 
-PAGE_CALL_STACK_SIZE = 5
+
+# Assure that errors end up to Apache error logs via console output
+# when debug mode is disabled
+DEFAULT_LOGGING['handlers']['console']['filters'] = []
+# Enable logging to console from our modules by configuring the root logger
+DEFAULT_LOGGING['loggers'][''] = {
+    'handlers': ['console'],
+    'level': 'INFO',
+    'propagate': True
+}
+
+# PAGE_CALL_STACK_SIZE = 5

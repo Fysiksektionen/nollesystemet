@@ -394,59 +394,77 @@ class ObjectsAdministrationForm(forms.Form):
 
         button_classes = "btn col mb-4"
 
-        helper.layout = Layout(
-            Row(
-                Column(
-                    HTML(
-                        """
-                        <a class="%s" href="%s">
-                        %s
-                        <i class="fa fa-plus" aria-hidden="true"></i>
-                        </a>
-                        """ %
-                        (button_classes + " btn-primary", self.create_object_url,
-                         "Skapa ny %s" % self.verbose_name_singular.lower())
-                    ),
-                ),
-                Column()
-            ),
-            Row(
-                Column(
-                    HTML(
-                        """
-                        <a class="%s" href="%s" type="submit" download>
+        layout_content = []
+        if self.can_create:
+            layout_content.append(
+                Row(
+                    Column(
+                        HTML(
+                            """
+                            <a class="%s" href="%s">
                             %s
-                            <i class="fa fa-download" aria-hidden="true"></i>
-                        </a>
-                        """ %
-                        (button_classes + " btn-success", self.download_url,
-                         "Ladda ned %s" % self.verbose_name_plural.lower())
+                            <i class="fa fa-plus" aria-hidden="true"></i>
+                            </a>
+                            """ %
+                            (button_classes + " btn-primary", self.create_object_url,
+                             "Skapa ny %s" % self.verbose_name_singular.lower())
+                        ),
                     ),
-                ),
-                Column(
-                    HTML(
-                        """
-                        <button class="%s" name="delete" type="submit">
-                            %s
-                            <i class="fa fa-trash" aria-hidden="true"></i>
-                        </button>
-                        """ %
-                        (button_classes + " btn-danger", "Radera alla %s" % self.verbose_name_plural.lower())
+                    Column()
+                )
+            )
+
+        if self.can_delete or self.can_download:
+            row_content = []
+            if self.can_download:
+                row_content.append(
+                    Column(
+                        HTML(
+                            """
+                            <a class="%s" href="%s" type="submit" download>
+                                %s
+                                <i class="fa fa-download" aria-hidden="true"></i>
+                            </a>
+                            """ %
+                            (button_classes + " btn-success", self.download_url,
+                             "Ladda ned %s" % self.verbose_name_plural.lower())
+                        ),
+                    )
+                )
+            if self.can_delete:
+                row_content.append(
+                    Column(
+                        HTML(
+                            """
+                            <button class="%s" name="delete" type="submit">
+                                %s
+                                <i class="fa fa-trash" aria-hidden="true"></i>
+                            </button>
+                            """ %
+                            (button_classes + " btn-danger", "Radera alla %s" % self.verbose_name_plural.lower())
+                        ),
+                    )
+                )
+            if len(row_content) == 1:
+                row_content.append(Column())
+            layout_content.append(Row(*row_content))
+
+        if self.can_upload:
+            layout_content.append(
+                Row(
+                    Column(
+                        'upload_objects_file',
+                        HTML(
+                            """
+                            <script type="text/javascript" id="script-upload_objects_file" src="%s"></script>
+                            """ % (static(self.upload_js_file))
+                        ),
+                        css_class='col-12'
                     ),
                 )
-            ),
-            Row(
-                Column(
-                    'upload_objects_file',
-                    HTML(
-                        """
-                        <script type="text/javascript" id="script-upload_objects_file" src="%s"></script>
-                        """ % (static(self.upload_js_file))
-                    ),
-                    css_class='col-12'
-                ),
-            ),
-        )
+            )
+
+        helper.layout = Layout(*layout_content)
         return helper
 
     def delete_all(self):
@@ -504,9 +522,12 @@ class CsvFileAdministrationForm(ObjectsAdministrationForm):
     val_or_none_columns = None  # [column_name, ...]
     val_or_blank_str_columns = None  # [column_name, ...]
 
-    #
+    # Parsing
     enum_columns = None  # [(column_name, Enum class, is_nullable), ...]
     object_columns = None  # [(column_name, model, is_nullable), ...]
+
+    # Cleaning
+    remove_none_column = True
 
     def __init__(self, can_create=None, can_delete=None, can_upload=None, can_download=None, **kwargs):
         super().__init__(can_create=can_create, can_delete=can_delete, can_upload=can_upload, can_download=can_download,
@@ -540,6 +561,10 @@ class CsvFileAdministrationForm(ObjectsAdministrationForm):
             errors = []
             users = []
             for row, user_info in enumerate(user_reader):
+                if self.remove_none_column:
+                    if None in user_info:
+                        user_info.pop(None)
+
                 for column_name in self.file_columns:
                     if not user_info[column_name]:
                         if column_name in self.required_columns:

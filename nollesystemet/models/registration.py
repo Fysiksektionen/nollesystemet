@@ -14,6 +14,12 @@ class Registration(models.Model):
     extra_option = models.ManyToManyField(ExtraOption, blank=True)
     other = models.CharField(max_length=300, blank=True)
 
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    paid = models.BooleanField(editable=False, default=False)
+    attended = models.BooleanField(editable=False, default=False)
+
     class Meta:
         permissions = [
             ("see_registration", "Can see any registration"),
@@ -72,8 +78,18 @@ class Registration(models.Model):
         return sum([values['price'] for values in self.extra_option.values('price')])
 
     @property
-    def price(self):
-        return self.base_price + self.drink_price + self.extra_option_price
+    def pre_paid_price(self):
+        if self.happening.include_drink_in_price:
+            return self.base_price + self.extra_option_price + self.drink_price
+        else:
+            return self.base_price + self.extra_option_price
+
+    @property
+    def on_site_paid_price(self):
+        if self.happening.include_drink_in_price:
+            return None
+        else:
+            return self.drink_price
 
     @property
     def all_extra_options_str(self):

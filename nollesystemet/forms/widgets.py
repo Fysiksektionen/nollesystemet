@@ -1,4 +1,5 @@
-from django.forms.widgets import FileInput
+from django.forms.widgets import FileInput, DateTimeInput
+
 
 class ButtonFileWidget(FileInput):
     template_name = "fohseriet/elements/button-file-field.html"
@@ -18,4 +19,17 @@ class ButtonFileWidget(FileInput):
         context = super().get_context(name, value, attrs)
         context['widget']['button_classes'] = self.button_classes
         print(context)
+        return context
+
+class BootstrapDateTimePickerInput(DateTimeInput):
+    template_name = 'common/elements/datetime-widget.html'
+
+    def get_context(self, name, value, attrs):
+        datetimepicker_id = 'datetimepicker_{name}'.format(name=name)
+        if attrs is None:
+            attrs = dict()
+        attrs['data-target'] = '#{id}'.format(id=datetimepicker_id)
+        attrs['class'] = 'form-control datetimepicker-input'
+        context = super().get_context(name, value, attrs)
+        context['widget']['datetimepicker_id'] = datetimepicker_id
         return context

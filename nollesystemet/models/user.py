@@ -10,7 +10,7 @@ from django.dispatch import receiver
 from django.utils.translation import gettext_lazy as _
 
 import authentication.models as auth_models
-
+from nollesystemet.managers import UserProfileManager
 
 class NolleGroup(models.Model):
     """
@@ -79,6 +79,8 @@ class UserProfile(auth_models.UserProfile):
     contact_relation = models.CharField(max_length=100, blank=True)
     contact_phone_number = models.CharField(max_length=15, blank=True)
 
+    objects = UserProfileManager()
+
     class Meta(auth_models.UserProfile.Meta):
         permissions = [
             ("see_users", "Can see any user profile"),
@@ -120,6 +122,14 @@ class UserProfile(auth_models.UserProfile):
     def can_see_registrations(self, observing_user):
         """ :return Boolean indicating if observing_user has the right to see the registrations of calling user. """
         return self.can_see(observing_user)
+
+    def can_see_nolleForm_answer(self, observing_user):
+        """ :return Boolean indicating if observing_user has the right to see the nolleForm of calling user. """
+        try:
+            has_answer = (self.nolleformanswer is not None)
+        except apps.get_model('nollesystemet.NolleFormAnswer').DoesNotExist:
+            has_answer = False
+        return has_answer and self.can_see(observing_user)
 
     @staticmethod
     def can_edit_groups(observing_user):

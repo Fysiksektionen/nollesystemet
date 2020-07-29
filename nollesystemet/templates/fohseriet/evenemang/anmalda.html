@@ -7,12 +7,18 @@
 {% endblock %}
 
 {% block content-indented %}
-    <div class="d-flex justify-content-between">
+    <div class="d-flex justify-content-between align-items-start">
         {% include "common/elements/back-button.html" %}
-        <a href="{% url "fohseriet:evenemang:ladda-ned-anmalda" happening.pk %}" class="btn btn-success my-4" download>
-            Ladda ned
-            <i class="fa fa-download" aria-hidden="true"></i>
-        </a>
+        <div class="d-flex flex-column my-4">
+            <a href="{% url "fohseriet:evenemang:uppdatera-betalningar" happening.pk %}" class="btn btn-primary my-2 px-3">
+                Betalning och närvaro
+                <i class="fa fa-money" aria-hidden="true"></i>
+            </a>
+            <a href="{% url "fohseriet:evenemang:ladda-ned-anmalda" happening.pk %}" class="btn btn-success my-2 px-3" download>
+                Ladda ned
+                <i class="fa fa-download" aria-hidden="true"></i>
+            </a>
+        </div>
     </div>
 
     {% if object_list %}
@@ -49,16 +55,14 @@
                                                     <strong>Namn:</strong> {{ registration.user.name }}
                                                 </p>
                                                 <p>
-                                                    <strong>Användartyp:</strong> {{ registration.user.user_type }}
+                                                    <strong>Användartyp:</strong> {{ registration.user.type }}
                                                 </p>
                                                 <p>
                                                     <strong>nØllegrupp:</strong> {{ registration.user.nolle_group }}
                                                 </p>
+                                                {% include "common/elements/registration-price-info.html" with registration=registration only %}
                                                 <p>
-                                                    <strong>Pris:</strong> {{ registration.price }} kr
-                                                </p>
-                                                <p>
-                                                    <strong>Anml. tid:</strong> < datum/tid >
+                                                    <strong>Anml. tid:</strong> {{ registration.created_at }}
                                                 </p>
                                             </div>
                                             <div class="d-flex justify-content-center">

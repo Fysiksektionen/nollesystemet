@@ -1,0 +1,18 @@
+{% if registration %}
+    <p>
+        {% if not registration.pk %}
+            <strong>Pris från:</strong> {{ registration.base_price }} kr.
+        {% else %}
+            {% if registration.on_site_paid_price %}
+                <strong>Pris:</strong> {{ registration.pre_paid_price }}kr (+{{ registration.on_site_paid_price }} kr).<br>
+                <i>Dryck (parantes) betalas på plats.</i>
+            {% else %}
+                <strong>Pris:</strong> {{ registration.pre_paid_price }}kr.
+            {% endif %}
+        {% endif %}
+    </p>
+{% elif price %}
+    <p>
+        <strong>Pris från:</strong> {{ price }} kr.
+    </p>
+{% endif %}

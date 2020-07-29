@@ -1,6 +1,11 @@
 {% extends "fadderiet/base-sites/base-content.html" %}
 
+{% load static %}
+
 {% block title %}
+    {% if site.images.image %}
+        <img class="img-fluid my-3" src="{% get_media_prefix %}{{ site.images.image }}" alt="Välkomnande bild på fadderiet">
+    {% endif %}
     Bra info
 {% endblock %}
 

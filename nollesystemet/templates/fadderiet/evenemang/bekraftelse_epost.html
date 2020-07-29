@@ -61,27 +61,16 @@
             Nedan kan du se vad du fyllde i samt den information som fanns i eventbeskrivningen.
 
             <h3>Betalning</h3>
-            Du ska ha betalat din billjet <u>innan</u> du kommer till evenemanget. Det gör du genom att:
-            <ul>
-                <li>swisha till 123 503 97 21 eller</li>
-                <li>betala via bankgiro på XXXX-XXXX.</li>
-            </ul>
-            Du ska betala <strong>{{ registration.get_full_price }} kr</strong>.
+            {{ mail_betalningsinfo_html|safe|linebreaks }}
+            {% include "common/elements/registration-price-info.html" with registration=registration only %}
 
             <h3>Frågor?</h3>
-
-
-            Har du några frågor kring evenemanget? Mejla ansvarig arrangör på: {{ happening.contact.email }} eller ring på {{ happening.contact.phone_number }}
-
-            <a href="{{ registration_url }}">
-                <div style="background-color: #069080; padding: 12px 15px; margin-top: 2em; width: 100px; text-align: center; border-radius: 10px; color: #ffffff; text-decoration: none;">
-                    Se anmälan
-                </div>
-            </a>
+            Har du några frågor kring evenemanget? Kontakta ansvarig arrangör på: <strong>{{ happening.contact_name }}</strong>{% if happening.contact_email %}, <a href="mailto:{{ happening.contact_email }}">{{ happening.contact_email }}</a>{% endif %}{% if happening.contact_phone %}, {{ happening.contact_phone }}{% endif %}.
         </div>
         <div class="rounded-content-box">
             <h2 style="margin-block-start: 0;">Anmälan: {{ happening }}</h2>
-            {{ happening.description|linebreaks }}
+            {% include "common/elements/happening-information.html" with happening=happening only %}
+            <hr>
             {% for field in form %}
                 <h4>{{ field.label_tag }}</h4>
                 {{ field }}

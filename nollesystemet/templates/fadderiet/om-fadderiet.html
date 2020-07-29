@@ -1,9 +1,75 @@
 {% extends "fadderiet/base-sites/base-content.html" %}
+{% load static %}
 
 {% block title %}
     Om fadderiet
 {% endblock %}
 
 {% block content-indented %}
-    {{ site.texts.body|safe|linebreaks }}
+    {{ site.texts.intro|safe|linebreaks }}
+    <hr>
+    <div class="container-fluid my-3 align-items-center">
+        <h4>Fjädrande Nicole</h4>
+        <div class="d-flex flex-wrap align-items-center">
+            {% if site.images.nicole %}
+                <div class="col-lg-4 my-3 align-items-center">
+                    <img class="img-fluid" src="{% get_media_prefix %}{{ site.images.nicole }}" alt="">
+                </div>
+            {% endif %}
+            <div class="col-lg my-3 align-items-center">
+                <p>
+                    {{ site.texts.nicole|safe|linebreaks }}
+                </p>
+            </div>
+        </div>
+    </div>
+    <hr>
+    <div class="container-fluid my-3 align-items-center">
+        <h4>Fjädrande Frida</h4>
+        <div class="d-flex flex-wrap">
+            {% if site.images.frida %}
+                <div class="col-lg-4 my-3 align-items-center">
+                    <img class="img-fluid" src="{% get_media_prefix %}{{ site.images.frida }}" alt="">
+                </div>
+            {% endif %}
+            <div class="col-lg my-3 align-items-center">
+                <p>
+                    {{ site.texts.frida|safe|linebreaks }}
+                </p>
+            </div>
+        </div>
+    </div>
+    <hr>
+    <div class="container-fluid my-3 align-items-center">
+        <h4>Fjädrande Axel</h4>
+        <div class="d-flex flex-wrap">
+            {% if site.images.axel %}
+                <div class="col-lg-4 my-3 align-items-center">
+                    <img class="img-fluid" src="{% get_media_prefix %}{{ site.images.axel }}" alt="">
+                </div>
+            {% endif %}
+            <div class="col-lg my-3 align-items-center">
+                <p>
+                    {{ site.texts.axel|safe|linebreaks }}
+                </p>
+            </div>
+        </div>
+    </div>
+    <hr>
+    <div class="container-fluid my-3 align-items-center">
+        <h4>Fjädrande Becca</h4>
+        <div class="d-flex flex-wrap">
+            {% if site.images.becca %}
+                <div class="col-lg-4 my-3 align-items-center">
+                    <img class="img-fluid" src="{% get_media_prefix %}{{ site.images.becca }}" alt="">
+                </div>
+            {% endif %}
+            <div class="col-lg my-3 align-items-center">
+                <p>
+                    {{ site.texts.becca|safe|linebreaks }}
+                </p>
+            </div>
+        </div>
+    </div>
+    <hr>
 {% endblock %}

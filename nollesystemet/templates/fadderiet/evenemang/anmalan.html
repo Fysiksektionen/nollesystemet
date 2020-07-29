@@ -7,7 +7,8 @@
 {% endblock %}
 
 {% block content-left-col %}
-    {{ object.happening.description|linebreaks }}
+    {% include "common/elements/happening-information.html" with happening=happening only %}
+    {% include "common/elements/registration-price-info.html" with registration=form.instance only %}
     <hr>
     {% crispy form %}
 {% endblock %}

@@ -1,46 +1,10 @@
 import json
-import io
-from crispy_forms.helper import FormHelper
 from django import forms
-from crispy_forms.layout import Layout, Fieldset, Field, Row, Column, HTML, Submit, Div
+from crispy_forms.layout import Layout, Fieldset, Field, Row, Column, HTML
+from django.urls import reverse_lazy
 
-from .misc import ModifiableModelForm
+from .misc import ModifiableModelForm, ObjectsAdministrationForm
 from nollesystemet.models import NolleFormAnswer, DynamicNolleFormQuestion, DynamicNolleFormQuestionAnswer
-
-class NolleFormFileUploadForm(forms.Form):
-    nolle_form_file = forms.FileField(label='Fil med frågor (*.json)',
-                                      required=True,
-                                      allow_empty_file=False,
-                                      help_text="Här laddar du upp en fil som uppdaterar innehållet i nØlleformuläret.")
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-
-        self.helper = FormHelper()
-        self.helper.layout = Layout(
-            'nolle_form_file',
-            Submit('submit', 'Uppdatera formulär', css_class="col-5"),
-        )
-        self.helper.form_method = 'post'
-
-    def update_nolleForm(self):
-        if self.cleaned_data and 'json_data' in self.cleaned_data:
-            NolleFormAnswer.objects.all().delete()
-            DynamicNolleFormQuestion.set_questions_from_dict(self.cleaned_data['json_data'])
-        else:
-            raise AttributeError("Form is not bound and cleaned. 'json_data' not found.")
-
-    def clean_nolle_form_file(self):
-        try:
-            data = json.load(self.cleaned_data['nolle_form_file'])
-            self.cleaned_data['json_data'] = data
-        except:
-            raise forms.ValidationError("File is not a valid json file.")
-
-        validation_errors = DynamicNolleFormQuestion.validate_questions_from_dict(data)
-        if validation_errors:
-            raise forms.ValidationError("\n".join(validation_errors))
-
 
 class DynamicQuestionCharField(forms.CharField):
     def __init__(self, question, **kwargs):
@@ -56,21 +20,24 @@ class DynamicQuestionCharField(forms.CharField):
 
 
 class NolleFormBaseForm(ModifiableModelForm):
+    can_photograph = forms.TypedChoiceField(
+        coerce=lambda x: x == 'True',
+        choices=((True, 'Ja'), (False, 'Nej')),
+        widget=forms.RadioSelect
+    )
+
     class Meta:
         model = NolleFormAnswer
         fields = '__all__'
 
         field_args = {
             'first_name': {
-                'label': 'Jag heter',
+                'label': 'Jag heter först',
                 'required': True,
             },
             'last_name': {
-                'label': ' ',
+                'label': 'och sen',
                 'required': True,
-            },
-            'nick_name': {
-                'label': 'men jag kallas',
             },
             'age': {
                 'label': 'Min ålder är'
@@ -97,6 +64,11 @@ class NolleFormBaseForm(ModifiableModelForm):
                 'label': 'Matpreferens',
                 'widget_class': forms.widgets.Textarea,
                 'widget_attrs': {'rows': 3},
+                'help_text': "Här kan du fyla i eventuell speckost. Lämna gärna tom om du inte har något att fylla i."
+            },
+            'can_photograph': {
+                'label': "Är det okej att bli fotograferad under mottagningen?",
+                'help_text': ""
             },
             'other': {
                 'label': 'Övrigt',
@@ -170,9 +142,6 @@ class NolleFormBaseForm(ModifiableModelForm):
                     Column(Field('last_name', placeholder="Efternamn"))
                 ),
                 Row(
-                    Column(Field('nick_name', placeholder="Smeknamn")), Column(),
-                ),
-                Row(
                     Column(Field('age', placeholder="Ålder")),
                     Column(Field('age_feeling', placeholder='"Egentlig ålder"'))
                 ),
@@ -193,6 +162,7 @@ class NolleFormBaseForm(ModifiableModelForm):
             ),
             Fieldset(
                 "Information till evenemang",
+                'can_photograph',
                 'food_preference'
             ),
             Fieldset(
@@ -209,3 +179,36 @@ class NolleFormBaseForm(ModifiableModelForm):
 
     def _get_dynamic_questions_layout(self, question):
         return Field('q_' + str(question.pk))
+
+
+class NolleFormAdministrationForm(ObjectsAdministrationForm):
+    model = NolleFormAnswer
+    verbose_name_singular = "Fomulärsvar"
+    verbose_name_plural = "Fomulärsvar"
+
+    can_create = False
+    can_delete = True
+    can_upload = True
+    can_download = True
+
+    form_tag = True
+
+    download_url = reverse_lazy('fohseriet:nolleenkaten:ladda-ned-svar')
+
+    file_type = 'json'
+
+    def read_and_verify_file_content(self):
+        file = self.files.get('upload_objects_file')
+        if file:
+            data = None
+            try:
+                data = json.load(file)
+            except:
+                raise forms.ValidationError("File is not a valid json file.")
+
+            validation_errors = DynamicNolleFormQuestion.validate_questions_from_dict(data)
+            if validation_errors:
+                raise forms.ValidationError("\n".join(validation_errors))
+            return data
+        else:
+            return None

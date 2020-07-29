@@ -7,22 +7,23 @@ from django.views.generic import TemplateView, FormView, UpdateView
 
 import nollesystemet.mixins as mixins
 import nollesystemet.models as models
-from nollesystemet.forms import NolleFormBaseForm, NolleFormFileUploadForm
-from .misc import DownloadView
+from nollesystemet.forms import NolleFormBaseForm, NolleFormAdministrationForm, ValidationError
+from .misc import DownloadView, ObjectsAdministrationListView
 
 
-class NolleFormManageView(mixins.FohserietMixin, FormView):
-    login_required = True
-    permission_required = 'nollesystemet.edit_nolleForm'
+class NolleFormManageView(mixins.FohserietMixin, ObjectsAdministrationListView):
+    model = models.NolleFormAnswer
+    form_class = NolleFormAdministrationForm
 
     template_name = "fohseriet/nolleenkaten/index.html"
 
-    form_class = NolleFormFileUploadForm
+    login_required = True
+    permission_required = 'nollesystemet.edit_nolleForm'
+
     success_url = reverse_lazy('fohseriet:nolleenkaten:index')
 
     def form_valid(self, form):
         models.NolleFormAnswer.objects.all().delete()
-        form.update_nolleForm()
         return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
@@ -30,6 +31,21 @@ class NolleFormManageView(mixins.FohserietMixin, FormView):
         context['preview_form'] = NolleFormBaseForm(editable=True, form_tag=False)
         context['num_of_answers'] = models.NolleFormAnswer.objects.all().count()
         return context
+
+    def handle_uploaded_file(self, file_data):
+        if file_data:
+            models.NolleFormAnswer.objects.all().delete()
+            try:
+                models.DynamicNolleFormQuestion.set_questions_from_dict(file_data)
+            except SyntaxError as e:
+                self.file_upload_success = False
+                self.file_upload_information = "Error thrown: %s" % e.msg
+            else:
+                self.file_upload_success = True
+                self.file_upload_information = "Uppladdning lyckades!"
+        else:
+            self.file_upload_success = False
+            self.file_upload_information = "File data is empty"
 
 class NolleFormView(mixins.FadderietMixin, UpdateView):
     site_name = 'Fadderiet: nØlleenkäten'
@@ -66,41 +82,62 @@ class NolleFormDownloadView(mixins.FohserietMixin, DownloadView):
     permission_required = 'nollesystemet:edit_nolleForm'
     file_name = "Svar_nolleenkaten"
 
-    @staticmethod
-    def get_field_value(answer, field_name):
-        form = NolleFormBaseForm(instance=answer)
-        if hasattr(form.fields[field_name], 'choices'):
-            choices = form.fields[field_name].choices
-            initial = form.initial[field_name] if isinstance(form.initial[field_name], list) else [
-                form.initial[field_name]]
+    empty_form = NolleFormBaseForm()
+    non_dynamic_fields = [val for val in NolleFormBaseForm().fields if not val[:2] == "q_"]
 
-            def get_choices(initial_value):
-                return [choice[1] for choice in choices if choice[0] == str(initial_value)]
-            return [get_choices(initial_value)[0] for initial_value in initial if get_choices(initial_value) != []]
+    @staticmethod
+    def get_static_model_value(answer: models.NolleFormAnswer, field_name):
+        if hasattr(answer, field_name): # Non-dynamic question
+            return getattr(answer, field_name)
         else:
-            return form.initial[field_name]
+            return ""
+
+    @staticmethod
+    def get_dynamic_value(answer: models.NolleFormAnswer, dynamic_question):
+        try:
+            ans = models.DynamicNolleFormQuestionAnswer.objects.filter(
+                question=dynamic_question,
+                nolleformanswer__user=answer.user
+            )
+        except models.DynamicNolleFormQuestionAnswer.DoesNotExist:
+            return ""
+        else:
+            if dynamic_question.question_type == models.DynamicNolleFormQuestion.QuestionType.TEXT:
+                if ans.count() == 1:
+                    return ans[0].value
+                else:
+                    return ""
+            elif dynamic_question.question_type == models.DynamicNolleFormQuestion.QuestionType.RADIO:
+                if ans.count() == 1:
+                    if ans[0].group:
+                        return ans[0].group
+                    else:
+                        return ans[0].value
+                else:
+                    return ""
+            else:
+                try:
+                    return ", ".join([a.group if a.group else a.value for a in ans.all()])
+                except:
+                    return ""
 
     def setup(self, request, *args, **kwargs):
         super().setup(request, *args, **kwargs)
 
-        form = NolleFormBaseForm()
         self.csv_data_structure: Any = [
             {
-                'title': form.fields[field_name].label,
-                'function': self.get_field_value,
+                'title': self.empty_form.fields[field_name].label,
+                'function': self.get_static_model_value,
                 'args': (field_name,)
-            }
-            for field_name in form.fields
+            } for field_name in self.non_dynamic_fields
+        ]
+        self.csv_data_structure += [
+            {
+                'title': question.title,
+                'function': self.get_dynamic_value,
+                'args': (question,)
+            } for question in models.DynamicNolleFormQuestion.objects.all()
         ]
 
     def get_queryset(self):
         return models.NolleFormAnswer.objects.all()
-
-
-class NolleFormDeleteView(mixins.FohserietMixin, FormView):
-    login_required = True
-    permission_required = 'nollesystemet:edit_nolleForm'
-
-    def get(self, request, *args, **kwargs):
-        models.NolleFormAnswer.objects.all().delete()
-        return HttpResponseRedirect(reverse('fohseriet:nolleenkaten:index'))

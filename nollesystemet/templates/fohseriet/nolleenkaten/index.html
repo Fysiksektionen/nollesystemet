@@ -12,24 +12,19 @@
         Antal svar: {{ num_of_answers }}
     </h5>
 
-    <hr style="height: 2px; border-width: 0; color: gray; background-color: gray;">
-    <h2>Administrera:</h2>
-
-    <div class="d-flex flex-column p-4">
-        <div class="d-flex">
-            <a href="{% url "fohseriet:nolleenkaten:ladda-ned-svar" %}" class="btn btn-success col flex-grow-1" download>
-                Ladda ned
-                <i class="fa fa-download" aria-hidden="true"></i>
-            </a>
-            <div class="col flex-grow-0"></div>
-            <a href="{% url "fohseriet:nolleenkaten:radera-svar" %}" class="btn btn-danger col flex-grow-1">
-                Radera alla svar
-                <i class="fa fa-trash" aria-hidden="true"></i>
-            </a>
+    {% if form %}
+        <hr style="height: 2px; border-width: 0; color: gray; background-color: gray;">
+        <h2>Administrera:</h2>
+        <div class="d-flex flex-column p-4">
+            {% if file_upload_success is not None %}
+                <div class="alert alert-{% if file_upload_success %}success{% else %}danger{% endif %}" role="alert">
+                    {{ file_upload_information|linebreaks }}
+                </div>
+            {% endif %}
+            {% crispy form %}
         </div>
-        <div class="my-3"></div>
-        {% crispy form %}
-    </div>
+    {% endif %}
+
 
     <hr style="height: 2px; border-width: 0; color: gray; background-color: gray;">
     <h2>Förhandsgranska:</h2>

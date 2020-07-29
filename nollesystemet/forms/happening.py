@@ -1,10 +1,11 @@
+from crispy_forms.helper import FormHelper
 from django import forms
 from django.forms.widgets import Textarea, DateTimeInput
 
-from crispy_forms.layout import Layout, Fieldset, Field, Row, Column, HTML, Div
+from crispy_forms.layout import Layout, Fieldset, Field, Row, Column, HTML, Div, Submit
 
 import nollesystemet.models as models
-from .misc import ModifiableModelForm, custom_inlineformset_factory
+from .misc import ModifiableModelForm, custom_inlineformset_factory, BootstrapDateTimePickerInput
 
 class HappeningForm(ModifiableModelForm):
     takes_registration = forms.TypedChoiceField(
@@ -13,6 +14,12 @@ class HappeningForm(ModifiableModelForm):
         widget=forms.RadioSelect
     )
     food = forms.TypedChoiceField(
+        coerce=lambda x: x == 'True',
+        choices=((True, 'Ja'), (False, 'Nej')),
+        widget=forms.RadioSelect
+    )
+
+    include_drink_in_price = forms.TypedChoiceField(
         coerce=lambda x: x == 'True',
         choices=((True, 'Ja'), (False, 'Nej')),
         widget=forms.RadioSelect
@@ -33,11 +40,13 @@ class HappeningForm(ModifiableModelForm):
             },
             'start_time': {
                 'label': 'Start-tid',
-                'widget_class': DateTimeInput,
+                'widget_class': BootstrapDateTimePickerInput,
+                'input_formats': ['%d/%m/%Y %H:%M'],
             },
             'end_time': {
                 'label': 'Slut-tid',
-                'widget_class': DateTimeInput,
+                'widget_class': BootstrapDateTimePickerInput,
+                'input_formats': ['%d/%m/%Y %H:%M'],
             },
             'food': {
                 'label': 'Serverar mat',
@@ -60,6 +69,22 @@ class HappeningForm(ModifiableModelForm):
             },
             'status': {
                 'label': "Evenemangsstatus",
+            },
+            'contact_name': {
+                'label': "Namn",
+            },
+            'contact_phone': {
+                'label': "Telefonnummer",
+                'required': False
+            },
+            'contact_email': {
+                'label': "E-post",
+            },
+            'location': {
+                'label': 'Plats',
+            },
+            'include_drink_in_price': {
+                'label': 'Inkludera dryckespris i förbetalning',
             }
         }
 
@@ -88,11 +113,23 @@ class HappeningForm(ModifiableModelForm):
                      Row(
                          Column(Field('start_time')),
                          Column(Field('end_time'))
-                     )
+                     ),
+                     Field('location'),
+                     ),
+            Fieldset("Kontaktinformation",
+                     Row(Column(
+                         'contact_name',
+                         'contact_email',
+                         'contact_phone',
+                         css_class="col-6"
+                     ))
                      ),
             Fieldset("Mat",
                      Div(Field('food'), css_class="reg-info"),
-                     )
+                     ),
+            Fieldset("Ekonomi",
+                     Div(Field('include_drink_in_price'), css_class="reg-info"),
+                     ),
         )
         return helper
 
@@ -118,3 +155,57 @@ ExtraOptionFormset = custom_inlineformset_factory(
     ['Tillval', 'Pris'],
     extra=1,
 )
+
+
+class HappeningPaidAndPresenceForm(forms.Form):
+    def __init__(self, *args, happening=None, **kwargs):
+        if not happening:
+            raise Exception("No happening was given to form.")
+
+        super().__init__(*args, **kwargs)
+
+        self.happening = happening
+        self.registrations = models.Registration.objects.filter(happening=self.happening).order_by('user__first_name')
+        for i, registration in enumerate(self.registrations):
+            self.fields['%d_paid' % i] = forms.BooleanField(required=False,
+                                                            initial=registration.paid,
+                                                            label='Betalat')
+            self.fields['%d_attended' % i] = forms.BooleanField(required=False,
+                                                                initial=registration.attended,
+                                                                label='Närvarar')
+
+        self.helper = FormHelper()
+        self.helper.form_tag = True
+        self.helper.form_method = 'post'
+        self.helper.layout = Layout(
+            Row(
+                Column(HTML('<h5>Användare</h5>')),
+                Column(HTML('Pris')),
+                Column(HTML('Dryck' if self.happening.drinkoption_set.count() > 0 else '')),
+                Column(HTML('Har betalat')),
+                Column(HTML('Har deltagit'))
+            ),
+            *[Row(
+                Column(HTML('<h5>%s</h5>' % str(registration.user))),
+                Column(HTML(self.price_HTML(registration))),
+                Column(HTML(registration.drink_option.drink if registration.drink_option else '')),
+                Column('%d_paid' % i),
+                Column('%d_attended' % i)
+            ) for i, registration in enumerate(self.registrations)],
+            HTML("""<button type="submit" name="submit" class="btn btn-primary" id="submit-id-submit">
+                    Spara <i class="fa fa-save" aria-hidden="true"></i>
+                    </button>""")
+        )
+
+    def update_registrations(self):
+        for i, registration in enumerate(self.registrations):
+            registration.paid = self.cleaned_data['%d_paid' % i]
+            registration.attended = self.cleaned_data['%d_attended' % i]
+            registration.save()
+
+    def price_HTML(self, registration):
+        if registration.on_site_paid_price:
+            return '%s kr (+%s kr)' % (str(registration.pre_paid_price), str(registration.on_site_paid_price))
+        else:
+            return '%s kr' % str(registration.pre_paid_price)
+

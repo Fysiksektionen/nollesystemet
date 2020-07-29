@@ -3,6 +3,7 @@ import csv
 import urllib
 from abc import abstractmethod
 from typing import Any, Callable
+import string
 
 from django.core.exceptions import ImproperlyConfigured
 from django.urls import reverse, reverse_lazy
@@ -22,6 +23,20 @@ class FadderietMenuView(mixins.FadderietMixin, TemplateView):
 
 class FohserietMenuView(mixins.FohserietMixin, TemplateView):
     pass
+
+class FadderietNollegrupperView(mixins.FadderietMixin, TemplateView):
+    template_name = "fadderiet/nollegrupperna.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'nolle_groups': [
+                {
+                    'group': group
+                } for group in NolleGroup.objects.all()
+            ]
+        })
+        return context
 
 class AccessDeniedView(TemplateView):
     def get_context_data(self, **kwargs):
@@ -259,12 +274,13 @@ class MultipleObjectsUpdateView(UpdateView):
 class DownloadView(View):
     csv_data_structure: Any = []
     file_name = None
+    delimiter = ';'
 
     def get_file_name(self):
-        return ""
+        raise NotImplementedError()
 
     def get_queryset(self):
-        return []
+        raise NotImplementedError()
 
     def get(self, request, *args, **kwargs):
         if self.file_name is None:
@@ -272,7 +288,7 @@ class DownloadView(View):
 
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename="' + self.file_name + '.csv"'
-        writer = csv.writer(response)
+        writer = csv.writer(response, delimiter=self.delimiter)
 
         # Write column titles
         writer.writerow([column['title'] for column in self.csv_data_structure])
@@ -332,16 +348,6 @@ class ObjectsAdministrationListView(FormMixin, ListView):
         self.object_list = self.get_queryset()
         self.file_upload_success = kwargs.get('file_upload_success', None)
         self.file_upload_information = kwargs.get('file_upload_information', None)
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs.update({
-            'can_create': True,
-            'can_delete': True,
-            'can_upload': True,
-            'can_download': True
-        })
-        return kwargs
 
     def post(self, request, *args, **kwargs):
         """

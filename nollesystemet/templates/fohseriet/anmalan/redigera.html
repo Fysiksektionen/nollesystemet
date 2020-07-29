@@ -11,7 +11,8 @@
 
     <h3>Anmälan till {{ object.happening.name }} för {{ object.user }}</h3>
 
-    {{ object.happening.description }}
+    {% include "common/elements/happening-information.html" with happening=object.happening only %}
+    {% include "common/elements/registration-price-info.html" with registration=object only %}
     <hr>
     {% crispy form %}
 {% endblock %}

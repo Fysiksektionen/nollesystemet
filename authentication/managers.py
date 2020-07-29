@@ -21,11 +21,14 @@ class AuthUserManager(BaseUserManager):
 
         user = self.model(username=username, **extra_fields)
 
-        user.set_password(password)
-        user.save(using=self._db)
+        if password:
+            user.set_password(password)
+        else:
+            user.set_unusable_password()
+        user.save()
 
-        user_profile = apps.get_model(utils.get_setting('USER_PROFILE_MODEL'))()
-        user_profile.save()
+
+
 
         return user
 

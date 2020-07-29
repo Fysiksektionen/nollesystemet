@@ -49,18 +49,21 @@ fadderiet_urls = ([
     path('bra-info/', views.FadderietMenuView.as_view(
         template_name="fadderiet/bra-info.html",
         site_name="Fadderiet: Bra info",
-        site_texts=['body']),
+        site_texts=['body'],
+        site_images=['image']),
          name='bra-info'),
     path('om-fadderiet/', views.FadderietMenuView.as_view(
         template_name="fadderiet/om-fadderiet.html",
         site_name="Fadderiet: Om fadderiet",
-        site_texts=['body']
+        site_texts=['intro', 'nicole', 'frida', 'axel', 'becca'],
+        site_images=['nicole', 'frida', 'axel', 'becca']
     ), name='om-fadderiet'),
     path('kontakt/', views.FadderietMenuView.as_view(
         template_name="fadderiet/kontakt.html",
         site_name="Fadderiet: Kontakt",
         site_texts=['body']
     ), name='kontakt'),
+    path('nollegrupperna/', views.FadderietNollegrupperView.as_view(), name='nollegrupperna'),
     path('saknar-rattigheter/', views.misc.AccessDeniedViewFadderiet.as_view(), name='saknar-rattigheter'),
 
     path('nolleenkaten/', views.NolleFormView.as_view(), name='nolleenkaten'),

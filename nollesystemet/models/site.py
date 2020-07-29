@@ -1,15 +1,11 @@
 from keyword import iskeyword
-import logging
-
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-logger = logging.getLogger('nollesystemet.models')
-
 class Site(models.Model):
     """ Model representing a site an its content such as texts and images. """
-    name = models.CharField(max_length=200, unique=True)
+    name = models.CharField(max_length=200, unique=True, primary_key=False)
 
     @staticmethod
     def get_site_or_none(site_name):

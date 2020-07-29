@@ -1,0 +1,15 @@
+<p>
+    {{ happening.description }}
+</p>
+<p>
+    <strong>Start:</strong> {{ happening.start_time|date:'l'|capfirst }} {{ happening.start_time|date:'j F' }}, {{ happening.start_time|time:'H:i' }}
+</p>
+<p>
+    <strong>Slut:</strong> {{ happening.end_time|date:'l'|capfirst }} {{ happening.end_time|date:'j F' }}, {{ happening.end_time|time:'H:i' }}
+</p>
+<p>
+    <strong>Plats:</strong> {{ happening.location }}
+</p>
+<p>
+    <strong>Kontaktperson: </strong> {{ happening.contact_name }}{% if happening.contact_email %}, <a href="mailto:{{ happening.contact_email }}">{{ happening.contact_email }}</a>{% endif %}{% if happening.contact_phone %}, {{ happening.contact_phone }}{% endif %}
+</p>

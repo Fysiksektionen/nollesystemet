@@ -203,9 +203,7 @@ class SiteMixin:
     site_texts = []
     site_images = []
 
-    def get_context_data(self, **kwargs):
-        super_context = super().get_context_data(**kwargs)
-
+    def get_site_context(self):
         if self.site_name:
             site_context = {}
             site = models.Site.get_populated_site(self.site_name, self.site_texts, self.site_images, True)
@@ -217,11 +215,15 @@ class SiteMixin:
                 'texts': {key_text_pair[0]: key_text_pair[1] for key_text_pair in texts_list},
                 'images': {key_image_pair[0]: key_image_pair[1] for key_image_pair in images_list}
             })
+            return site_context
+        else:
+            return {}
 
-            super_context.update({
-                'site': site_context
-            })
-
+    def get_context_data(self, **kwargs):
+        super_context = super().get_context_data(**kwargs)
+        super_context.update({
+            'site': self.get_site_context()
+        })
         return super_context
 
 

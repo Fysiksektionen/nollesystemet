@@ -41,7 +41,7 @@ class RegistrationForm(ModifiableModelForm):
             },
         }
 
-    def __init__(self, happening=None, user=None, observing_user=None, **kwargs):
+    def __init__(self, happening=None, user=None, observing_user=None, extra_email_context=None, **kwargs):
         if 'instance' not in kwargs:
             if happening is None or user is None:
                 kwargs['editable'] = False
@@ -51,8 +51,14 @@ class RegistrationForm(ModifiableModelForm):
         super().__init__(is_editable_args=(happening, user, observing_user), **kwargs)
 
         self.happening = self.instance.happening if not self.is_new else happening
+        self.instance.happening = self.happening
+
         self.user = self.instance.user if not self.is_new else user
+        self.instance.user = self.user
+
         self.observing_user = observing_user
+        self.extra_email_context = extra_email_context
+
 
         self.update_field_querysets()
         self.update_nonused_fields()
@@ -130,12 +136,15 @@ class RegistrationForm(ModifiableModelForm):
         plaintext = get_template('fadderiet/evenemang/bekraftelse_epost.txt')
         html = get_template('fadderiet/evenemang/bekraftelse_epost.html')
 
+        if not self.extra_email_context:
+            self.extra_email_context = {}
+
         context = {
             'registration': self.instance,
             'happening': self.instance.happening,
             'user_profile': self.instance.user,
             'form': RegistrationForm(instance=self.instance),
-            'registration_url': reverse('fadderiet:evenemang:anmalan', kwargs={'pk': self.instance.pk})
+            **self.extra_email_context
         }
 
         from_email, to = None, str(self.instance.user.email)

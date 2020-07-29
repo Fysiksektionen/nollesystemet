@@ -1,5 +1,5 @@
 {
-    "order": ["schema", "bra-info", "om-fadderiet", "evenemang", "nolleenkaten", "kontakt", "fohseriet", "mina-sidor:profil", ["logga-in", "logga-ut"]],
+    "order": ["schema", "bra-info", "om-fadderiet", "nollegrupperna", "evenemang", "nolleenkaten", "kontakt", "fohseriet", "mina-sidor:profil", ["logga-in", "logga-ut"]],
     "menu_items": {
         "index": {
             "name": "Hem",
@@ -19,6 +19,11 @@
         "om-fadderiet": {
             "name": "Om fadderiet",
             "url_name": "fadderiet:om-fadderiet",
+            "align": "left"
+        },
+        "nollegrupperna": {
+            "name": "nØllegrupperna",
+            "url_name": "fadderiet:nollegrupperna",
             "align": "left"
         },
         "evenemang": {

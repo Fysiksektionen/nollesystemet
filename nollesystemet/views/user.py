@@ -1,3 +1,5 @@
+import sys
+
 from django.apps import apps
 from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME
@@ -55,9 +57,9 @@ class UsersListView(mixins.FohserietMixin, ObjectsAdministrationListView):
         querryset = [user for user in querryset if user.can_see(self.request.user.profile)]
         return [{
             'user': user,
-            'can_edit': user.can_edit(self.request.user.profile),
+            'can_see': user.can_see_registrations(self.request.user.profile),
             'can_see_registrations': user.can_see_registrations(self.request.user.profile),
-            'form': forms.ProfileUpdateForm(instance=user, editable=False)
+            'can_see_nolleForm': user.can_see_nolleForm_answer(self.request.user.profile),
         } for user in querryset]
 
     def get_context_data(self, **kwargs):
@@ -84,6 +86,12 @@ class UsersListView(mixins.FohserietMixin, ObjectsAdministrationListView):
                 errors.append("Fel vid skapande av användare '%s': %s" % (
                     user_info['first_name'] + ' ' + user_info['last_name'], ", ".join(e.messages)
                 ))
+            except:
+                errors.append("Fel vid skapande av användare '%s': %s" % (
+                    user_info['first_name'] + ' ' + user_info['last_name'], "Unexpected error:" + str(sys.exc_info()[0])
+                ))
+
+
 
         self.file_upload_information = ""
         self.file_upload_success = True
@@ -113,9 +121,9 @@ class UserUpdateView(mixins.FohserietMixin, ModifiableModelFormView):
         if not hasattr(self, 'object'):
             self.object = self.get_object()
         if self.object:
-            return self.object.can_edit(self.request.user.profile)
+            return self.object.can_see(self.request.user.profile)
         else:
-            return False
+            return models.UserProfile.can_create(self.request.user.profile)
 
     def get_is_editable_args(self):
         return [self.request.user.profile]
@@ -138,7 +146,7 @@ class UserRegistrationsListView(mixins.FohserietMixin, ListView):
         super(UserRegistrationsListView, self).setup(request, *args, **kwargs)
         try:
             self.user_of_registrations = models.UserProfile.objects.get(pk=self.kwargs['pk'])
-        except:
+        except models.UserProfile.DoesNotExist:
             self.user_of_registrations = None
 
     def test_func(self):
@@ -149,7 +157,7 @@ class UserRegistrationsListView(mixins.FohserietMixin, ListView):
 
     def get_queryset(self):
         try:
-            self.queryset = models.Registration.objects.filter(user=models.UserProfile.objects.get(pk=self.kwargs['pk']))
+            self.queryset = models.Registration.objects.filter(user=self.user_of_registrations)
             return [
                 {
                     'registration': registration,
@@ -158,7 +166,7 @@ class UserRegistrationsListView(mixins.FohserietMixin, ListView):
                 } for registration in super().get_queryset()
             ]
         except:
-            return None
+            return []
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -166,3 +174,47 @@ class UserRegistrationsListView(mixins.FohserietMixin, ListView):
             'user_of_registrations': self.user_of_registrations,
         })
         return context
+
+class UserNolleFormView(mixins.FohserietMixin, ModifiableModelFormView):
+    model = models.NolleFormAnswer
+    form_class = forms.NolleFormBaseForm
+
+    editable = False
+    form_tag = False
+
+    template_name = 'fohseriet/anvandare/nolleenkaten.html'
+
+    login_required = True
+
+    def test_func(self):
+        if self.user_of_answer:
+            return self.user_of_answer.can_see(self.request.user.profile)
+        else:
+            return False
+
+    def setup(self, request, *args, **kwargs):
+        super().setup(request, *args, **kwargs)
+        try:
+            self.user_of_answer = models.UserProfile.objects.get(pk=self.kwargs['pk'])
+        except models.UserProfile.DoesNotExist:
+            self.user_of_answer = None
+
+        try:
+            if self.user_of_answer:
+                self.nolle_form_answer = models.NolleFormAnswer.objects.get(user=self.user_of_answer)
+            else:
+                raise models.NolleFormAnswer.DoesNotExist()
+        except models.NolleFormAnswer.DoesNotExist:
+            self.nolle_form_answer = None
+
+        self.back_url = reverse('fohseriet:anvandare:index')
+
+    def get_object(self, queryset=None):
+        return self.nolle_form_answer
+
+    def get(self, request, *args, **kwargs):
+        if self.nolle_form_answer:
+            return super().get(request, *args, **kwargs)
+        else:
+            return self.handle_no_permission()
+
