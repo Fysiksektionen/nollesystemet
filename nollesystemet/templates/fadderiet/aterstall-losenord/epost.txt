@@ -3,10 +3,7 @@
 
 Följ länken nedan för att återställa ditt lösenord.
 
-{{ protocol }}://{{ domain }}{% url 'fadderiet:aterstall-losenord:lank' uidb64=uid token=token %}
-
-Ditt användarnamn är {{ user.get_username }}.
-
+{% load tags %}{% get_setting "DOMAIN_URL" %}{% url 'fadderiet:aterstall-losenord:lank' uidb64=uid token=token %}
 
 ------------------------------------
 Du får detta mejl i egenskap av användare av Fysiksektionens anmälningssystem <i>nØllesystemet</i>. Samtliga personuppgifter lagras enligt vår personuppgiftspolicy som återfinns här: <a href="https://f.kth.se/personuppgifter">Personuppgiftspolicy</a>.

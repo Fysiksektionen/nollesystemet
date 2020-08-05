@@ -3,7 +3,7 @@ Anmälan till {{ happening }}
 Tack för att fyllt i anmälan till {{ happening }}.
 
 Betalning:
-{{ mail_betalningsinfo_text|safe|linebreaks }}
+{{ payment_info_plain_text|linebreaks }}
 {% include "common/elements/registration-price-info.html" with registration=registration only %}
 
 Frågor?

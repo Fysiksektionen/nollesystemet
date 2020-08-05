@@ -1,5 +1,7 @@
 {% extends "fadderiet/base-sites/base-content.html" %}
 
+{% load tags %}
+
 {% load static %}
 {% block title %}
     Denna sida finns inte
@@ -7,9 +9,9 @@
 
 {% block content-indented %}
     <p>
-        <a href="#">{{ request.build_absolute_uri }}</a> existerar inte.
+        <a href="#">{% get_setting "DOMAIN_URL" %}{{ request.path }}</a> existerar inte.
     </p>
     <p>
-        Känns det helt fel? Mejla <a href="mailto:nollesystemet@f.kth.se">nollesystemet@f.kth.se</a> för att få hjälp.
+        {% include "common/elements/fel_mejla_admin.html" %}
     </p>
 {% endblock %}

@@ -1,5 +1,5 @@
 {
-    "order": ["hantera-event", "hantera-anvandare", "nolleenkaten","fadderiet", ["logga-in", "logga-ut"]],
+    "order": ["hantera-event", "hantera-anvandare", "nolleenkaten", "admin", "fadderiet", ["logga-in", "logga-ut"]],
     "menu_items": {
         "index": {
             "name": "Start",
@@ -48,10 +48,22 @@
             "url_name": "fadderiet:index",
             "align": "left"
         },
+        "admin": {
+            "name": "Admin-sidan",
+            "url_name": "nolle-admin:index",
+            "align": "left",
+            "conditions": {
+                "permissions": {
+                    "any": [
+                        "nollesystemet.edit_system"
+                    ]
+                }
+            }
+        },
         "logga-ut": {
             "url_name": "fohseriet:logga-ut",
             "align": "right",
-            "template_content": "Logga ut ({{ request.user }})",
+            "template_content": "Logga ut ({{ request.user.profile.first_name }})",
             "conditions": {
                 "logged-in": "True"
             }

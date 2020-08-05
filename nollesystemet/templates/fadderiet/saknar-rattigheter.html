@@ -10,6 +10,6 @@
         Du har inte rätt att besöka sidan <a href="{{ denied_site }}">{{ denied_site }}</a>. Försök att logga in med ett annat konto.
     </p>
     <p>
-        Känns det helt fel? Mejla <a href="mailto:nollesystemet@f.kth.se">nollesystemet@f.kth.se</a> för att få hjälp.
+        {% include "common/elements/fel_mejla_admin.html" %}
     </p>
 {% endblock %}

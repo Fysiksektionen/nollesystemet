@@ -23,8 +23,8 @@ class AuthUser(AbstractUser):
 
     def clean(self):
         super().clean()
-        kth_id_validator = validators.RegexValidator(regex="^u1.*$", message="You can not start a username with 'u1'.", inverse_match=True)
-        kth_id_validator(getattr(self, self.USERNAME_FIELD))
+        # kth_id_validator = validators.RegexValidator(regex="^u1.*$", message="You can not start a username with 'u1'.", inverse_match=True)
+        # kth_id_validator(getattr(self, self.USERNAME_FIELD))
 
     def save(self, *args, **kwargs):
         self.full_clean()

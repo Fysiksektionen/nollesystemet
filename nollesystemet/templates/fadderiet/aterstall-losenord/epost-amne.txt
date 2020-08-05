@@ -1,1 +1,1 @@
-Åerställ lösenord {{ user.get_username }}
+Återställ lösenord {{ user.profile.name }}

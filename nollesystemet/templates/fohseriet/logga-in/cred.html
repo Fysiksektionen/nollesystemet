@@ -6,10 +6,10 @@
 {% block centered-content %}
     <div class="d-flex flex-column col-xl-4 col-lg-5 col-md-6 col-sm-8">
         {% crispy form %}
-
-        <div class="text-center">
+        <hr class="border-primary w-75" style="border: 1px solid;">
+        <div class="text-center my-3">
             <p>
-                Har du glömt ditt användarnamn eller lösenord? <br>
+                Har du glömt ditt lösenord? <br>
                 Klicka här för att återställa det: <br/> <a href="{{ reset_password_url }}" class="">Återställ lösenord</a>
             </p>
         </div>

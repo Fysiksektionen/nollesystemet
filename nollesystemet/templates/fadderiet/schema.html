@@ -6,8 +6,25 @@
     Schema
 {% endblock %}
 
+{% block extrastyle %}
+    {{ block.super }}
+    <style>
+        .schema-paragraph h5 { margin-top: 2rem; font-weight: bold; }
+    </style>
+{% endblock %}
+
 {% block content-indented %}
     {{ site.texts.intro|safe|linebreaks }}
-    <img class="img-fluid p-3" src="{% get_media_prefix %}{{ site.images.schema }}" alt="Schema för mottagningen">
+    <a href="{% get_media_prefix %}{{ site.images.schema }}">
+        <img class="img-fluid p-3" src="{% get_media_prefix %}{{ site.images.schema }}" alt="Schema för mottagningen">
+    </a>
+    <hr>
+    {% for para in site.lists.forklaringar %}
+        <div class="container my-5 schema-paragraph">
+            <h3 class="mt-3 mb-1">{{ para.title }}</h3>
+            {{ para.text|safe }}
+        </div>
+        <hr>
+    {% endfor %}
 {% endblock %}
 

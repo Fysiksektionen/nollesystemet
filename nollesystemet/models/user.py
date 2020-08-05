@@ -1,4 +1,5 @@
 import sys
+import logging
 
 from django.apps import apps
 from django.conf import settings
@@ -11,16 +12,22 @@ from django.utils.translation import gettext_lazy as _
 
 import authentication.models as auth_models
 from nollesystemet.managers import UserProfileManager
+from .misc import validate_no_emoji, IntegerChoices
+
 
 class NolleGroup(models.Model):
     """
     Model for "nØllegrupper". Also contains extra information on the group itself.
     """
     name = models.CharField(verbose_name="Namn", max_length=150, unique=True, null=False, blank=False)
-    description = models.TextField(max_length=1000, blank=True)
+    description = models.TextField(blank=True, validators=[validate_no_emoji])
     logo = models.ImageField(null=True, blank=True)
     schedule = models.ImageField(null=True, blank=True)
     forfadders = models.ManyToManyField('UserProfile', blank=True, related_name='responsible_nolle_group')
+
+    class Meta:
+        verbose_name = 'nØllegrupp'
+        verbose_name_plural = 'nØllegrupper'
 
     def __str__(self):
         return str(self.name)
@@ -47,7 +54,7 @@ class UserProfile(auth_models.UserProfile):
     like Happening and Registration.
     """
 
-    class UserType(models.IntegerChoices):
+    class UserType(IntegerChoices):
         """
         Enum type for choices of UserProfile.user_type
         """
@@ -57,7 +64,7 @@ class UserProfile(auth_models.UserProfile):
         EXTERNAL = 4, _("Extern")
         ADMIN = 5, _("Administrativ")
 
-    class Program(models.IntegerChoices):
+    class Program(IntegerChoices):
         """
         Enum type for choices of UserProfile.user_type
         """
@@ -72,12 +79,9 @@ class UserProfile(auth_models.UserProfile):
 
     program = models.PositiveSmallIntegerField(blank=False, null=False, choices=Program.choices, default=Program.NONE)
 
-    kth_id = models.CharField(max_length=20, blank=True)
-    phone_number = models.CharField(max_length=15, blank=True)
-    food_preference = models.CharField(max_length=150, blank=True)
-    contact_name = models.CharField(max_length=100, blank=True)
-    contact_relation = models.CharField(max_length=100, blank=True)
-    contact_phone_number = models.CharField(max_length=15, blank=True)
+    kth_id = models.CharField(max_length=20, blank=True, validators=[validate_no_emoji])
+    phone_number = models.CharField(max_length=30, blank=True, validators=[validate_no_emoji])
+    food_preference = models.CharField(max_length=150, blank=True, validators=[validate_no_emoji])
 
     objects = UserProfileManager()
 
@@ -85,11 +89,18 @@ class UserProfile(auth_models.UserProfile):
         permissions = [
             ("see_users", "Can see any user profile"),
             ("edit_users", "Can edit any user profile"),
+            ("edit_system", "Can edit the system itself"),
         ]
+        verbose_name = 'Användarprofil'
+        verbose_name_plural = 'Användarprofiler'
 
     @property
     def type(self):
         return UserProfile.UserType(self.user_type).label
+
+    @property
+    def program_name(self):
+        return UserProfile.Program(self.program).label
 
     def has_perm(self, codename):
         """ :return Boolean indicating if user has specified permission. """
@@ -189,10 +200,12 @@ class UserProfile(auth_models.UserProfile):
 
         return user_profile
 
+
 @receiver(models.signals.post_delete, sender=UserProfile)
-def delete_file(sender, instance, *args, **kwargs):
-    """ Deletes auth_user of deleted UserProfile """
-    if instance.auth_user:
-        apps.get_model(settings.AUTH_USER_MODEL).objects.get(username=instance.auth_user.username).delete()
-
-
+def delete_auth_user(sender, instance, *args, **kwargs):
+    """ Deletes image files on `post_delete` """
+    try:
+        if instance.auth_user:
+            instance.auth_user.delete()
+    except:
+        pass

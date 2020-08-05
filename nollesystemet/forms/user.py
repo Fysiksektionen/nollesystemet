@@ -1,5 +1,6 @@
 import csv
 from io import StringIO
+from collections.abc import Iterable
 
 import django.forms as forms
 from django.apps import apps
@@ -7,7 +8,7 @@ from django.conf import settings
 
 from crispy_forms.bootstrap import UneditableField
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Fieldset, Field, Row, Column, HTML
+from crispy_forms.layout import Layout, Fieldset, Field, Row, Column, HTML, Submit
 from django.contrib.auth import password_validation
 from django.contrib.auth.forms import PasswordResetForm as AuthPasswordResetForm
 from django.core.exceptions import ValidationError
@@ -16,7 +17,6 @@ from django.db.models import Q
 
 from nollesystemet.models import UserProfile, NolleGroup
 from .misc import ExtendedMetaModelForm, ModifiableModelForm, MultipleModelsModifiableForm, CsvFileAdministrationForm
-
 
 class PasswordResetForm(AuthPasswordResetForm):
     def get_users(self, email):
@@ -65,26 +65,34 @@ class AuthUserUpdateForm(ModifiableModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        if self.is_new:
-            self.fields['username'].disabled = False
-            self.fields['username'].required = True
-            self.fields.pop('confirm_email_address')
-        else:
-            self.fields.pop('password')
-            self.fields.pop('confirm_password')
 
-        self.helper = FormHelper()
-        self.helper.layout = Layout(
+        if self.is_editable and self.instance.pk is not None and self.instance.can_set_password:
+            self.helper.layout.fields[0].append(
+                HTML("<a href='{{ change_password_url }}' class='btn btn-primary'>Byt lösenord</a>")
+            )
+
+    def get_form_helper(self, form_tag=True):
+        helper = super().get_form_helper(form_tag)
+        helper.layout = Layout(
             Fieldset("Inloggningsdetaljer",
                      Row(Column(Field('username'), css_class="col-6")),
                      Row(Column(Field('email')), Column(Field('confirm_email_address', placeholder="Bekräfta epostadress"))),
                      Row(Column(Field('password')), Column(Field('confirm_password')))
                      )
         )
-        if self.is_editable and self.instance.pk is not None and self.instance.can_set_password:
-            self.helper.layout.fields[0].append(
-                HTML("<a href='{{ change_password_url }}' class='btn btn-primary'>Byt lösenord</a>")
-            )
+        return helper
+
+    def add_fields(self, **kwargs):
+        if self.is_new:
+            self.fields['username'].disabled = False
+            self.fields['username'].required = True
+            self.fields.pop('confirm_email_address')
+            self.exclude_fields.append('confirm_email_address')
+        else:
+            self.fields.pop('password')
+            self.fields.pop('confirm_password')
+            self.exclude_fields.append('password')
+            self.exclude_fields.append('confirm_password')
 
     def get_is_editable(self, observing_user=None):
         if observing_user is not None:
@@ -151,8 +159,7 @@ class ProfileUpdateForm(MultipleModelsModifiableForm):
 
     class Meta:
         model = UserProfile
-        fields = ['first_name', 'last_name', 'kth_id', 'phone_number', 'food_preference', 'contact_name',
-                  'contact_relation', 'contact_phone_number', 'nolle_group', 'user_type']
+        fields = ['first_name', 'last_name', 'kth_id', 'phone_number', 'food_preference', 'nolle_group', 'user_type', 'program']
 
         field_args = {
             'first_name': {
@@ -164,15 +171,6 @@ class ProfileUpdateForm(MultipleModelsModifiableForm):
                 'required': True,
             },
             'phone_number': {
-                'label': 'Mobilnummer',
-            },
-            'contact_name': {
-                'label': 'Namn',
-            },
-            'contact_relation': {
-                'label': 'Relation',
-            },
-            'contact_phone_number': {
                 'label': 'Mobilnummer',
             },
             'food_preference': {
@@ -190,26 +188,10 @@ class ProfileUpdateForm(MultipleModelsModifiableForm):
             'user_type': {
                 'label': 'Användartyp',
             },
+            'program': {
+                'label': 'Program',
+            },
         }
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-
-        if self.instance.user_type == UserProfile.UserType.NOLLAN:
-            self.fields.pop('kth_id')
-            self.helper.layout.fields[1].fields[1].fields[1].pop(0)
-
-        if 'exclude_fields' in kwargs and kwargs['exclude_fields'] is not None:
-            for field_name in ['nolle_group', 'user_type', 'groups']:
-                if field_name not in kwargs['exclude_fields']:
-                    break
-            else:
-                self.helper.layout.fields.pop(4)
-            for field_name in ['username', 'email', 'confirm_email_address']:
-                if field_name not in kwargs['exclude_fields']:
-                    break
-            else:
-                self.helper.layout.fields.pop(0)
 
     def get_is_editable(self, observing_user=None):
         if observing_user is not None:
@@ -229,24 +211,43 @@ class ProfileUpdateForm(MultipleModelsModifiableForm):
                          Column(Field('kth_id', placeholder="KTH-id"))
                          )
                      ),
-            Fieldset("Anhöriginformation",
-                     Row(Column(Field('contact_name', placeholder="Namn"), css_class='col-md-4'),
-                         Column(Field('contact_relation', placeholder="Relation"), css_class='col-md-4'),
-                         Column(Field('contact_phone_number', placeholder="Mobilnummer"), css_class='col-md-4')
-                         ),
-                     ),
             Fieldset("Information till evenemang",
-                     'food_preference'
+                     Field('food_preference')
                      ),
             Fieldset("Grupptillhörigheter",
-                         Row(
-                             Column(Field('nolle_group')),
-                             Column(Field('user_type')),
-                             Column(Field('groups'))
-                         )
-                     )
+                 Row(
+                     Column(Field('nolle_group')),
+                     Column(Field('user_type')),
+                 ),
+                 Row(
+                     Column(Field('program')),
+                     Column(Field('groups'))
+                 )
+                 ),
         )
         return helper
+
+    def late_pop_layout_elements(self):
+        if self.exclude_fields and isinstance(self.exclude_fields, Iterable):
+            if {'nolle_group', 'user_type', 'groups', 'program'}.issubset(self.exclude_fields):
+                self.helper.layout.pop(-1)
+
+    def append_submits(self):
+        """ Appends the correct configuration of submit buttons to self.helper.layout. """
+        if self.is_editable:
+            if self.helper.form_tag:
+                self.helper.layout.fields.append(
+                    Row(
+                        Column(HTML(self.submit_button), css_class="d-flex justify-content-start"),
+                        Column(HTML("""<button type="submit" name="resetpassword" class="btn btn-danger" id="submit-id-resetpassword">
+                                       """ + "Återställ lösenord" + """ <i class="fa fa-refresh" aria-hidden="true"></i>
+                                   </button>""" if (self.is_deletable and self.instance.pk and
+                                                   self.instance.auth_user.has_usable_password()) else ""),
+                               css_class="d-flex justify-content-center"),
+                        Column(HTML(self.delete_button if self.is_deletable else ""),
+                               css_class="d-flex justify-content-end")
+                    )
+                )
 
     def get_extra_instances(self):
         auth_user = None
@@ -258,7 +259,6 @@ class ProfileUpdateForm(MultipleModelsModifiableForm):
             auth_user = apps.get_model(settings.AUTH_USER_MODEL)()
             self.instance.auth_user = auth_user
         return [auth_user, auth_user]
-
 
 class UserAdministrationForm(CsvFileAdministrationForm):
     model = UserProfile
@@ -280,9 +280,8 @@ class UserAdministrationForm(CsvFileAdministrationForm):
     object_columns = [('nolle_group', NolleGroup, True)]
 
     can_create = True
-    can_delete = True
     can_upload = True
     can_download = False
 
     def delete_all(self):
-        UserProfile.objects.filter(~Q(user_type=UserProfile.UserType.ADMIN)).delete()
+        apps.get_model(settings.AUTH_USER_MODEL).objects.filter(~Q(profile__user_type=UserProfile.UserType.ADMIN)).delete()

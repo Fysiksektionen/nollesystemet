@@ -1,0 +1,47 @@
+{% extends 'fohseriet/base-sites/base-content.html' %}
+{% load crispy_forms_tags %}
+{% load crispy_forms_filters %}
+
+{% block title %}
+    Bekräfta anmälningar: {{ happening }}
+{% endblock %}
+
+{% block content-indented %}
+    {% include "common/elements/back-button.html" %}
+    {% if success %}
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            Alla bekräftelsemeddelanden skickades!
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    {% elif success is False %}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            Några meddelanden kunde inte skickas:
+            {% for user in failed_users %}{{ user.name }}, {% endfor %}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    {% endif %}
+    {% crispy form %}
+{% endblock %}
+
+{% block extrapostscript %}
+    {{ block.super }}
+    <script type="text/javascript">
+        let formSubmitted = false;
+
+        $( "button[name='submit']" ).click(function(){
+            formSubmitted = true;
+        });
+
+        window.onbeforeunload = function( event ) {
+            if (!formSubmitted) {
+                return 'Har du sparat informationen? Alla ändringar kommer kastas annars.';
+            } else {
+                event.preventDefault();
+            }
+        };
+    </script>
+{% endblock %}

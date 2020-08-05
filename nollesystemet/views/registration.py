@@ -23,9 +23,6 @@ class RegistrationView(mixins.FadderietMixin, ModifiableModelFormView):
     deletable = False
     form_tag = True
 
-    site_name = "Fadderiet: Registrera dig (skicka bekräftelsemail)"
-    site_texts = ['mail_betalningsinfo_html', 'mail_betalningsinfo_text']
-
     def setup(self, request, *args, **kwargs):
         super().setup(request, *args, **kwargs)
         try:
@@ -64,16 +61,14 @@ class RegistrationView(mixins.FadderietMixin, ModifiableModelFormView):
 
         kwargs.update({
             'observing_user': self.observing_user,
-            'extra_email_context': {
-                **mixins.SiteMixin.get_site_context(self)['texts']
-            }
         })
         return kwargs
 
     def get_initial(self):
+        initial = super().get_initial()
         if self.request.user.profile.food_preference:
-            self.initial.update({'food_preference': self.request.user.profile.food_preference})
-        return super().get_initial()
+            initial['food_preference'] = self.request.user.profile.food_preference
+        return initial
 
     def get_object(self, queryset=None):
         return self.registration
@@ -119,3 +114,25 @@ class RegistrationUpdateView(mixins.FohserietMixin, ModifiableModelFormView):
             'observing_user': self.request.user.profile,
         })
         return kwargs
+
+    def post(self, request, *args, **kwargs):
+        """ Alter behaviour if delete is pressed. """
+        self.object = self.soft_object_reload()
+        if 'confirmmail' in request.POST:
+            return self.send_mail(self.object)
+        else:
+            return super().post(request, *args, **kwargs)
+
+    def send_mail(self, registration):
+        mail_failed_message = ""
+        try:
+            mail_failed = not registration.send_confirmation_email()
+        except Exception as e:
+            mail_failed = True
+            mail_failed_message = str(e)
+        if mail_failed and mail_failed_message == "":
+            mail_failed_message = "Okänt fel. Kontakta administratör för hjälp."
+
+        return self.render_to_response(
+            self.get_context_data(mail_failed=mail_failed, mail_failed_message=mail_failed_message)
+        )

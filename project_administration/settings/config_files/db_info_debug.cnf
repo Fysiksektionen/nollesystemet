@@ -1,5 +1,0 @@
-[client]
-database = nollesystemet_db
-user = ejemyr
-password = password
-default-character-set = utf8

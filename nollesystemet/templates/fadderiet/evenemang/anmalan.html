@@ -11,4 +11,12 @@
     {% include "common/elements/registration-price-info.html" with registration=form.instance only %}
     <hr>
     {% crispy form %}
+    {% if not form.instance.pk %}
+        <p>
+            <i>
+                Genom att skicka iväg ditt svar godkänner du att vi behandlar dessa uppgifter enligt Fysiksektionens
+                personuppgiftspolicy som återfinns här: <a href="https://f.kth.se/personuppgifter">Personuppgiftspolicy</a>.
+            </i>
+        </p>
+    {% endif %}
 {% endblock %}

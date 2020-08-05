@@ -1,22 +1,27 @@
 from django.conf import settings
+from django.core.mail import EmailMultiAlternatives
 from django.db import models
+from django.template.loader import get_template
 
+from .misc import validate_no_emoji
 from .happening import Happening, DrinkOption, ExtraOption
 from .user import UserProfile
+from .settings import HappeningInfo
 
 class Registration(models.Model):
     """ Model representing a registration of a user to a happening. Contains information on options and alike. """
 
     happening = models.ForeignKey(Happening, on_delete=models.CASCADE, editable=False)
     user = models.ForeignKey(UserProfile, on_delete=models.CASCADE, editable=False)
-    food_preference = models.CharField(max_length=150)
+    food_preference = models.CharField(max_length=150, validators=[validate_no_emoji])
     drink_option = models.ForeignKey(DrinkOption, blank=True, null=True, on_delete=models.SET_NULL)
     extra_option = models.ManyToManyField(ExtraOption, blank=True)
-    other = models.CharField(max_length=300, blank=True)
+    other = models.CharField(max_length=300, blank=True, validators=[validate_no_emoji])
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    confirmed = models.BooleanField(editable=False, default=False)
     paid = models.BooleanField(editable=False, default=False)
     attended = models.BooleanField(editable=False, default=False)
 
@@ -25,6 +30,8 @@ class Registration(models.Model):
             ("see_registration", "Can see any registration"),
             ("edit_registration", "Can edit any registration"),
         ]
+        verbose_name = 'Anmälan'
+        verbose_name_plural = 'Anmälningar'
 
     def __str__(self):
         try:
@@ -94,4 +101,38 @@ class Registration(models.Model):
     @property
     def all_extra_options_str(self):
         return [str(extra_option) for extra_option in self.extra_option.all()]
+
+    def send_confirmation_email(self):
+        """ (!) Only call this post save to db. """
+        self.save()
+
+        subject_template = get_template('fadderiet/evenemang/bekraftelse_epost_amne.txt')
+        plaintext = get_template('fadderiet/evenemang/bekraftelse_epost.txt')
+        html = get_template('fadderiet/evenemang/bekraftelse_epost.html')
+
+        happening_info = HappeningInfo.load()
+
+        from nollesystemet.forms import RegistrationForm
+        context = {
+            'registration': self,
+            'happening': self.happening,
+            'user_profile': self.user,
+            'form': RegistrationForm(instance=self),
+            'payment_info_html': happening_info.payment_info_html,
+            'payment_info_plain_text': happening_info.payment_info_plain_text,
+        }
+
+        from_email, to = None, str(self.user.email)
+        subject = subject_template.render(context)
+        text_content = plaintext.render(context)
+        html_content = html.render(context)
+        msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
+        msg.attach_alternative(html_content, "text/html")
+        res = msg.send()
+        if res == 1:
+            self.confirmed = True
+            self.save()
+            return True
+        else:
+            return False
 

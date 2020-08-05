@@ -5,7 +5,8 @@ from django.forms.widgets import Textarea, DateTimeInput
 from crispy_forms.layout import Layout, Fieldset, Field, Row, Column, HTML, Div, Submit
 
 import nollesystemet.models as models
-from .misc import ModifiableModelForm, custom_inlineformset_factory, BootstrapDateTimePickerInput
+from .misc import ModifiableModelForm, custom_inlineformset_factory
+from .widgets import BootstrapDateTimePickerInput
 
 class HappeningForm(ModifiableModelForm):
     takes_registration = forms.TypedChoiceField(
@@ -57,7 +58,6 @@ class HappeningForm(ModifiableModelForm):
             },
             'user_types': {
                 'label': 'Välkomna grupper',
-                'widget_class': forms.CheckboxSelectMultiple,
             },
             'nolle_groups': {
                 'label': 'Välkomna nØllegrupper',
@@ -85,12 +85,27 @@ class HappeningForm(ModifiableModelForm):
             },
             'include_drink_in_price': {
                 'label': 'Inkludera dryckespris i förbetalning',
+            },
+            'exclusive_access': {
+                'label': "Exlusiv access",
+                'help_text': "Här kan du fylla i folk som ska få access att gå på ett evenemang trots att de inte "
+                             "uppfyller grupp-kraven."
+            },
+            'automatic_confirmation': {
+                'label': "Automatiskt bekräftade grupper",
+                'help_text': 'Vilka användargrupper som automatiskt får bekräftelsemejl.'
             }
+
         }
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.initial.setdefault('user_types', [models.UserProfile.UserType.NOLLAN, models.UserProfile.UserType.FADDER])
+        self.initial.setdefault('user_types',
+                                [models.UserProfile.UserType.NOLLAN, models.UserProfile.UserType.FADDER]
+                                )
+        self.initial.setdefault('automatic_confirmation',
+                                [models.UserProfile.UserType.NOLLAN, models.UserProfile.UserType.FADDER]
+                                )
         self.initial.setdefault('nolle_groups', models.NolleGroup.objects.all())
 
     def get_form_helper(self, form_tag=True):
@@ -104,7 +119,13 @@ class HappeningForm(ModifiableModelForm):
                          Column(Field('nolle_groups')),
                          css_class="reg-info"
                      ),
+                     Row(
+                         Column(Field('automatic_confirmation')),
+                         Column(),
+                         css_class="reg-info"
+                     ),
                      Field('editors', data_live_search="true", css_class="bootstrap-select"),
+                     Field('exclusive_access', data_live_search="true", css_class="bootstrap-select"),
                      ),
             HTML("<hr>"),
             Fieldset("Evenemangsinformation",
@@ -186,7 +207,7 @@ class HappeningPaidAndPresenceForm(forms.Form):
                 Column(HTML('Har deltagit'))
             ),
             *[Row(
-                Column(HTML('<h5>%s</h5>' % str(registration.user))),
+                Column(HTML('%s' % str(registration.user))),
                 Column(HTML(self.price_HTML(registration))),
                 Column(HTML(registration.drink_option.drink if registration.drink_option else '')),
                 Column('%d_paid' % i),
@@ -208,4 +229,51 @@ class HappeningPaidAndPresenceForm(forms.Form):
             return '%s kr (+%s kr)' % (str(registration.pre_paid_price), str(registration.on_site_paid_price))
         else:
             return '%s kr' % str(registration.pre_paid_price)
+
+
+class HappeningConfirmForm(forms.Form):
+    def __init__(self, *args, happening=None, **kwargs):
+        if not happening:
+            raise Exception("No happening was given to form.")
+
+        super().__init__(*args, **kwargs)
+
+        self.happening = happening
+        self.registrations = models.Registration.objects.filter(
+            happening=self.happening, confirmed=False
+        ).order_by('user__first_name')
+        for i, registration in enumerate(self.registrations):
+            self.fields['%d_confirmed' % i] = forms.BooleanField(required=False,
+                                                                 initial=registration.confirmed,
+                                                                 label='',
+                                                                 disabled=registration.confirmed)
+
+        self.helper = FormHelper()
+        self.helper.form_tag = True
+        self.helper.form_method = 'post'
+        self.helper.layout = Layout(
+            Row(
+                Column(HTML('<h5>Användare</h5>')),
+                Column(HTML('Bekräfta anmälan'))
+            ),
+            *[Row(
+                Column(HTML('%s' % str(registration.user))),
+                Column('%d_confirmed' % i),
+            ) for i, registration in enumerate(self.registrations)],
+            HTML("""<button type="submit" name="submit" class="btn btn-primary" id="submit-id-submit">
+                    Spara <i class="fa fa-save" aria-hidden="true"></i>
+                    </button>""")
+        )
+
+    def update_confirmed(self):
+        failed_users = []
+        for i, registration in enumerate(self.registrations):
+            if not registration.confirmed:
+                if self.cleaned_data['%d_confirmed' % i]:
+                    try:
+                        if not registration.send_confirmation_email():
+                            failed_users.append(registration.user)
+                    except Exception as e:
+                        failed_users.append(registration.user)
+        return len(failed_users) == 0, failed_users
 

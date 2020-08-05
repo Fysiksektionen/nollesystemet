@@ -18,7 +18,6 @@ class ButtonFileWidget(FileInput):
     def get_context(self, name, value, attrs):
         context = super().get_context(name, value, attrs)
         context['widget']['button_classes'] = self.button_classes
-        print(context)
         return context
 
 class BootstrapDateTimePickerInput(DateTimeInput):

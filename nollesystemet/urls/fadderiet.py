@@ -1,14 +1,22 @@
-from django.urls import include, path
+from django.conf import settings
+from django.urls import include, path, reverse_lazy
 
 import authentication.views as auth_views
 import nollesystemet.views as views
 
 login_urls = ([
     path('', views.LoginViewFadderiet.as_view(), name='index'),
-    path('nollan/', views.LoginCredentialsViewFadderiet.as_view(), name='nollan'),
-    path('fadder/', views.custom_redirect_view, kwargs={'redirect_name': 'fadderiet:logga-in:cas'},
-         name='fadder'),
-    path('cas/', auth_views.login.LoginCas.as_view(), name='cas'),
+    path('nollan/', views.LoginCredentialsViewFadderiet.as_view(
+        template_name='fadderiet/logga-in/nollan.html'
+    ), name='nollan'),
+    path('fadder/', views.LoginCredentialsViewFadderiet.as_view(
+        template_name='fadderiet/logga-in/fadder.html'
+    ), name='fadder'),
+    path('cas/', auth_views.login.LoginCas.as_view(
+        default_redirect_url=reverse_lazy('fadderiet:index'),
+        default_fail_url=reverse_lazy('fadderiet:logga-in:fadder'),
+        service_root_url=settings.DOMAIN_URL + "/fadderiet/logga-in/cas/"
+    ), name='cas'),
 ], 'logga-in')
 
 password_reset_urls = ([
@@ -44,19 +52,22 @@ fadderiet_urls = ([
         template_name='fadderiet/schema.html',
         site_name="Fadderiet: Schema",
         site_texts=['intro'],
-        site_images=['schema']),
+        site_images=['schema'],
+        site_paragraph_lists=['forklaringar']),
          name='schema'),
     path('bra-info/', views.FadderietMenuView.as_view(
         template_name="fadderiet/bra-info.html",
         site_name="Fadderiet: Bra info",
-        site_texts=['body'],
-        site_images=['image']),
+        site_texts=['intro', 'vad_ar_vad_intro', 'infor_skolstart_intro', 'schemat_intro', 'tips_om_bostad_intro', 'corona_intro'],
+        site_images=['image'],
+        site_paragraph_lists=['vad_ar_vad', 'infor_skolstart', 'schemat', 'tips_om_bostad', 'aktuellt', 'corona']
+    ),
          name='bra-info'),
     path('om-fadderiet/', views.FadderietMenuView.as_view(
         template_name="fadderiet/om-fadderiet.html",
         site_name="Fadderiet: Om fadderiet",
-        site_texts=['intro', 'nicole', 'frida', 'axel', 'becca'],
-        site_images=['nicole', 'frida', 'axel', 'becca']
+        site_texts=['intro'],
+        site_paragraph_lists=['fadderiet']
     ), name='om-fadderiet'),
     path('kontakt/', views.FadderietMenuView.as_view(
         template_name="fadderiet/kontakt.html",

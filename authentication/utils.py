@@ -49,7 +49,7 @@ def get_redirect_url(request, use_referer=False, default_url=None):
     return redirect_url
 
 
-def get_service_url(request, redirect_url=None):
+def get_service_url(request, redirect_url=None, service_url=None):
     """
     Returns the service URL to provide to the CAS
     server for the provided request.
@@ -57,10 +57,11 @@ def get_service_url(request, redirect_url=None):
     Accepts an optional redirect_url, which defaults
     to the value of get_redirect_url(request).
     """
-    service_url = urlunparse(
-            ('https' if request.is_secure() else 'http', request.get_host(),
-            request.path, '', '', ''),
-    )
+    if not service_url:
+        service_url = urlunparse(
+                ('https' if request.is_secure() else 'http', request.get_host(),
+                request.path, '', '', ''),
+        )
     query_params = request.GET.copy()
     query_params[REDIRECT_FIELD_NAME] = redirect_url or get_redirect_url(request)
     # The CAS server may have added the ticket as an extra query

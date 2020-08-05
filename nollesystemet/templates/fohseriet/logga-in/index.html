@@ -7,7 +7,20 @@
     <div class="d-flex flex-column col-xl-4 col-lg-6 col-md-8">
         <div class="errornote">
             {% if request.GET.failed %}
-                Inloggning misslyckades!
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <p>
+                        Inloggning misslyckades!
+                    </p>
+                    <p>
+                        Ditt KTH-konto har ingen användare i nØllesystemet.
+                    </p>
+                    <p>
+                        {% include "common/elements/fel_mejla_admin.html" with link_no_style=True %}
+                    </p>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times</span>
+                    </button>
+                </div>
             {% endif %}
         </div>
 

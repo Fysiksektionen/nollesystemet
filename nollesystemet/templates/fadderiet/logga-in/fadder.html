@@ -1,0 +1,38 @@
+{% extends "fadderiet/base-sites/centered-col-4.html" %}
+{% load crispy_forms_tags %}
+
+{% block title-centered %}Välkommen fadder!{% endblock %}
+
+{% block centered-content-col-4 %}
+    {% crispy form %}
+    <hr class="border-background-gray w-75" style="border: 1px solid;">
+    <div class="text-center my-3">
+        {% if request.GET.failed %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <p>
+                    Inloggning misslyckades!
+                </p>
+                <p>
+                    Ditt KTH-konto har ingen användare i nØllesystemet.
+                </p>
+                <p>
+                    {% include "common/elements/fel_mejla_admin.html" with link_no_style=True %}
+                </p>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times</span>
+                </button>
+            </div>
+        {% endif %}
+        <p>
+            <a href="{% url "fadderiet:logga-in:cas" %}">Logga in via KTH</a><br>
+            Denna funktion finns endast för speciella användare. Har inte en administratör sagt att du kan göra detta kommer det inte att funka.
+        </p>
+    </div>
+    <hr class="border-background-gray w-75" style="border: 1px solid;">
+    <div class="text-center my-3">
+        <p>
+            Har du glömt ditt lösenord? <br>
+            Klicka här för att återställa det: <br/> <a href="{{ reset_password_url }}" class="">Återställ lösenord</a>
+        </p>
+    </div>
+{% endblock %}

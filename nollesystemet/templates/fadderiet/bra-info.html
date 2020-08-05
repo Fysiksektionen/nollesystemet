@@ -6,9 +6,134 @@
     {% if site.images.image %}
         <img class="img-fluid my-3" src="{% get_media_prefix %}{{ site.images.image }}" alt="Välkomnande bild på fadderiet">
     {% endif %}
-    Bra info
+    <div class="my-3">
+        Bra info
+    </div>
 {% endblock %}
 
 {% block content-indented %}
-    {{ site.texts.body|safe|linebreaks }}
+    <ul class="nav nav-tabs nav-fill flex-column flex-md-row" id="tab-bar" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link active" id="fadderiet-tippsar-tab" data-toggle="tab" href="#fadderiet-tippsar" role="tab" aria-controls="fadderiet-tippsar" aria-selected="true">
+                <h5><b>Fadderiet tipsar</b></h5>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="aktuellt-tab" data-toggle="tab" href="#aktuellt" role="tab" aria-controls="aktuellt" aria-selected="true">
+                <h5><b>Aktuellt</b></h5>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="corona-tab" data-toggle="tab" href="#corona" role="tab" aria-controls="corona" aria-selected="true">
+                <h5><b>Om Coronaviruset</b></h5>
+            </a>
+        </li>
+    </ul>
+    <div class="my-3">
+        <hr>
+    </div>
+
+    <div class="tab-content bg-background-gray-10 p-4" id="tab-content">
+        <div class="tab-pane fade show active" id="fadderiet-tippsar" role="tabpanel" aria-labelledby="fadderiet-tippsar-tab">
+            <h4 class="mt-3 mb-1 font-weight-bold">Vad är vad?</h4>
+            <p>
+                {{ site.texts.vad_ar_vad_intro|safe|linebreaks }}
+            </p>
+            {% for para in site.lists.vad_ar_vad %}
+                <div class="d-flex flex-wrap align-items-center">
+                    <div class="col-lg my-3 align-items-center">
+                        <h5>{{ para.title }}</h5>
+                        <p>
+                            {{ para.text|safe|linebreaks }}
+                        </p>
+                    </div>
+                </div>
+            {% endfor %}
+
+            <hr>
+
+            <h4 class="mt-3 mb-1 font-weight-bold">Inför skolstart</h4>
+            <p>
+                {{ site.texts.infor_skolstart_intro|safe|linebreaks }}
+            </p>
+            {% for para in site.lists.infor_skolstart %}
+                <div class="d-flex flex-wrap align-items-center">
+                    <div class="col-lg my-3 align-items-center">
+                        <h5>{{ para.title }}</h5>
+                        <p>
+                            {{ para.text|safe|linebreaks }}
+                        </p>
+                    </div>
+                </div>
+            {% endfor %}
+
+            <hr>
+
+            <h4 class="mt-3 mb-1 font-weight-bold">Schemat</h4>
+            <p>
+                {{ site.texts.schemat_intro|safe|linebreaks }}
+            </p>
+            {% for para in site.lists.schemat %}
+                <div class="d-flex flex-wrap align-items-center">
+                    <div class="col-lg my-3 align-items-center">
+                        <h5>{{ para.title }}</h5>
+                        <p>
+                            {{ para.text|safe|linebreaks }}
+                        </p>
+                    </div>
+                </div>
+            {% endfor %}
+
+            <hr>
+
+            <h4 class="mt-3 mb-1 font-weight-bold">Tips om bostad</h4>
+            <p>
+                {{ site.texts.tips_om_bostad_intro|safe|linebreaks }}
+            </p>
+            {% for para in site.lists.tips_om_bostad %}
+                <div class="d-flex flex-wrap align-items-center">
+                    <div class="col-lg my-3 align-items-center">
+                        <h5>{{ para.title }}</h5>
+                        <p>
+                            {{ para.text|safe|linebreaks }}
+                        </p>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        <div class="tab-pane fade" id="aktuellt" role="tabpanel" aria-labelledby="aktuellt-tab">
+            {% for para in site.lists.aktuellt %}
+                <h4 class="mt-3 mb-1 font-weight-bold">{{ para.title }}</h4>
+                <div class="d-flex flex-wrap align-items-center">
+                    {% if para.image %}
+                        <div class="col-lg-4 my-3 align-items-center">
+                            <img class="img-fluid" src="{% get_media_prefix %}{{ para.image }}" alt="">
+                        </div>
+                    {% endif %}
+                    <div class="col-lg my-3 align-items-center">
+                        <p>
+                            {{ para.text|safe|linebreaks }}
+                        </p>
+                    </div>
+                </div>
+                <hr>
+            {% endfor %}
+        </div>
+        <div class="tab-pane fade" id="corona" role="tabpanel" aria-labelledby="corona-tab">
+            <p>
+                {{ site.texts.corona|safe|linebreaks }}
+            </p>
+            {% for para in site.lists.corona %}
+                <h4 class="mt-3 mb-1 font-weight-bold">{{ para.title }}</h4>
+                <div class="d-flex flex-wrap align-items-center">
+                    <div class="col-lg my-3 align-items-center">
+                        <p>
+                            {{ para.text|safe }}
+                        </p>
+                    </div>
+                </div>
+                <hr>
+            {% endfor %}
+        </div>
+    </div>
 {% endblock %}

@@ -9,15 +9,22 @@
         {{ site.texts.intro|safe|linebreaks }}
     </p>
     <hr>
-    <div class="d-flex flex-column">
-        <div class="my-2"><i class="fa fa-money my-auto" aria-hidden="true" style="color: green;"></i> Betalat</div>
-        <div class="my-2"><i class="fa fa-money my-auto" aria-hidden="true" style="color: red;"></i> Ej betald</div>
-    </div>
-    <p>
-        {{ site.texts.betalningsinfo|safe|linebreaks }}
-    </p>
-    <hr>
     {% if object_list %}
+        <div class="d-flex flex-column">
+            <p>
+                <i class="fa fa-money" aria-hidden="true" style="color: green;"></i> Betalat
+            </p>
+            <p>
+                <i class="fa fa-money" aria-hidden="true" style="color: red;"></i> Ej betalat
+            </p>
+            <p>
+                <i>Det kan ta upp till ett dygn för din betalning att registreras i systemet. Det görs manuellt.</i>
+            </p>
+            <p>
+                {{ site.texts.betalningsinfo|safe|linebreaks }}
+            </p>
+        </div>
+        <hr>
         {% for list_item in object_list %}
             {% with list_item.happening as happening %}
                 <div class="card my-2">
@@ -29,7 +36,7 @@
                             <div class="d-flex align-content-end">
                                 <div class="d-flex justify-content-center" style="width: 2rem;">
                                     {% if list_item.is_registered %}
-                                        <i class="fa fa-money my-auto px-2" aria-hidden="true" style="color: {% if list_item.paid %}green{% else %}red{% endif %};"></i>
+                                        <i class="fa fa-money my-auto px-2" aria-hidden="true" style="color: {% if list_item.registration.paid %}green{% else %}red{% endif %};"></i>
                                         <i class="fa fa-user-check my-auto" aria-hidden="true" style="color: green;"></i>
                                     {% else %}
                                         {% if happening.takes_registration %}
@@ -55,7 +62,7 @@
                                 {% include "common/elements/registration-price-info.html" with registration=list_item.registration price=list_item.base_price only %}
                             </div>
                             <div class="d-flex flex-column align-content-md-end col-md-4">
-                                <div class="d-flex justify-content-md-end">
+                                <div class="d-flex justify-content-md-end justify-content-center">
                                     {% if list_item.is_registered %}
                                         <a class="btn btn-primary px-3" href="{% url 'fadderiet:evenemang:anmalan' happening.pk %}">
                                             Se din anmälan
@@ -94,6 +101,6 @@
             {% endwith %}
         {% endfor %}
     {% else %}
-        Tyvärr finns inga öppna evenemang för dig just nu. Känns det helt fel? Mejla <a href="mailto:nollesystemet@f.kth.se">nollesystemet@f.kth.se</a> för att få hjälp.
+        Tyvärr finns inga öppna evenemang för dig just nu. {% include "common/elements/fel_mejla_admin.html" %}
     {% endif %}
 {% endblock %}

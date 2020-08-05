@@ -1,4 +1,6 @@
-from django.urls import path, include
+from django.conf import settings
+from django.urls import path, include, reverse_lazy
+from django.contrib import admin
 
 import authentication.views as auth_views
 import nollesystemet.views as views
@@ -6,7 +8,11 @@ import nollesystemet.views as views
 login_urls = ([
     path('', views.LoginViewFohseriet.as_view(), name='index'),
     path('cred/', views.LoginCredentialsViewFohseriet.as_view(), name='cred'),
-    path('cas/', auth_views.login.LoginCas.as_view(), name='cas'),
+    path('cas/', auth_views.login.LoginCas.as_view(
+        default_redirect_url=reverse_lazy('fohseriet:index'),
+        default_fail_url=reverse_lazy('fohseriet:logga-in:index'),
+        service_root_url=settings.DOMAIN_URL + "/fohseriet/logga-in/cas/"
+    ), name='cas'),
 ], 'logga-in')
 
 happening_urls = ([
@@ -16,6 +22,7 @@ happening_urls = ([
     path('skapa/', views.HappeningUpdateView.as_view(), name='skapa'),
     path('<int:pk>/ladda-ned-anmalda/', views.HappeningDownloadView.as_view(), name='ladda-ned-anmalda'),
     path('<int:pk>/uppdatera-betalningar/', views.HappeningPaidAndPresenceView.as_view(), name='uppdatera-betalningar'),
+    path('<int:pk>/bekrafta-anmalda/', views.HappeningConfirmView.as_view(), name='bekrafta-anmalda'),
 ], 'evenemang')
 
 user_urls = ([

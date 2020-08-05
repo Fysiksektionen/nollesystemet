@@ -67,7 +67,7 @@
             "name": "Logga ut",
             "url_name": "fadderiet:logga-ut",
             "align": "right",
-            "template_content": "Logga ut ({{ request.user }})",
+            "template_content": "Logga ut ({{ request.user.profile.first_name }})",
             "conditions": {
                 "logged-in": "True"
             }
@@ -77,12 +77,13 @@
             "url_name": "fohseriet:index",
             "align": "left",
             "conditions": {
+                "logged-in": "True",
                 "methods": {
                     "any": [
-                        "nollesystemet.Happening.can_create",
-                        "nollesystemet.Happening.can_see_some_registered",
+                        "nollesystemet.UserProfile.can_create",
                         "nollesystemet.UserProfile.can_see_some_user",
-                        "nollesystemet.UserProfile.can_edit_some_user"
+                        "nollesystemet.Happening.can_create",
+                        "nollesystemet.Happening.user_is_editor"
                     ]
                 }
             }

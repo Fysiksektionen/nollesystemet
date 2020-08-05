@@ -10,25 +10,27 @@ from .models import AuthUser
 
 
 class UserCredentialsBackend(ModelBackend):
-    """ Backend defining authentication for users using username and password. """
+    """ Backend defining authentication for users using username and password or email and password. """
 
-    backend_name = 'CRED'
+    def authenticate(self, request, email=None, password=None, **kwargs):
+        """If given email and password, try to authenticate. Else, do default auth."""
+        if email is None:
+            email = kwargs.get(AuthUser.EMAIL_FIELD)
+        if email is None or password is None:
+            return super().authenticate(request=request, password=password, **kwargs)
 
-    def user_can_authenticate(self, user: AuthUser):
-        """ Restricts authentication to users with correct backend setting in AuthUser. """
-
-        return super().user_can_authenticate(user)
-
+        try:
+            user = AuthUser._default_manager.get(**{AuthUser.EMAIL_FIELD: email})
+        except AuthUser.DoesNotExist:
+            # Run the default password hasher once to reduce the timing
+            # difference between an existing and a nonexistent user (#20760).
+            AuthUser().set_password(password)
+        else:
+            if user.check_password(password) and self.user_can_authenticate(user):
+                return user
 
 class CASBackend(ModelBackend):
     """ Backend defining authentication for users using CAS login. """
-
-    backend_name = 'CAS'
-
-    def user_can_authenticate(self, user: AuthUser):
-        """ Restricts authentication to users with correct backend setting in AuthUser. """
-
-        return super().user_can_authenticate(user)
 
     def authenticate(self, request, **kwargs):
         """

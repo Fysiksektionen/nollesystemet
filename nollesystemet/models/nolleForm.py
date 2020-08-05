@@ -1,6 +1,7 @@
 from django.db import models
 from django.dispatch import receiver
 
+from .misc import validate_no_emoji
 from .user import UserProfile
 
 
@@ -12,6 +13,10 @@ class DynamicNolleFormQuestion(models.Model):
         RADIO = 1, 'Single choice'
         CHECK = 2, 'Multiple choice'
         TEXT = 3, 'Text input'
+
+    class Meta:
+        verbose_name = 'nØlleformulärsfråga'
+        verbose_name_plural = 'nØlleformulärsfrågor'
 
     number_label = models.CharField(max_length=30, blank=False, unique=True, primary_key=False)
     title = models.CharField(max_length=150, blank=False, null=None, unique=True, primary_key=False)
@@ -97,12 +102,14 @@ class DynamicNolleFormQuestionAnswer(models.Model):
     a question is of type TEXT and a new answer is given.
     """
 
-    question = models.ForeignKey(DynamicNolleFormQuestion, models.CASCADE, null=False, blank=False)
-    value = models.CharField(max_length=400)
-    group = models.CharField(max_length=400, blank=True, null=True)
+    question = models.ForeignKey(DynamicNolleFormQuestion, models.CASCADE, null=False, blank=False, validators=[validate_no_emoji])
+    value = models.CharField(max_length=400, validators=[validate_no_emoji])
+    group = models.CharField(max_length=400, blank=True, null=True, validators=[validate_no_emoji])
 
     class Meta:
         unique_together = [('question', 'value'), ('question', 'group')]
+        verbose_name = 'Svar till nØlleformulärsfråga'
+        verbose_name_plural = verbose_name
 
     def __str__(self):
         return str(self.value)
@@ -119,24 +126,24 @@ class NolleFormAnswer(models.Model):
                                 limit_choices_to={'user_type__is': UserProfile.UserType.NOLLAN},
                                 editable=False)
 
-    first_name = models.CharField(max_length=50)
-    last_name = models.CharField(max_length=50)
+    first_name = models.CharField(max_length=50, validators=[validate_no_emoji])
+    last_name = models.CharField(max_length=50, validators=[validate_no_emoji])
 
     age = models.PositiveSmallIntegerField()
     age_feeling = models.PositiveSmallIntegerField(blank=True, null=True)
 
-    home_address = models.CharField(max_length=200)
-    phone_number = models.CharField(max_length=20)
+    home_address = models.CharField(max_length=400, validators=[validate_no_emoji])
+    phone_number = models.CharField(max_length=30, validators=[validate_no_emoji])
 
-    contact_name = models.CharField(max_length=100)
+    contact_name = models.CharField(max_length=100, validators=[validate_no_emoji])
     contact_relation = models.CharField(max_length=200, choices=[(val, val) for val in
                                                                  ['Förälder', 'Syskon', 'Släkting', 'Vän']])
-    contact_phone_number = models.CharField(max_length=20)
+    contact_phone_number = models.CharField(max_length=30, validators=[validate_no_emoji])
 
-    food_preference = models.TextField(blank=True)
+    food_preference = models.TextField(blank=True, validators=[validate_no_emoji])
     can_photograph = models.BooleanField()
 
-    other = models.TextField(blank=True)
+    other = models.TextField(blank=True, validators=[validate_no_emoji])
 
     about_the_form = models.CharField(max_length=200, choices=[(val, val) for val in
                                                                ['Askalas!', 'Dunder', 'Lagom bra', 'Risigt']])
@@ -147,7 +154,9 @@ class NolleFormAnswer(models.Model):
         permissions = [
             ("edit_nolleForm", "Can edit the nolleForm form"),
         ]
-        verbose_name = 'Fomulärsvar'
+        verbose_name = 'nØlleformulärssvar'
+        verbose_name_plural = verbose_name
+
 
     @staticmethod
     def can_fill_out(observing_user: UserProfile):
@@ -155,11 +164,13 @@ class NolleFormAnswer(models.Model):
             return False  # User is not NOLLAN.
         return True
 
+    def __str__(self):
+        return "Formulärsvar: %s" % self.user.name
+
 @receiver(models.signals.post_save, sender=NolleFormAnswer)
 def update_user_profile_from_nolleForm(sender, instance, *args, **kwargs):
     """ Deletes auth_user of deleted UserProfile """
-    common_fields = ['first_name', 'last_name', 'phone_number', 'contact_name',
-                     'contact_relation', 'contact_phone_number', 'food_preference']
+    common_fields = ['first_name', 'last_name', 'phone_number', 'food_preference']
     if instance:
         for field_name in common_fields:
             setattr(instance.user, field_name, getattr(instance, field_name))

@@ -4,15 +4,8 @@
 {% block title-centered %}Logga in{% endblock %}
 
 {% block centered-content-col-4%}
-    <div class="errornote">
-        {% if request.GET.failed %}
-            Inloggning misslyckades!
-        {% endif %}
-    </div>
-
     <div class="d-flex flex-column">
         <a href="{{ cred_login_url }}" class="btn btn-primary btn-block py-3 my-3">nØllan</a>
         <a href="{{ cas_login_url }}" class="btn btn-primary btn-block py-3 my-3">Fadder</a>
     </div>
-
 {% endblock %}

@@ -1,15 +1,12 @@
 import django.forms as forms
-from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Submit, Layout
-from django.core.mail import EmailMultiAlternatives
+from crispy_forms.layout import Submit, Layout, Row, Column, HTML, Field
 from django.forms import widgets
-from django.template import Context
-from django.template.loader import get_template
-from django.urls import reverse
 
-from nollesystemet.models import Registration
-from .misc import ModifiableModelForm
+from nollesystemet.models import Registration, UserProfile
+from .misc import ModifiableModelForm, _blank_fields_crispy
 
+import logging
+logger = logging.getLogger(__name__)
 
 class RegistrationForm(ModifiableModelForm):
     class Meta:
@@ -41,7 +38,7 @@ class RegistrationForm(ModifiableModelForm):
             },
         }
 
-    def __init__(self, happening=None, user=None, observing_user=None, extra_email_context=None, **kwargs):
+    def __init__(self, happening=None, user=None, observing_user=None, **kwargs):
         if 'instance' not in kwargs:
             if happening is None or user is None:
                 kwargs['editable'] = False
@@ -57,8 +54,6 @@ class RegistrationForm(ModifiableModelForm):
         self.instance.user = self.user
 
         self.observing_user = observing_user
-        self.extra_email_context = extra_email_context
-
 
         self.update_field_querysets()
         self.update_nonused_fields()
@@ -104,55 +99,71 @@ class RegistrationForm(ModifiableModelForm):
         return enabled
 
     def update_field_querysets(self):
-        self.fields['drink_option'].queryset = self.happening.drinkoption_set.all()
-        if len(self.fields['drink_option'].queryset) > 0:
+        if self.happening.drinkoption_set.count() > 0:
+            self.fields['drink_option'].queryset = self.happening.drinkoption_set.all().order_by('price')
             self.fields['drink_option'].required = True
-        else:
-            self.fields.pop('drink_option')
 
-        self.fields['extra_option'].queryset = self.happening.extraoption_set.all()
-        if len(self.fields['extra_option'].queryset) == 0:
-            self.fields.pop('extra_option')
+        if self.happening.extraoption_set.count() > 0:
+            self.fields['extra_option'].queryset = self.happening.extraoption_set.all().order_by('price')
 
     def update_nonused_fields(self):
+        layout_exclude = []
         if not self.happening.food:
             self.fields.pop('food_preference')
+            layout_exclude.append('food_preference')
+        if len(self.fields['drink_option'].queryset) == 0:
+            self.fields.pop('drink_option')
+            layout_exclude.append('drink_option')
+        if len(self.fields['extra_option'].queryset) == 0:
+            self.fields.pop('extra_option')
+            layout_exclude.append('extra_option')
+
+        _blank_fields_crispy(self.helper.layout, layout_exclude)
+
+    def get_form_helper(self, form_tag=True):
+        helper = super().get_form_helper(form_tag)
+        helper.layout = Layout(
+            'food_preference',
+            'drink_option',
+            'extra_option',
+            'other'
+        )
+        return helper
+
+    def append_submits(self):
+        """ Appends the correct configuration of submit buttons to self.helper.layout. """
+        if self.is_editable:
+            if self.helper.form_tag:
+                self.helper.layout.fields.append(
+                    Row(
+                        Column(HTML(self.submit_button), css_class="d-flex justify-content-start"),
+                        Column(HTML("""<button type="submit" name="confirmmail" class="btn btn-primary" id="submit-id-confirmmail">
+                                       """ + "Skicka bekräftelse" + """ <i class="fa fa-refresh" aria-hidden="true"></i>
+                                   </button>""" if (self.is_deletable and self.instance.pk) else ""),
+                               css_class="d-flex justify-content-center"),
+                        Column(HTML(self.delete_button if self.is_deletable else ""),
+                               css_class="d-flex justify-content-end")
+                    )
+                )
 
     def save(self, commit=True):
         if self.is_new:
             self.instance.happening = self.happening
             self.instance.user = self.user
 
-        ret = super().save(commit)
+        registration = super().save(commit)
         if self.is_new:
-            self._send_confirmation_email()
+            if self.instance.user.user_type in UserProfile.UserType.list_parse(self.happening.automatic_confirmation):
+                msg = ""
+                try:
+                    failed = not registration.send_confirmation_email()
+                except Exception as e:
+                    failed = True
+                    msg = str(e)
+                    print(msg)
+                if failed:
+                    logger.exception("Fel när %s skulle få bekräftelse till %s. Fel: %s" %(str(self.user), str(self.happening), msg))
 
-        return ret
-
-    def _send_confirmation_email(self):
-        """ (!) Only call this post save to db. """
-
-        subject_template = get_template('fadderiet/evenemang/bekraftelse_epost_amne.txt')
-        plaintext = get_template('fadderiet/evenemang/bekraftelse_epost.txt')
-        html = get_template('fadderiet/evenemang/bekraftelse_epost.html')
-
-        if not self.extra_email_context:
-            self.extra_email_context = {}
-
-        context = {
-            'registration': self.instance,
-            'happening': self.instance.happening,
-            'user_profile': self.instance.user,
-            'form': RegistrationForm(instance=self.instance),
-            **self.extra_email_context
-        }
-
-        from_email, to = None, str(self.instance.user.email)
-        subject = subject_template.render(context)
-        text_content = plaintext.render(context)
-        html_content = html.render(context)
-        msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
-        msg.attach_alternative(html_content, "text/html")
-        msg.send()
+        return registration
 
 

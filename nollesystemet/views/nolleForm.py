@@ -22,6 +22,11 @@ class NolleFormManageView(mixins.FohserietMixin, ObjectsAdministrationListView):
 
     success_url = reverse_lazy('fohseriet:nolleenkaten:index')
 
+    def get_form_kwargs(self):
+        context = super().get_form_kwargs()
+        context['can_delete'] = self.request.user.is_superuser
+        return context
+
     def form_valid(self, form):
         models.NolleFormAnswer.objects.all().delete()
         return super().form_valid(form)
@@ -76,14 +81,18 @@ class NolleFormView(mixins.FadderietMixin, UpdateView):
     def get_success_url(self):
         return reverse('fadderiet:index')
 
+    def form_invalid(self, form):
+        return self.render_to_response(self.get_context_data(form=form, form_failed=True))
+
 
 class NolleFormDownloadView(mixins.FohserietMixin, DownloadView):
     login_required = True
-    permission_required = 'nollesystemet:edit_nolleForm'
+    permission_required = 'nollesystemet.edit_nolleForm'
     file_name = "Svar_nolleenkaten"
 
-    empty_form = NolleFormBaseForm()
-    non_dynamic_fields = [val for val in NolleFormBaseForm().fields if not val[:2] == "q_"]
+    @staticmethod
+    def get_user_program(answer: models.NolleFormAnswer):
+        return str(answer.user.program_name)
 
     @staticmethod
     def get_static_model_value(answer: models.NolleFormAnswer, field_name):
@@ -123,8 +132,13 @@ class NolleFormDownloadView(mixins.FohserietMixin, DownloadView):
 
     def setup(self, request, *args, **kwargs):
         super().setup(request, *args, **kwargs)
-
+        self.empty_form = NolleFormBaseForm()
+        self.non_dynamic_fields = [val for val in NolleFormBaseForm().fields if not val[:2] == "q_"]
         self.csv_data_structure: Any = [
+            {'title': 'username', 'accessor': 'user.auth_user.username'},
+            {'title': 'program', 'function': self.get_user_program}
+        ]
+        self.csv_data_structure += [
             {
                 'title': self.empty_form.fields[field_name].label,
                 'function': self.get_static_model_value,

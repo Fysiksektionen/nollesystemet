@@ -9,6 +9,16 @@
 {% block content-indented %}
     {{ site.texts.body|linebreaks }}
     <div class="col-md-7 px-0">
+        {% if form_failed %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <p>
+                    Formuläret är fel-ifyllt. Kolla igenom frågorna för ett felmeddelande!
+                </p>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times</span>
+                </button>
+            </div>
+        {% endif %}
         {% crispy form %}
     </div>
 {% endblock %}

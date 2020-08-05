@@ -2,12 +2,10 @@ import sys
 
 from django.apps import apps
 from django.conf import settings
-from django.contrib.auth import REDIRECT_FIELD_NAME
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.core.exceptions import ValidationError
+from django.http import HttpResponseRedirect, HttpRequest
 from django.urls import reverse_lazy, reverse
 from django.views.generic import ListView
-
 
 import nollesystemet.models as models
 import nollesystemet.forms as forms
@@ -20,7 +18,7 @@ class ProfilePageView(mixins.FadderietMixin, ModifiableModelFormView):
     form_class = forms.ProfileUpdateForm
     deletable = False
     submit_name = "Spara"
-    exclude_fields = ('nolle_group', 'user_type', 'groups')
+    exclude_fields = ['nolle_group', 'user_type', 'groups', 'program']
 
     template_name = 'fadderiet/mina-sidor/profil.html'
     success_url = reverse_lazy('fadderiet:mina-sidor:profil')
@@ -37,6 +35,10 @@ class ProfilePageView(mixins.FadderietMixin, ModifiableModelFormView):
     def get_is_editable_args(self):
         return [self.request.user.profile]
 
+    def get_form_kwargs(self):
+        context = super().get_form_kwargs()
+        return context
+
 
 class UsersListView(mixins.FohserietMixin, ObjectsAdministrationListView):
     model = models.UserProfile
@@ -51,6 +53,11 @@ class UsersListView(mixins.FohserietMixin, ObjectsAdministrationListView):
     def test_func(self):
         return models.UserProfile.can_see_some_user(self.request.user.profile)
 
+    def get_form_kwargs(self):
+        context = super().get_form_kwargs()
+        context['can_delete'] = self.request.user.is_superuser
+        return context
+
     def get_queryset(self):
         self.queryset = models.UserProfile.objects.all()
         querryset = super().get_queryset()
@@ -63,7 +70,7 @@ class UsersListView(mixins.FohserietMixin, ObjectsAdministrationListView):
         } for user in querryset]
 
     def get_context_data(self, **kwargs):
-        if not self.request.user.profile.has_perm('nollesystemet.edit_user'):
+        if not self.request.user.profile.has_perm('nollesystemet.edit_users'):
             kwargs['form'] = None
         context = super().get_context_data(**kwargs)
         context.update({
@@ -90,8 +97,6 @@ class UsersListView(mixins.FohserietMixin, ObjectsAdministrationListView):
                 errors.append("Fel vid skapande av användare '%s': %s" % (
                     user_info['first_name'] + ' ' + user_info['last_name'], "Unexpected error:" + str(sys.exc_info()[0])
                 ))
-
-
 
         self.file_upload_information = ""
         self.file_upload_success = True
@@ -133,6 +138,32 @@ class UserUpdateView(mixins.FohserietMixin, ModifiableModelFormView):
             return None
         return super().get_object(queryset=queryset)
 
+    def post(self, request, *args, **kwargs):
+        """ Alter behaviour if delete is pressed. """
+        self.object = self.soft_object_reload()
+        if 'resetpassword' in request.POST:
+            return self.form_reset_password(self.request, self.object)
+        else:
+            return super().post(request, *args, **kwargs)
+
+    def form_reset_password(self, request, instance_user):
+        reset_failed = False
+        reset_failed_message = ""
+        try:
+            reset_form = forms.PasswordResetForm(data={'email': instance_user.auth_user.email})
+            reset_form.is_valid()
+            reset_form.save(
+                request=request,
+                use_https=request.is_secure(),
+                email_template_name='fadderiet/aterstall-losenord/epost.txt',
+                html_email_template_name='fadderiet/aterstall-losenord/epost.html',
+                subject_template_name='fadderiet/aterstall-losenord/epost-amne.txt'
+            )
+        except Exception as e:
+            reset_failed = True
+            reset_failed_message = str(e)
+        return self.render_to_response(self.get_context_data(reset_failed=reset_failed,
+                                                             reset_failed_message=reset_failed_message))
 
 class UserRegistrationsListView(mixins.FohserietMixin, ListView):
     model = models.Registration

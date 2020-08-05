@@ -3,16 +3,17 @@ import csv
 import urllib
 from abc import abstractmethod
 from typing import Any, Callable
-import string
 
+from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
+from django.template import RequestContext
+from django.template.response import TemplateResponse
 from django.urls import reverse, reverse_lazy
-from django.http import QueryDict, HttpResponseRedirect, HttpResponse, HttpRequest
+from django.http import QueryDict, HttpResponseRedirect, HttpResponse, HttpResponseServerError
 from django.views import View
 from django.views.generic import TemplateView, UpdateView, FormView, ListView
 from django.views.generic.edit import ProcessFormView, BaseFormView, BaseUpdateView, FormMixin
 
-import authentication.models as auth_models
 import nollesystemet.mixins as mixins
 import nollesystemet.forms as forms
 from nollesystemet.models import NolleGroup
@@ -44,7 +45,7 @@ class AccessDeniedView(TemplateView):
         if 'denier' in self.request.GET:
             path = urllib.parse.unquote(self.request.GET['denier'])
             if not bool(urllib.parse.urlparse(path).netloc):  # Relative path given
-                path = self.request.build_absolute_uri(path)
+                path = settings.DOMAIN_URL + path
             context['denied_site'] = path
         return context
 
@@ -104,7 +105,7 @@ class ModifiableModelFormView(UpdateView):
     submit_name = None
     delete_name = None
     form_tag = True
-    exclude_fields = None
+    exclude_fields = None  # List, not tuple
     is_editable_args = None
     is_deletable_args = None
 
@@ -144,9 +145,15 @@ class ModifiableModelFormView(UpdateView):
         })
         return kwargs
 
+    def soft_object_reload(self, queryset=None):
+        if hasattr(self, 'object'):
+            if self.object:
+                return self.object
+        return self.get_object(queryset=queryset)
+
     def post(self, request, *args, **kwargs):
         """ Alter behaviour if delete is pressed. """
-        self.object = self.get_object()
+        self.object = self.soft_object_reload()
         if 'delete' in request.POST:
             return self.form_delete(self.get_form())
         else:
@@ -274,7 +281,7 @@ class MultipleObjectsUpdateView(UpdateView):
 class DownloadView(View):
     csv_data_structure: Any = []
     file_name = None
-    delimiter = ';'
+    delimiter = ','
 
     def get_file_name(self):
         raise NotImplementedError()
@@ -288,7 +295,7 @@ class DownloadView(View):
 
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename="' + self.file_name + '.csv"'
-        writer = csv.writer(response, delimiter=self.delimiter)
+        writer = csv.writer(response, delimiter=self.delimiter, lineterminator='\n')
 
         # Write column titles
         writer.writerow([column['title'] for column in self.csv_data_structure])
@@ -326,6 +333,12 @@ class DownloadView(View):
                     value = ', '.join([str(v) for v in value])
                 elif isinstance(value, object):
                     value = str(value)
+                elif value is None:
+                    value = ""
+
+                # Remove newlines
+                if isinstance(value, str):
+                    value = value.replace('\n', ' ').replace('\r', '')
                 column_data.append(value)
 
             row_data.append(column_data)

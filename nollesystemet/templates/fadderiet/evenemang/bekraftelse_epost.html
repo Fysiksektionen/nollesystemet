@@ -61,7 +61,7 @@
             Nedan kan du se vad du fyllde i samt den information som fanns i eventbeskrivningen.
 
             <h3>Betalning</h3>
-            {{ mail_betalningsinfo_html|safe|linebreaks }}
+            {{ payment_info_html|safe|linebreaks }}
             {% include "common/elements/registration-price-info.html" with registration=registration only %}
 
             <h3>Frågor?</h3>

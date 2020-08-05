@@ -66,6 +66,6 @@
 {% endblock %}
 {% block empty_object_list %}
     <p>
-        Systemet har inga användare som du har rätt att se. Känns det helt fel? Mejla <a href="mailto:nollesystemet@f.kth.se">nollesystemet@f.kth.se</a> för att få hjälp.
+        Systemet har inga användare som du har rätt att se. {% include "common/elements/fel_mejla_admin.html" %}
     </p>
 {% endblock %}

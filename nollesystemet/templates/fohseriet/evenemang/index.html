@@ -81,6 +81,6 @@
             {% endwith %}
         {% endfor %}
     {% else %}
-        Systemet har inga evenemang. Känns det helt fel? Mejla <a href="mailto:nollesystemet@f.kth.se">nollesystemet@f.kth.se</a> för att få hjälp.
+        Systemet har inga evenemang. {% include "common/elements/fel_mejla_admin.html" %}
     {% endif %}
 {% endblock %}

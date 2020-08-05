@@ -1,4 +1,5 @@
 import json
+from random import shuffle
 from django import forms
 from crispy_forms.layout import Layout, Fieldset, Field, Row, Column, HTML
 from django.urls import reverse_lazy
@@ -64,11 +65,12 @@ class NolleFormBaseForm(ModifiableModelForm):
                 'label': 'Matpreferens',
                 'widget_class': forms.widgets.Textarea,
                 'widget_attrs': {'rows': 3},
-                'help_text': "Här kan du fyla i eventuell speckost. Lämna gärna tom om du inte har något att fylla i."
+                'help_text': "Här kan du fylla i eventuell speckost. Lämna gärna tom om du inte har något att fylla i."
             },
             'can_photograph': {
                 'label': "Är det okej att bli fotograferad under mottagningen?",
-                'help_text': ""
+                'help_text': """Det kommer att fotograferas under mottagningen. Här kan du välja om mottagningen får använda bilder på dig till hemsidan eller på Facebook.
+                             Oavsätt kommer en bild tas första dagen så att dina ansvariga faddrar kan känna igen dig. Denna bild kommer inte att spridas."""
             },
             'other': {
                 'label': 'Övrigt',
@@ -96,15 +98,19 @@ class NolleFormBaseForm(ModifiableModelForm):
                 if not self.is_new:
                     self.initial['q_' + str(question.pk)] = self.instance.dynamic_answers.get(question=question).value
             elif question.question_type == DynamicNolleFormQuestion.QuestionType.RADIO:
+                choices = [(str(q.pk), str(q.value)) for q in question.dynamicnolleformquestionanswer_set.all()]
+                shuffle(choices)
                 self.fields['q_' + str(question.pk)] = forms.ChoiceField(
-                    choices=[(str(q.pk), str(q.value)) for q in question.dynamicnolleformquestionanswer_set.all()],
+                    choices=choices,
                     widget=forms.RadioSelect
                 )
                 if not self.is_new:
                     self.initial['q_' + str(question.pk)] = self.instance.dynamic_answers.get(question=question).pk
             elif question.question_type == DynamicNolleFormQuestion.QuestionType.CHECK:
+                choices = [(str(q.pk), str(q.value)) for q in question.dynamicnolleformquestionanswer_set.all()]
+                shuffle(choices)
                 self.fields['q_' + str(question.pk)] = forms.MultipleChoiceField(
-                    choices=[(str(q.pk), str(q.value)) for q in question.dynamicnolleformquestionanswer_set.all()],
+                    choices=choices,
                     widget=forms.CheckboxSelectMultiple
                 )
                 if not self.is_new:
@@ -178,7 +184,7 @@ class NolleFormBaseForm(ModifiableModelForm):
         return helper
 
     def _get_dynamic_questions_layout(self, question):
-        return Field('q_' + str(question.pk))
+        return Field('q_' + str(question.pk), wrapper_class='mb-5')
 
 
 class NolleFormAdministrationForm(ObjectsAdministrationForm):
@@ -187,7 +193,6 @@ class NolleFormAdministrationForm(ObjectsAdministrationForm):
     verbose_name_plural = "Fomulärsvar"
 
     can_create = False
-    can_delete = True
     can_upload = True
     can_download = True
 

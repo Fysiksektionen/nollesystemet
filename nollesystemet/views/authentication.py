@@ -36,7 +36,7 @@ class LoginCredentialsViewFohseriet(mixins.FohserietMixin, auth_views.login.Logi
     template_name = 'fohseriet/logga-in/cred.html'
     default_redirect_url = reverse_lazy('fohseriet:index')
 
-    form_class = forms.make_form_crispy(auth_views.login.LoginCred.form_class, 'Logga in')
+    form_class = forms.make_form_crispy(forms.LoginForm, 'Logga in')
 
     extra_context = {
         'reset_password_url': reverse_lazy('fadderiet:aterstall-losenord:index'),
@@ -44,10 +44,9 @@ class LoginCredentialsViewFohseriet(mixins.FohserietMixin, auth_views.login.Logi
 
 
 class LoginCredentialsViewFadderiet(mixins.FadderietMixin, auth_views.login.LoginCred):
-    template_name = 'fadderiet/logga-in/nollan.html'
     default_redirect_url = reverse_lazy('fadderiet:index')
 
-    form_class = forms.make_form_crispy(auth_views.login.LoginCred.form_class, 'Logga in')
+    form_class = forms.make_form_crispy(forms.LoginForm, 'Logga in')
 
     extra_context = {
         'reset_password_url': reverse_lazy('fadderiet:aterstall-losenord:index'),

@@ -69,6 +69,9 @@ class Command(BaseCommand):
                     nolle_group.save()
                 nolle_groups.append(nolle_group)
 
+        # 4) Create Singeltons
+        HappeningInfo.load()
+
         # inf) End.
         if not ('print' in options and not options['print']):
             self.stdout.write(self.style.SUCCESS('Successfully re-initialized system!'))

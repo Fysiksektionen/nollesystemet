@@ -2,7 +2,6 @@ from urllib.parse import urlencode
 
 import cas
 import django.contrib.auth.views as auth_views
-from django.apps import apps
 from django.contrib.auth import REDIRECT_FIELD_NAME, authenticate, login as django_login, logout as django_logout
 from django.forms import Form
 from django.http import HttpResponseRedirect
@@ -98,6 +97,8 @@ class LoginCas(View):
     """ Redirects to the CAS login URL, or verifies the CAS ticket, if provided. """
 
     default_redirect_url = reverse_lazy('authentication:index')
+    default_fail_url = reverse_lazy('authentication:login')
+    service_root_url = None
 
     def get(self, request):
 
@@ -111,7 +112,7 @@ class LoginCas(View):
         if request.user.is_authenticated:
             return _login_success_redirect(request, request.user, next_url)
 
-        service_url = utils.get_service_url(request, next_url)
+        service_url = utils.get_service_url(request, redirect_url=next_url, service_url=self.service_root_url)
         client = cas.CASClient(version=2, service_url=service_url, server_url=str(utils.get_setting('CAS_SERVER_URL')))
 
         # If a ticket was provided, attempt to authenticate with it
@@ -127,7 +128,7 @@ class LoginCas(View):
 
             # Authentication failed: raise permission denied
             else:
-                url = "%s?failed=True" % reverse('authentication:login')
+                url = "%s?failed=True" % str(self.default_fail_url)
                 return HttpResponseRedirect(url)
 
         # If no ticket was provided, redirect to the

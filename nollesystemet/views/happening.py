@@ -1,17 +1,13 @@
 from typing import Callable, Any
 
-from django.apps import apps
-from django.http import HttpResponseRedirect, HttpResponse
 from django.urls import reverse_lazy, reverse
 from django.utils.text import slugify
 from django.views.generic import UpdateView, ListView, FormView
 
-import authentication.models as auth_models
-
 import nollesystemet.models as models
 import nollesystemet.forms as forms
 import nollesystemet.mixins as mixins
-from nollesystemet.views.misc import DownloadView, ModifiableModelFormView
+from .misc import DownloadView, ModifiableModelFormView
 
 
 class HappeningListViewFadderiet(mixins.FadderietMixin, ListView):
@@ -242,7 +238,6 @@ class HappeningPaidAndPresenceView(mixins.FohserietMixin, FormView):
             self.handle_no_permission()
 
         self.back_url = reverse('fohseriet:evenemang:anmalda', kwargs={'pk': self.happening.pk})
-        self.success_url = reverse('fohseriet:evenemang:uppdatera-betalningar', kwargs={'pk': self.happening.pk})
 
     def test_func(self):
         return self.happening.can_edit(self.request.user.profile)
@@ -263,4 +258,40 @@ class HappeningPaidAndPresenceView(mixins.FohserietMixin, FormView):
 
     def form_valid(self, form):
         form.update_registrations()
-        return super().form_valid(form)
+        return self.render_to_response(self.get_context_data(form=form, saved=True))
+
+
+class HappeningConfirmView(mixins.FohserietMixin, FormView):
+    template_name = "fohseriet/evenemang/bekrafta-anmalda.html"
+    form_class = forms.HappeningConfirmForm
+    login_required = True
+
+    def setup(self, request, *args, **kwargs):
+        super().setup(request, *args, **kwargs)
+        try:
+            self.happening = models.Happening.objects.get(pk=self.kwargs['pk'])
+        except models.Happening.DoesNotExist:
+            self.handle_no_permission()
+
+        self.back_url = reverse('fohseriet:evenemang:anmalda', kwargs={'pk': self.happening.pk})
+
+    def test_func(self):
+        return self.happening.can_edit(self.request.user.profile)
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs.update({
+            'happening': self.happening
+        })
+        return kwargs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'happening': self.happening
+        })
+        return context
+
+    def form_valid(self, form):
+        success, failed_users = form.update_confirmed()
+        return self.render_to_response(self.get_context_data(success=success, failed_users=failed_users))

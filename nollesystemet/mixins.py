@@ -31,7 +31,6 @@ class MenuMixin(ContextMixin):
             else:
                 path = os.path.join(settings.STATIC_ROOT, self.menu_items_static_file)
 
-            logging.error("Path: " + path)
             with open(path, encoding='utf-8') as json_file:
                 data = json.load(json_file)
                 order = data['order']
@@ -202,19 +201,31 @@ class SiteMixin:
     site_name = None
     site_texts = []
     site_images = []
+    site_paragraph_lists = []
 
     def get_site_context(self):
         if self.site_name:
             site_context = {}
-            site = models.Site.get_populated_site(self.site_name, self.site_texts, self.site_images, True)
+            site = models.Site.get_populated_site(self.site_name, self.site_texts, self.site_images, self.site_paragraph_lists, True)
 
             texts_list = site.texts.values_list('key', 'text')
             images_list = site.images.values_list('key', 'image')
-
+            paragraphs_lists = [(para_list.key, para_list.paragraphs.all()) for para_list in site.paragraph_lists.all()]
             site_context.update({
                 'texts': {key_text_pair[0]: key_text_pair[1] for key_text_pair in texts_list},
-                'images': {key_image_pair[0]: key_image_pair[1] for key_image_pair in images_list}
+                'images': {key_image_pair[0]: key_image_pair[1] for key_image_pair in images_list},
+                'lists': {
+                    key_list_pair[0]: [
+                        {
+                            'order_num': para.order_num,
+                            'title': para.title,
+                            'text': para.text,
+                            'image': para.image
+                        } for para in key_list_pair[1].order_by('order_num')
+                    ] for key_list_pair in paragraphs_lists
+                }
             })
+
             return site_context
         else:
             return {}

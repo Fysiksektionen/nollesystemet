@@ -46,7 +46,7 @@
         {% endfor %}
     {% else %}
         <p>
-            Användaren har inga anmälningar. Känns det helt fel? Mejla <a href="mailto:nollesystemet@f.kth.se">nollesystemet@f.kth.se</a> för att få hjälp.
+            Användaren har inga anmälningar. {% include "common/elements/fel_mejla_admin.html" %}
         </p>
     {% endif %}
 {% endblock %}

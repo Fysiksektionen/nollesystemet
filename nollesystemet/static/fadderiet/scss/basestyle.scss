@@ -2,6 +2,7 @@
 $fadderiet: #069080;
 $fadderiet_secondary: #3b5351;
 $background-gray: #DEDEDE;
+$background-gray-10: darken($background-gray, 10);
 $background: #FFFFFF;
 $warning: rgba(245, 219, 73, 0.85);
 
@@ -9,6 +10,7 @@ $theme-colors: (
         "primary": $fadderiet,
         "secondary": $fadderiet_secondary,
         "background-gray": $background-gray,
+        "background-gray-10": $background-gray-10,
         "white": #ffffff,
         "black": #000000,
         "fadderiet": $fadderiet,
@@ -131,6 +133,20 @@ $table-row-rounding-radius: 10px;
     tr {
       background: $fadderiet_secondary;
       color: $white;
+    }
+  }
+}
+
+.nav-tabs {
+  .nav-link {
+    border: 0;
+    &.active {
+      background-color: darken($background-gray, 10);
+    }
+  }
+  .tab-content {
+    .tab-pane {
+      border: 0;
     }
   }
 }
