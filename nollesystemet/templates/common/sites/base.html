@@ -41,6 +41,11 @@
 </head>
 <body>
 <div class="container-fluid p-0 d-flex flex-column" style="min-height: 100vh">
+    {% if site_settings.show_warning_banner %}
+        <div class="container-fluid bg-warning p-3">
+            {{ site_settings.warning_banner_text }}
+        </div>
+    {% endif %}
     <div id="menu" class="container-fluid p-0">
         {% block menu %}{% endblock %}
     </div>

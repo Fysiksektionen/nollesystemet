@@ -31,10 +31,19 @@ class SingeltonModel(models.Model):
             return type(self).__name__
 
 
-class HappeningInfo(SingeltonModel):
+class HappeningSettings(SingeltonModel):
     payment_info_html = models.TextField(blank=True, verbose_name="Betalningsinformation (HTML)")
     payment_info_plain_text = models.TextField(blank=True, verbose_name="Betalningsinformation (Plain text)")
 
     class Meta:
-        verbose_name = "Evenemangsinformation"
+        verbose_name = "Evenemangsinställningar"
+        verbose_name_plural = verbose_name
+
+
+class SiteSettings(SingeltonModel):
+    show_warning_banner = models.BooleanField(default=False, verbose_name="Visa varningstext")
+    warning_banner_text = models.TextField(blank=True, verbose_name="Varningstext")
+
+    class Meta:
+        verbose_name = "Sidinställningar"
         verbose_name_plural = verbose_name

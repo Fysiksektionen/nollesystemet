@@ -6,7 +6,7 @@ from django.template.loader import get_template
 from .misc import validate_no_emoji
 from .happening import Happening, DrinkOption, ExtraOption
 from .user import UserProfile
-from .settings import HappeningInfo
+from .settings import HappeningSettings
 
 class Registration(models.Model):
     """ Model representing a registration of a user to a happening. Contains information on options and alike. """
@@ -110,7 +110,7 @@ class Registration(models.Model):
         plaintext = get_template('fadderiet/evenemang/bekraftelse_epost.txt')
         html = get_template('fadderiet/evenemang/bekraftelse_epost.html')
 
-        happening_info = HappeningInfo.load()
+        happening_info = HappeningSettings.load()
 
         from nollesystemet.forms import RegistrationForm
         context = {

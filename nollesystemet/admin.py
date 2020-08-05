@@ -51,6 +51,14 @@ def send_reset_password(modeladmin, request, queryset):
 send_reset_password.short_description = "Skicka återställning av lösenord"
 
 
+class SingeltonAdmin(admin.ModelAdmin):
+    def has_add_permission(self, request):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
 class UserProfileAdmin(admin.ModelAdmin):
     ordering = ['first_name', 'last_name']
     list_display = ('__str__', 'email', 'type', 'nolle_group', 'have_filled_nolleForm')
@@ -246,21 +254,22 @@ mottagningen_admin_site = MottagningensAdminSite(name='nolle-admin')
 mottagningen_admin_site.register(models.NolleGroup, NolleGroupsRestrictedAdmin)
 mottagningen_admin_site.register(models.SiteParagraphList, SiteParagraphListAdmin)
 mottagningen_admin_site.register(models.Site, SiteAdminMottagningen)
-mottagningen_admin_site.register(models.HappeningInfo)
+mottagningen_admin_site.register(models.HappeningSettings, SingeltonAdmin)
+mottagningen_admin_site.register(models.SiteSettings, SingeltonAdmin)
 
 superadmin_admin_site.register(models.Happening, HappeningAdmin)
-superadmin_admin_site.register(models.HappeningInfo)
+superadmin_admin_site.register(models.HappeningSettings, SingeltonAdmin)
 superadmin_admin_site.register(models.UserProfile, UserProfileAdmin)
 superadmin_admin_site.register(models.NolleGroup, NolleGroupsRestrictedAdmin)
 superadmin_admin_site.register(models.Registration, RegistrationAdmin)
-superadmin_admin_site.register(models.SiteParagraphList, SiteParagraphListAdmin)
 superadmin_admin_site.register(models.Site, SiteAdmin)
+superadmin_admin_site.register(models.SiteSettings, SingeltonAdmin)
+superadmin_admin_site.register(models.SiteParagraphList, SiteParagraphListAdmin)
 superadmin_admin_site.register(models.UserTypeBasePrice)
 superadmin_admin_site.register(models.ExtraOption)
 superadmin_admin_site.register(models.DrinkOption)
 superadmin_admin_site.register(models.NolleFormAnswer)
 superadmin_admin_site.register(models.DynamicNolleFormQuestion, DynamicNolleFormQuestionAdmin)
-
 superadmin_admin_site.register(django_auth_models.Group)
 superadmin_admin_site.register(apps.get_model(settings.AUTH_USER_MODEL), AuthUserAdmin)
 

@@ -70,7 +70,7 @@ class Command(BaseCommand):
                 nolle_groups.append(nolle_group)
 
         # 4) Create Singeltons
-        HappeningInfo.load()
+        HappeningSettings.load()
 
         # inf) End.
         if not ('print' in options and not options['print']):
