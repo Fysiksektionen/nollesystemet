@@ -59,15 +59,18 @@ class UsersListView(mixins.FohserietMixin, ObjectsAdministrationListView):
         return context
 
     def get_queryset(self):
-        self.queryset = models.UserProfile.objects.all()
-        querryset = super().get_queryset()
-        querryset = [user for user in querryset if user.can_see(self.request.user.profile)]
-        return [{
-            'user': user,
-            'can_see': user.can_see_registrations(self.request.user.profile),
-            'can_see_registrations': user.can_see_registrations(self.request.user.profile),
-            'can_see_nolleForm': user.can_see_nolleForm_answer(self.request.user.profile),
-        } for user in querryset]
+        if self.request.user.is_authenticated:
+            self.queryset = models.UserProfile.objects.all()
+            querryset = super().get_queryset()
+            querryset = [user for user in querryset if user.can_see(self.request.user.profile)]
+            return [{
+                'user': user,
+                'can_see': user.can_see_registrations(self.request.user.profile),
+                'can_see_registrations': user.can_see_registrations(self.request.user.profile),
+                'can_see_nolleForm': user.can_see_nolleForm_answer(self.request.user.profile),
+            } for user in querryset]
+        else:
+            return []
 
     def get_context_data(self, **kwargs):
         if not self.request.user.profile.has_perm('nollesystemet.edit_users'):

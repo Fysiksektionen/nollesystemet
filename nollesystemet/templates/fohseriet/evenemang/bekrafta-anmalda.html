@@ -24,6 +24,9 @@
             </button>
         </div>
     {% endif %}
+    <h3 class="my-3">
+        <i id="antal-markerade">0</i> av <i>{{ form.fields|length }}</i> markerade.
+    </h3>
     {% crispy form %}
 {% endblock %}
 
@@ -43,5 +46,9 @@
                 event.preventDefault();
             }
         };
+
+        $( 'input[type="checkbox"]' ).click(function () {
+            $( "#antal-markerade" ).text($('input[type="checkbox"]:checked').length.toString());
+        } );
     </script>
 {% endblock %}

@@ -6,7 +6,8 @@ from multiselectfield import MultiSelectField
 
 import authentication.models as auth_models
 from .user import UserProfile, NolleGroup
-from .misc import IntegerChoices
+from .misc import IntegerChoices, validate_no_emoji
+
 
 def _is_editor_condition():
     return {'pk__in': [user.pk for user in UserProfile.objects.all()
@@ -31,11 +32,11 @@ class Happening(models.Model):
         CLOSED = 4, _("Stängd för anmälan")
         COMPLETED = 5, _("Genomfört")
 
-    name = models.CharField(max_length=50, unique=True)
-    description = models.CharField(max_length=500)
+    name = models.CharField(max_length=50, unique=True, validators=[validate_no_emoji])
+    description = models.CharField(max_length=500, validators=[validate_no_emoji])
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
-    image_file_path = models.CharField(max_length=50)
+    image_file_path = models.CharField(max_length=50, validators=[validate_no_emoji])
     food = models.BooleanField(default=True)
 
     takes_registration = models.BooleanField(default=False)
@@ -46,13 +47,14 @@ class Happening(models.Model):
 
     editors = models.ManyToManyField(UserProfile)
 
-    contact_name = models.CharField(max_length=150, blank=False, null=False)
-    contact_phone = models.CharField(max_length=20)
-    contact_email = models.EmailField(blank=False, null=False)
+    contact_name = models.CharField(max_length=150, blank=False, null=False, validators=[validate_no_emoji])
+    contact_phone = models.CharField(max_length=30, validators=[validate_no_emoji])
+    contact_email = models.EmailField(blank=False, null=False, validators=[validate_no_emoji])
 
-    location = models.CharField(max_length=200, blank=False, null=False)
+    location = models.CharField(max_length=200, blank=False, null=False, validators=[validate_no_emoji])
 
     include_drink_in_price = models.BooleanField(default=False)
+    include_extra_in_price = models.BooleanField(default=True)
     automatic_confirmation = MultiSelectField(choices=UserProfile.UserType.choices, blank=True)
 
     exclusive_access = models.ManyToManyField(UserProfile, blank=True, limit_choices_to=_is_not_nollan,
@@ -141,12 +143,20 @@ class Happening(models.Model):
             try:
                 return self.usertypebaseprice_set.get(user_type=argument.user.user_type).price
             except UserTypeBasePrice.DoesNotExist:
-                return None
+                all_prices = self.usertypebaseprice_set.all().order_by('price')
+                if len(all_prices) == 0:
+                    return 0
+                else:
+                    return all_prices[len(all_prices) - 1].price
         elif isinstance(argument, apps.get_model('nollesystemet.UserProfile').UserType):
             try:
                 return self.usertypebaseprice_set.get(user_type=argument).price
             except UserTypeBasePrice.DoesNotExist:
-                return None
+                all_prices = self.usertypebaseprice_set.all().order_by('price')
+                if len(all_prices) == 0:
+                    return 0
+                else:
+                    return all_prices[len(all_prices) - 1].price
 
 
 class UserTypeBasePrice(models.Model):
@@ -168,7 +178,7 @@ class UserTypeBasePrice(models.Model):
 class DrinkOption(models.Model):
     """ Model representing an option of drinks to a happening and its associated price. """
 
-    drink = models.CharField(max_length=30)
+    drink = models.CharField(max_length=30, validators=[validate_no_emoji])
     happening = models.ForeignKey(Happening, on_delete=models.CASCADE)
     price = models.PositiveSmallIntegerField()
 
@@ -184,7 +194,7 @@ class DrinkOption(models.Model):
 class ExtraOption(models.Model):
     """ Model representing extra options of a happening and their respective price. """
 
-    extra_option = models.CharField(max_length=30)
+    extra_option = models.CharField(max_length=30, validators=[validate_no_emoji])
     happening = models.ForeignKey(Happening, on_delete=models.CASCADE)
     price = models.PositiveSmallIntegerField()
 

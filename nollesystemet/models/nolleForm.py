@@ -18,8 +18,8 @@ class DynamicNolleFormQuestion(models.Model):
         verbose_name = 'nØlleformulärsfråga'
         verbose_name_plural = 'nØlleformulärsfrågor'
 
-    number_label = models.CharField(max_length=30, blank=False, unique=True, primary_key=False)
-    title = models.CharField(max_length=150, blank=False, null=None, unique=True, primary_key=False)
+    number_label = models.CharField(max_length=30, blank=False, unique=True, primary_key=False, validators=[validate_no_emoji])
+    title = models.CharField(max_length=150, blank=False, null=None, unique=True, primary_key=False, validators=[validate_no_emoji])
 
     question_type = models.PositiveSmallIntegerField(choices=QuestionType.choices, blank=False, null=None)
 

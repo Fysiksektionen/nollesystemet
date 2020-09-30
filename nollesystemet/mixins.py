@@ -210,18 +210,20 @@ class SiteMixin:
 
             texts_list = site.texts.values_list('key', 'text')
             images_list = site.images.values_list('key', 'image')
-            paragraphs_lists = [(para_list.key, para_list.paragraphs.all()) for para_list in site.paragraph_lists.all()]
+            paragraphs_lists = [(para_list, para_list.paragraphs.all()) for para_list in site.paragraph_lists.all()]
             site_context.update({
                 'texts': {key_text_pair[0]: key_text_pair[1] for key_text_pair in texts_list},
                 'images': {key_image_pair[0]: key_image_pair[1] for key_image_pair in images_list},
                 'lists': {
-                    key_list_pair[0]: [
+                    key_list_pair[0].key: [
                         {
                             'order_num': para.order_num,
                             'title': para.title,
                             'text': para.text,
                             'image': para.image
-                        } for para in key_list_pair[1].order_by('order_num')
+                        } for para in key_list_pair[1].order_by(
+                            ('' if key_list_pair[0].ascending_order else '-') + 'order_num'
+                        )
                     ] for key_list_pair in paragraphs_lists
                 }
             })

@@ -3,13 +3,16 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
+from django.utils import timezone
 
 from .misc import validate_no_emoji
 
 
 class Site(models.Model):
     """ Model representing a site an its content such as texts and images. """
-    name = models.CharField(max_length=200, unique=True, primary_key=False)
+    name = models.CharField(max_length=200, unique=True, primary_key=False, validators=[validate_no_emoji])
+    # created_date = models.DateTimeField(auto_now_add=True)
+    # modified_date = models.DateTimeField(auto_now=True)
 
     class Meta:
         verbose_name = 'Sida'
@@ -116,6 +119,9 @@ class SiteText(models.Model):
     text = models.TextField(null=False, blank=True, validators=[validate_no_emoji])
     site = models.ForeignKey(Site, on_delete=models.CASCADE, blank=False, null=False, related_name='texts')
 
+    # created_date = models.DateTimeField(auto_now_add=True)
+    # modified_date = models.DateTimeField(auto_now=True)
+
     class Meta:
         unique_together = ('key', 'site')
         verbose_name = 'Test'
@@ -131,6 +137,9 @@ class SiteImage(models.Model):
     image = models.ImageField(null=False, blank=True)
     site = models.ForeignKey(Site, on_delete=models.CASCADE, blank=False, null=False, related_name='images')
 
+    # created_date = models.DateTimeField(auto_now_add=True)
+    # modified_date = models.DateTimeField(auto_now=True)
+
     class Meta:
         unique_together = ('key', 'site')
         verbose_name = 'Bild'
@@ -143,6 +152,11 @@ class SiteParagraphList(models.Model):
     """ Model representing an ordered list of paragraphs on a site """
     key = models.CharField(max_length=100, blank=False, null=False, validators=[validate_variable_name])
     site = models.ForeignKey(Site, on_delete=models.CASCADE, blank=False, null=False, related_name='paragraph_lists')
+    ascending_order = models.BooleanField(choices=[(True, "Stigande"), (False, "Avtagande")],
+                                          default=True, verbose_name="Ordning")
+
+    # created_date = models.DateTimeField(auto_now_add=True)
+    # modified_date = models.DateTimeField(auto_now=True)
 
     class Meta:
         unique_together = ('key', 'site')
@@ -159,6 +173,9 @@ class SiteParagraph(models.Model):
     title = models.CharField(max_length=200, null=False, blank=True, validators=[validate_no_emoji])
     text = models.TextField(null=False, blank=True, validators=[validate_no_emoji])
     image = models.ImageField(null=False, blank=True)
+
+    # created_date = models.DateTimeField(auto_now_add=True)
+    # modified_date = models.DateTimeField(auto_now=True)
 
     class Meta:
         verbose_name = 'Stycke'

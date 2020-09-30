@@ -26,6 +26,12 @@ class HappeningForm(ModifiableModelForm):
         widget=forms.RadioSelect
     )
 
+    include_extra_in_price = forms.TypedChoiceField(
+        coerce=lambda x: x == 'True',
+        choices=((True, 'Ja'), (False, 'Nej')),
+        widget=forms.RadioSelect
+    )
+
     class Meta:
         model = models.Happening
         exclude = ['image_file_path']
@@ -85,6 +91,9 @@ class HappeningForm(ModifiableModelForm):
             },
             'include_drink_in_price': {
                 'label': 'Inkludera dryckespris i förbetalning',
+            },
+            'include_extra_in_price': {
+                'label': 'Inkludera tillval i förbetalning',
             },
             'exclusive_access': {
                 'label': "Exlusiv access",
@@ -149,7 +158,11 @@ class HappeningForm(ModifiableModelForm):
                      Div(Field('food'), css_class="reg-info"),
                      ),
             Fieldset("Ekonomi",
-                     Div(Field('include_drink_in_price'), css_class="reg-info"),
+                     Row(
+                         Column(Field('include_drink_in_price')),
+                         Column(Field('include_extra_in_price')),
+                         css_class="reg-info"
+                     )
                      ),
         )
         return helper
@@ -254,7 +267,7 @@ class HappeningConfirmForm(forms.Form):
         self.helper.layout = Layout(
             Row(
                 Column(HTML('<h5>Användare</h5>')),
-                Column(HTML('Bekräfta anmälan'))
+                Column()
             ),
             *[Row(
                 Column(HTML('%s' % str(registration.user))),

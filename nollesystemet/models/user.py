@@ -19,7 +19,7 @@ class NolleGroup(models.Model):
     """
     Model for "nØllegrupper". Also contains extra information on the group itself.
     """
-    name = models.CharField(verbose_name="Namn", max_length=150, unique=True, null=False, blank=False)
+    name = models.CharField(verbose_name="Namn", max_length=150, unique=True, null=False, blank=False, validators=[validate_no_emoji])
     description = models.TextField(blank=True, validators=[validate_no_emoji])
     logo = models.ImageField(null=True, blank=True)
     schedule = models.ImageField(null=True, blank=True)
@@ -81,7 +81,7 @@ class UserProfile(auth_models.UserProfile):
 
     kth_id = models.CharField(max_length=20, blank=True, validators=[validate_no_emoji])
     phone_number = models.CharField(max_length=30, blank=True, validators=[validate_no_emoji])
-    food_preference = models.CharField(max_length=150, blank=True, validators=[validate_no_emoji])
+    food_preference = models.TextField(blank=True, validators=[validate_no_emoji])
 
     objects = UserProfileManager()
 

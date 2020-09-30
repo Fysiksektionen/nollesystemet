@@ -87,16 +87,28 @@ class Registration(models.Model):
     @property
     def pre_paid_price(self):
         if self.happening.include_drink_in_price:
-            return self.base_price + self.extra_option_price + self.drink_price
+            if self.happening.include_extra_in_price:
+                return self.base_price + self.extra_option_price + self.drink_price
+            else:
+                return self.base_price + self.drink_price
         else:
-            return self.base_price + self.extra_option_price
+            if self.happening.include_extra_in_price:
+                return self.base_price + self.extra_option_price
+            else:
+                return self.base_price
 
     @property
     def on_site_paid_price(self):
         if self.happening.include_drink_in_price:
-            return None
+            if self.happening.include_extra_in_price:
+                return None
+            else:
+                return self.extra_option_price
         else:
-            return self.drink_price
+            if self.happening.include_extra_in_price:
+                return self.drink_price
+            else:
+                return self.drink_price + self.extra_option_price
 
     @property
     def all_extra_options_str(self):
@@ -120,6 +132,8 @@ class Registration(models.Model):
             'form': RegistrationForm(instance=self),
             'payment_info_html': happening_info.payment_info_html,
             'payment_info_plain_text': happening_info.payment_info_plain_text,
+            'payment_info_post_price_html': happening_info.payment_info_post_price_html,
+            'payment_info_post_price_plain_text': happening_info.payment_info_post_price_plain_text
         }
 
         from_email, to = None, str(self.user.email)

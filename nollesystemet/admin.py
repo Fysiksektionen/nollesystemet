@@ -163,7 +163,7 @@ class SiteParagraphAdmin(admin.StackedInline):
                request.user.profile.has_perm('nollesystemet.edit_system')
 
 class SiteParagraphListAdmin(admin.ModelAdmin):
-    fields = ('key', 'site')
+    fields = ('key', 'site', 'ascending_order')
     readonly_fields = ('key', 'site')
     inlines = [SiteParagraphAdmin]
 

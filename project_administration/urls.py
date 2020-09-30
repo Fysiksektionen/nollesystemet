@@ -21,4 +21,5 @@ urlpatterns = [
     path('', include('nollesystemet.urls')),
     path('admin/', admin.site.urls),
     path('auth/', include('authentication.urls')),
+    path('rest/', include('rest_framework.urls', namespace='rest')),
 ]

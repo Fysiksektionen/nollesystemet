@@ -34,6 +34,8 @@ class SingeltonModel(models.Model):
 class HappeningSettings(SingeltonModel):
     payment_info_html = models.TextField(blank=True, verbose_name="Betalningsinformation (HTML)")
     payment_info_plain_text = models.TextField(blank=True, verbose_name="Betalningsinformation (Plain text)")
+    payment_info_post_price_html = models.TextField(blank=True, verbose_name="Betalningsinformation efter pris (HTML)")
+    payment_info_post_price_plain_text = models.TextField(blank=True, verbose_name="Betalningsinformation efter pris (Plain text)")
 
     class Meta:
         verbose_name = "Evenemangsinställningar"

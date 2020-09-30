@@ -2,7 +2,7 @@ import django.forms as forms
 from crispy_forms.layout import Submit, Layout, Row, Column, HTML, Field
 from django.forms import widgets
 
-from nollesystemet.models import Registration, UserProfile
+from nollesystemet.models import Registration, UserProfile, ExtraOption, DrinkOption
 from .misc import ModifiableModelForm, _blank_fields_crispy
 
 import logging
@@ -102,9 +102,13 @@ class RegistrationForm(ModifiableModelForm):
         if self.happening.drinkoption_set.count() > 0:
             self.fields['drink_option'].queryset = self.happening.drinkoption_set.all().order_by('price')
             self.fields['drink_option'].required = True
+        else:
+            self.fields['drink_option'].queryset = DrinkOption.objects.none()
 
         if self.happening.extraoption_set.count() > 0:
             self.fields['extra_option'].queryset = self.happening.extraoption_set.all().order_by('price')
+        else:
+            self.fields['extra_option'].queryset = ExtraOption.objects.none()
 
     def update_nonused_fields(self):
         layout_exclude = []

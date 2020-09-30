@@ -8,6 +8,14 @@
 
 {% block content-indented %}
     {% include "common/elements/back-button.html" %}
+
+    <div class="d-flex flex-column col-md-6 col-lg-8 my-4">
+        {% include "common/elements/happening-information.html" %}
+        <p>
+            <strong>Antal anmälda: </strong> {{ happening.num_of_registered }}.
+        </p>
+    </div>
+
     <div class="d-flex flex-wrap my-4 justify-content-around text-nowrap">
         <div class="d-flex col-lg justify-content-center p-lg-2 my-lg-0 my-2">
             <a href="{% url "fohseriet:evenemang:ladda-ned-anmalda" happening.pk %}" class="btn btn-success flex-fill" download>

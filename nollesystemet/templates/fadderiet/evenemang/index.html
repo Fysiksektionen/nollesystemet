@@ -12,31 +12,34 @@
     {% if object_list %}
         <div class="d-flex flex-column">
             <p>
+                {{ site.texts.betalningsinfo|safe|linebreaks }}
+            </p>
+            <p>
+                <i class="fa fa-money" aria-hidden="true" style="color: darkgray;"></i> Ej bekräftad
+            </p>
+            <p>
+                <i class="fa fa-money" aria-hidden="true" style="color: red;"></i> Ej betalat (bekräftad)
+            </p>
+            <p>
                 <i class="fa fa-money" aria-hidden="true" style="color: green;"></i> Betalat
             </p>
             <p>
-                <i class="fa fa-money" aria-hidden="true" style="color: red;"></i> Ej betalat
-            </p>
-            <p>
                 <i>Det kan ta upp till ett dygn för din betalning att registreras i systemet. Det görs manuellt.</i>
-            </p>
-            <p>
-                {{ site.texts.betalningsinfo|safe|linebreaks }}
             </p>
         </div>
         <hr>
         {% for list_item in object_list %}
             {% with list_item.happening as happening %}
                 <div class="card my-2">
-                    <div class="card-header" data-toggle="collapse" href="#collapse{{ forloop.counter }}">
+                    <div class="card-header" data-toggle="collapse" href="#collapse{{ forloop.counter }}" aria-expanded="true">
                         <div class="d-flex justify-content-between">
-                            <a class="navbar-brand font-weight-bolder">
+                            <a class="navbar-brand font-weight-bolder flex-truncate">
                                 {{ happening.name }}
                             </a>
                             <div class="d-flex align-content-end">
                                 <div class="d-flex justify-content-center" style="width: 2rem;">
                                     {% if list_item.is_registered %}
-                                        <i class="fa fa-money my-auto px-2" aria-hidden="true" style="color: {% if list_item.registration.paid %}green{% else %}red{% endif %};"></i>
+                                        <i class="fa fa-money my-auto px-2" aria-hidden="true" style="color: {% if not list_item.registration.confirmed %}darkgray{% else %}{% if list_item.registration.paid %}green{% else %}red{% endif %}{% endif %};"></i>
                                         <i class="fa fa-user-check my-auto" aria-hidden="true" style="color: green;"></i>
                                     {% else %}
                                         {% if happening.takes_registration %}
@@ -55,7 +58,7 @@
                             </div>
                         </div>
                     </div>
-                    <div id="collapse{{ forloop.counter }}" class="collapse">
+                    <div id="collapse{{ forloop.counter }}" class="collapse show">
                         <div class="d-flex card-body flex-wrap">
                             <div class="d-flex flex-column col-md-8">
                                 {% include "common/elements/happening-information.html" with happening=happening only %}

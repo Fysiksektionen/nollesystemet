@@ -59,7 +59,6 @@ ROOT_URLCONF = 'project_administration.urls'
 WSGI_APPLICATION = 'project_administration.wsgi.application'
 
 INSTALLED_APPS = (
-    'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -69,6 +68,8 @@ INSTALLED_APPS = (
     'multiselectfield',
     'authentication',
     'nollesystemet',
+    'django.contrib.admin',
+    'rest_framework',
 )
 
 MIDDLEWARE = (

@@ -4,6 +4,7 @@ from django.contrib import admin
 
 import authentication.views as auth_views
 import nollesystemet.views as views
+import nollesystemet.viewsets as viewsets
 
 login_urls = ([
     path('', views.LoginViewFohseriet.as_view(), name='index'),
@@ -42,6 +43,10 @@ nolle_form_urls = ([
     path('ladda-ned-svar/', views.NolleFormDownloadView.as_view(), name="ladda-ned-svar"),
 ], 'nolleenkaten')
 
+api_urls = ([
+    path('user_profiles/<int:pk>', viewsets.user_profile_detail_api_view)
+], 'api')
+
 fohseriet_urls = ([
     path('', views.misc.FohserietIndexView.as_view(), name='index'),
     path('saknar-rattigheter/', views.misc.AccessDeniedViewFohseriet.as_view(), name='saknar-rattigheter'),
@@ -53,5 +58,6 @@ fohseriet_urls = ([
     path('nolleenkaten/', include(nolle_form_urls)),
     path('<path:url>/', views.FohserietMenuView.as_view(
         template_name="fohseriet/sidan-finns-inte.html"
-    ), name="sidan-finns-inte")
+    ), name="sidan-finns-inte"),
+    path('api/', include(api_urls)),
 ], 'fohseriet')
