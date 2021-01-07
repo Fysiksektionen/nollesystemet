@@ -35,7 +35,7 @@ idna==2.10
 jdcal==1.4.1
 l18n==2018.5
 libsass==0.20.0
-lxml==4.5.2
+lxml==4.6.2
 Markdown==3.2.2
 mysqlclient==2.0.1
 openpyxl==3.0.5
