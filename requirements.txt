@@ -13,7 +13,7 @@ django-braces==1.14.0
 django-collectionfield==0.0.4
 django-compressor==2.4
 django-crispy-forms==1.9.1
-django-debug-toolbar==2.2
+django-debug-toolbar==2.2.1
 django-extensions==3.0.2
 django-filter==2.3.0
 django-formset-js==0.5.0
