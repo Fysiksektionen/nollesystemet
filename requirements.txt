@@ -5,7 +5,7 @@ beautifulsoup4==4.8.2
 certifi==2020.6.20
 cffi==1.14.0
 chardet==3.0.4
-cryptography==2.9.2
+cryptography==3.3.2
 Django==3.1.12
 django-annoying==0.10.6
 django-appconf==1.0.4
