@@ -3,6 +3,8 @@ FROM python:3.9
 
 ENV PYTHONUNBUFFERED=1
 
+USER ejemyr
+
 WORKDIR /usr/src/app
 
 COPY requirements.txt /usr/src/app/
