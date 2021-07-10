@@ -1,0 +1,25 @@
+version: "3.9"
+   
+services:
+  db:
+    user: 1000:1000
+    image: postgres
+    volumes:
+      - ./data/db:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+
+  web:
+    build: .
+    command: python3 scripts/manage_debug.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/usr/src/app
+      - $DJANGO_ETC:/usr/src/config
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      - ROOT_URL=nollesystemet

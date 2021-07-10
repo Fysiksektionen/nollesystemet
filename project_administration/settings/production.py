@@ -31,12 +31,13 @@ PROJECT_APP_ROOT = os.path.abspath(os.path.dirname(os.path.dirname(os.path.dirna
 PROJECT_ROOT = PROJECT_APP_ROOT
 PUBLIC_ROOT = os.path.abspath(os.path.join(PROJECT_ROOT, 'public'))
 
-file_settings = read_conf_json_settings(os.path.join(os.path.dirname(__file__), 'config_files/settings.json'))
-ROOT_URL = file_settings.get('ROOT_URL')
-DOMAIN_URL = file_settings.get('DOMAIN_URL')
+ROOT_URL = os.getenv('ROOT_URL', '/')
+
+DOMAIN_URL = os.getenv('DOMAIN_URL', '')
 if DOMAIN_URL and len(DOMAIN_URL) > 0 and DOMAIN_URL[-1] == '/':
     DOMAIN_URL = DOMAIN_URL[:-1]
-SECRET_KEY_PATH = file_settings.get('SECRET_KEY_PATH')
+    
+SECRET_KEY_PATH = "/usr/src/config/secret_key.cnf"
 with open(SECRET_KEY_PATH) as f:
     SECRET_KEY = f.read().strip()
 
@@ -80,7 +81,6 @@ MIDDLEWARE = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
-    # 'nollesystemet.middleware.PageCallStackMiddleware',
 )
 
 # Templates
@@ -108,12 +108,20 @@ TEMPLATES = [
 
 # Database
 DATABASES = {
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.mysql',
+    #     'OPTIONS': {
+    #         'read_default_file': os.path.join(os.path.dirname(__file__), 'config_files/db_info.cnf'),
+    #         'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"
+    #     }
+    # }
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'OPTIONS': {
-            'read_default_file': os.path.join(os.path.dirname(__file__), 'config_files/db_info.cnf'),
-            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"
-        }
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'postgres',
+        'USER': 'postgres',
+        'PASSWORD': 'postgres',
+        'HOST': 'db',
+        'PORT': 5432,
     }
 }
 
@@ -168,15 +176,18 @@ LOGOUT_REDIRECT_URL = reverse_lazy('fadderiet:index')
 
 
 # Email setup
-email_settings = read_conf_json_settings(os.path.join(os.path.dirname(__file__), 'config_files/mail.json'))
-EMAIL_BACKEND = email_settings.get('EMAIL_BACKEND')
-EMAIL_HOST = email_settings.get('EMAIL_HOST')
-EMAIL_USE_TLS = email_settings.get('EMAIL_USE_TLS')
-EMAIL_PORT = email_settings.get('EMAIL_PORT')
-EMAIL_HOST_USER = email_settings.get('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = email_settings.get('EMAIL_HOST_PASSWORD')
-DEFAULT_FROM_EMAIL = email_settings.get('DEFAULT_FROM_EMAIL')
-SERVER_EMAIL = email_settings.get('SERVER_EMAIL')
+# email_settings = read_conf_json_settings(os.path.join(os.path.dirname(__file__), 'config_files/mail.json'))
+# email_settings = {
+#     'EMAIL_BACKEND': 
+# }
+# EMAIL_BACKEND = email_settings.get('EMAIL_BACKEND')
+# EMAIL_HOST = email_settings.get('EMAIL_HOST')
+# EMAIL_USE_TLS = email_settings.get('EMAIL_USE_TLS')
+# EMAIL_PORT = email_settings.get('EMAIL_PORT')
+# EMAIL_HOST_USER = email_settings.get('EMAIL_HOST_USER')
+# EMAIL_HOST_PASSWORD = email_settings.get('EMAIL_HOST_PASSWORD')
+# DEFAULT_FROM_EMAIL = email_settings.get('DEFAULT_FROM_EMAIL')
+# SERVER_EMAIL = email_settings.get('SERVER_EMAIL')
 
 # Assure that errors end up to Apache error logs via console output
 # when debug mode is disabled
