@@ -9,8 +9,7 @@
 
 {% block menu %}
     {% url "fadderiet:index" as logo_url %}
-    {% static "fadderiet/resources/fadderiet_logo.png" as logo_path %}
-    {% include "common/elements/menu-items.html" with menu=menu logo_path=logo_path logo_url=logo_url only %}
+    {% include "common/elements/menu-items.html" with menu=menu logo=site_settings.fadderiet_logo logo_url=logo_url only %}
 {% endblock %}
 
 {% block footer %}

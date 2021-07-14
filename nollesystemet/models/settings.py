@@ -45,6 +45,11 @@ class HappeningSettings(SingeltonModel):
 class SiteSettings(SingeltonModel):
     show_warning_banner = models.BooleanField(default=False, verbose_name="Visa varningstext")
     warning_banner_text = models.TextField(blank=True, verbose_name="Varningstext")
+    fadderiet_footer_left = models.TextField(blank=True, verbose_name="Footer vänster")
+    fadderiet_footer_right = models.TextField(blank=True, verbose_name="Footer höger")
+
+    fadderiet_logo = models.ImageField(null=True, blank=True, verbose_name="Fadderiets logga")
+    fohseriet_logo = models.ImageField(null=True, blank=True, verbose_name="Föhseriets logga")
 
     class Meta:
         verbose_name = "Sidinställningar"

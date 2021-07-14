@@ -1,5 +1,6 @@
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 import authentication.models as auth_models
+
 
 class Command(BaseCommand):
     help = "Updates the superuser admin's password according to the first argument."

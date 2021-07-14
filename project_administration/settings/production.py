@@ -22,6 +22,7 @@ def join_urls(*args):
                 path = path + '/'
     return path
 
+
 def read_conf_json_settings(filepath):
     with open(filepath) as file:
         return json.load(file)
@@ -29,16 +30,21 @@ def read_conf_json_settings(filepath):
 
 PROJECT_APP_ROOT = os.path.abspath(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 PROJECT_ROOT = PROJECT_APP_ROOT
-PUBLIC_ROOT = os.path.abspath(os.path.join(PROJECT_ROOT, 'public'))
 
 file_settings = read_conf_json_settings(os.path.join(os.path.dirname(__file__), 'config_files/settings.json'))
+
+PUBLIC_ROOT_SETTINGS = file_settings.get('PUBLIC_ROOT')
+if os.path.isabs(PUBLIC_ROOT_SETTINGS):
+    PUBLIC_ROOT = PUBLIC_ROOT_SETTINGS
+else:
+    PUBLIC_ROOT = os.path.abspath(os.path.join(PROJECT_APP_ROOT, PUBLIC_ROOT_SETTINGS))
+
 ROOT_URL = file_settings.get('ROOT_URL')
 DOMAIN_URL = file_settings.get('DOMAIN_URL')
 if DOMAIN_URL and len(DOMAIN_URL) > 0 and DOMAIN_URL[-1] == '/':
     DOMAIN_URL = DOMAIN_URL[:-1]
-SECRET_KEY_PATH = file_settings.get('SECRET_KEY_PATH')
-with open(SECRET_KEY_PATH) as f:
-    SECRET_KEY = f.read().strip()
+
+SECRET_KEY = file_settings.get('SECRET_KEY')
 
 DEBUG = False
 CSRF_COOKIE_SECURE = True
@@ -50,7 +56,7 @@ ALLOWED_HOSTS = (
     'f.kth.se'
 )
 
-ADMINS = [('admin', 'ejemyr@fysiksektionen.se')]
+ADMINS = [('admin', file_settings.get('ADMIN_EMAIL', 'nollesystemet@f.kth.se'))]
 MANAGERS = ADMINS
 
 # Application definition
@@ -79,8 +85,7 @@ MIDDLEWARE = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
-    # 'nollesystemet.middleware.PageCallStackMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware'
 )
 
 # Templates
@@ -130,13 +135,13 @@ LOCALE_PATHS = [
 ]
 
 # Static files (CSS, JavaScript, Images)
-STATIC_URL = join_urls(ROOT_URL, '/staticfiles/')
+STATIC_URL = join_urls(ROOT_URL, '/public/staticfiles/')
 STATIC_ROOT = os.path.join(PUBLIC_ROOT, 'staticfiles')
 STATICFILES_DIRS = [
     os.path.join(PROJECT_ROOT, 'static'),
 ]
 
-MEDIA_URL = join_urls(ROOT_URL, '/mediafiles/')
+MEDIA_URL = join_urls(ROOT_URL, '/public/mediafiles/')
 MEDIA_ROOT = os.path.join(PUBLIC_ROOT, 'mediafiles')
 MEDIAFILES_DIRS = [
     os.path.join(PROJECT_ROOT, 'media'),
@@ -187,4 +192,6 @@ DEFAULT_LOGGING['loggers'][''] = {
     'level': 'INFO',
     'propagate': True
 }
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 

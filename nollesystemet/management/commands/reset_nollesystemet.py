@@ -1,4 +1,3 @@
-from django.core.management.base import BaseCommand, CommandError
 from nollesystemet.models import *
 
 from .re_initialize_nollesystemet import Command as ReInitializeCommand

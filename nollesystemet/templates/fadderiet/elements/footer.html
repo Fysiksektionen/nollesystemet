@@ -1,24 +1,14 @@
 <div class="d-flex flex-column p-0 bg-secondary">
     <div class="d-flex flex-fill flex-wrap justify-content-between px-3 px-sm-5 my-5">
         <div class="col-xl-4 col-lg-6 col-md-8">
-            <h4>Frågor?</h4>
-            <p>
-                Har du några frågor? Kontakta oss på <b><a href="mailto:mottagningen@f.kth.se" class="text-white">mottagningen@f.kth.se</a></b>.
-            </p>
-            <p>
-                Det går också bra att ringa vår kontaktperson, han svarar på alla sorters frågor!
-                <br>
-                <b>Christoffer Ejemyr</b>, 073 385 48 66
-            </p>
+            {% if site_settings.fadderiet_footer_left %}
+                {{ site_settings.fadderiet_footer_left|safe }}
+            {% endif %}
         </div>
         <div class="col-xl-4 col-lg-6 col-md-8 mt-5 my-lg-0">
-            <h4>Fjädrande fadderiet</h4>
-            <table class="container-fluid table-sm">
-                <tr><td><b>Fjädrande Nicole</b></td><td style="text-align: end;">070 715 21 25</td></tr>
-                <tr><td><b>Fjädrande Frida</b></td><td style="text-align: end;">073 069 56 61</td></tr>
-                <tr><td><b>Fjädrande Axel</b></td><td style="text-align: end;">070 326 48 44</td></tr>
-                <tr><td><b>Fjädrande Becca</b></td><td style="text-align: end;">073 044 18 41</td></tr>
-            </table>
+            {% if site_settings.fadderiet_footer_right %}
+                {{ site_settings.fadderiet_footer_right|safe }}
+            {% endif %}
         </div>
     </div>
     <div class="d-flex flex-fill flex-wrap justify-content-between col-lg-12 col-md-8 px-3 px-sm-5 my-3">

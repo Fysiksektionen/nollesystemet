@@ -1,9 +1,8 @@
 import json
 
 from django.contrib.staticfiles import finders
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 import django.contrib.auth.models as django_auth_models
-import authentication.models as auth_models
 from nollesystemet.models import *
 
 class Command(BaseCommand):

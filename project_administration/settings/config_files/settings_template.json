@@ -1,5 +1,6 @@
 {
   "ROOT_URL": "/",
   "DOMAIN_URL": "",
-  "SECRET_KEY_PATH": ""
+  "SECRET_KEY": "",
+  "PUBLIC_ROOT": ""
 }
