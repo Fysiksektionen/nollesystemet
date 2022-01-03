@@ -1,5 +1,6 @@
 import json
 import os
+import random
 
 from django.urls import reverse_lazy
 from django.utils.log import DEFAULT_LOGGING
@@ -28,6 +29,8 @@ def read_conf_json_settings(filepath):
         return json.load(file)
 
 
+random.seed()
+
 PROJECT_APP_ROOT = os.path.abspath(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 PROJECT_ROOT = PROJECT_APP_ROOT
 
@@ -53,7 +56,8 @@ SESSION_COOKIE_SECURE = True
 ALLOWED_HOSTS = (
     'localhost',
     '0.0.0.0',
-    'f.kth.se'
+    'f.kth.se',
+    'www.f.kth.se'
 )
 
 ADMINS = [('admin', file_settings.get('ADMIN_EMAIL', 'nollesystemet@f.kth.se'))]
@@ -61,6 +65,7 @@ MANAGERS = ADMINS
 
 # Application definition
 
+APPEND_SLASH=True
 ROOT_URLCONF = 'project_administration.urls'
 WSGI_APPLICATION = 'project_administration.wsgi.application'
 
@@ -76,6 +81,7 @@ INSTALLED_APPS = (
     'nollesystemet',
     'django.contrib.admin',
     'rest_framework',
+    'django_filters'
 )
 
 MIDDLEWARE = (
@@ -175,6 +181,7 @@ LOGOUT_REDIRECT_URL = reverse_lazy('fadderiet:index')
 # Email setup
 email_settings = read_conf_json_settings(os.path.join(os.path.dirname(__file__), 'config_files/mail.json'))
 EMAIL_BACKEND = email_settings.get('EMAIL_BACKEND')
+EMAIL_FILE_PATH = email_settings.get('EMAIL_FILE_PATH', None)
 EMAIL_HOST = email_settings.get('EMAIL_HOST')
 EMAIL_USE_TLS = email_settings.get('EMAIL_USE_TLS')
 EMAIL_PORT = email_settings.get('EMAIL_PORT')
@@ -195,3 +202,15 @@ DEFAULT_LOGGING['loggers'][''] = {
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+OCR_NUMBER_LOW = 100000
+OCR_NUMBER_HIGH = 999999
+OCR_NUMBER_NUM_DIGITS = 6
+
+REST_FRAMEWORK = {
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+    ],
+    'DEFAULT_PARSER_CLASSES': [
+        'rest_framework.parsers.JSONParser',
+    ]
+}

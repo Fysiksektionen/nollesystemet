@@ -143,7 +143,7 @@ class AuthUserGroupsUpdateForm(ModifiableModelForm):
         field_args = {
             'groups': {
                 'label': 'Administratörsegenskaper',
-                'widget_class': forms.CheckboxSelectMultiple,
+                # 'widget_class': forms.CheckboxSelectMultiple,
             }
         }
 
@@ -270,11 +270,12 @@ class UserAdministrationForm(CsvFileAdministrationForm):
     create_object_url = reverse_lazy('fohseriet:anvandare:skapa')
 
     file_columns = ['username', 'email', 'password',
-                    'user_type', 'first_name', 'last_name', 'program', 'kth_id', 'phone_number', 'nolle_group']
+                    'user_type', 'first_name', 'last_name', 'program', 'kth_id', 'phone_number', 'nolle_group',
+                    'food_preference']
 
     required_columns = ['username', 'email', 'user_type', 'first_name', 'last_name']
     val_or_none_columns = ['password', 'program', 'nolle_group']
-    val_or_blank_str_columns = ['kth_id', 'phone_number']
+    val_or_blank_str_columns = ['kth_id', 'phone_number', 'food_preference']
 
     enum_columns = [('user_type', UserProfile.UserType, False), ('program', UserProfile.Program, False)]
     object_columns = [('nolle_group', NolleGroup, True)]

@@ -7,6 +7,7 @@ from django.http import HttpResponseRedirect, HttpRequest
 from django.urls import reverse_lazy, reverse
 from django.views.generic import ListView
 
+import authentication.models as auth_models
 import nollesystemet.models as models
 import nollesystemet.forms as forms
 import nollesystemet.mixins as mixins
@@ -88,18 +89,16 @@ class UsersListView(mixins.FohserietMixin, ObjectsAdministrationListView):
     def handle_uploaded_file(self, file_data):
         errors = []
         users = []
+
+        all_usernames = auth_models.AuthUser.objects.all().values_list('username', flat=True)
         for user_info in file_data:
-            try:
-                user = models.UserProfile.create_new_user(**user_info)
+            if user_info['username'] in all_usernames:
+                user, errors = UsersListView._update_user(user_info, errors)
+            else:
+                user, errors = UsersListView._create_user(user_info, errors)
+
+            if user:
                 users.append(user)
-            except ValidationError as e:
-                errors.append("Fel vid skapande av användare '%s': %s" % (
-                    user_info['first_name'] + ' ' + user_info['last_name'], ", ".join(e.messages)
-                ))
-            except:
-                errors.append("Fel vid skapande av användare '%s': %s" % (
-                    user_info['first_name'] + ' ' + user_info['last_name'], "Unexpected error:" + str(sys.exc_info()[0])
-                ))
 
         self.file_upload_information = ""
         self.file_upload_success = True
@@ -111,6 +110,37 @@ class UsersListView(mixins.FohserietMixin, ObjectsAdministrationListView):
             self.file_upload_information += "Följande användare laddes upp: %s" % (
                 ", ".join([user.name for user in users])
             )
+
+    @staticmethod
+    def _update_user(user_info, errors):
+        try:
+
+            return models.UserProfile.update_user(**user_info), errors
+        except ValidationError as e:
+            errors.append("Fel vid uppdaterande av användare '%s': %s" % (
+                user_info['first_name'] + ' ' + user_info['last_name'], ", ".join(e.messages)
+            ))
+        except:
+            errors.append("Fel vid uppdaterande av användare '%s': %s" % (
+                user_info['first_name'] + ' ' + user_info['last_name'], "Unexpected error:" + str(sys.exc_info()[0])
+            ))
+
+        return None, errors
+
+    @staticmethod
+    def _create_user(user_info, errors):
+        try:
+            return models.UserProfile.create_new_user(**user_info), errors
+        except ValidationError as e:
+            errors.append("Fel vid skapande av användare '%s': %s" % (
+                user_info['first_name'] + ' ' + user_info['last_name'], ", ".join(e.messages)
+            ))
+        except:
+            errors.append("Fel vid skapande av användare '%s': %s" % (
+                user_info['first_name'] + ' ' + user_info['last_name'], "Unexpected error:" + str(sys.exc_info()[0])
+            ))
+
+        return None, errors
 
 class UserUpdateView(mixins.FohserietMixin, ModifiableModelFormView):
     model = models.UserProfile

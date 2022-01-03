@@ -5,12 +5,20 @@
 {% endblock %}
 
 {% block content-indented %}
-    {% if can_create %}
+    {% if can_create or can_upload_payment_info %}
         <div class="pb-3">
-            <a class="btn btn-primary" href="{% url 'fohseriet:evenemang:skapa' %}">
-                Skapa evenemang
-                <i class="fa fa-plus" aria-hidden="true"></i>
-            </a>
+            {% if can_create %}
+                <a class="btn btn-primary mr-3" href="{% url 'fohseriet:evenemang:skapa' %}">
+                    Skapa evenemang
+                    <i class="fa fa-plus" aria-hidden="true"></i>
+                </a>
+            {% endif %}
+            {% if can_handle_payments %}
+                <a class="btn btn-primary mx-3" href="{% url 'fohseriet:evenemang:betalningar' %}">
+                    Hantera betalningar
+                    <i class="fa fa-money" aria-hidden="true"></i>
+                </a>
+            {% endif %}
         </div>
     {% endif %}
 

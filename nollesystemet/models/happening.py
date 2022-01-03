@@ -64,6 +64,7 @@ class Happening(models.Model):
         permissions = [
             ("create_happening", "Can create happenings"),
             ("edit_happening", "Can edit any happening"),
+            ("control_payments", "Can handle system wide payment information")
         ]
         verbose_name = 'Evenemang'
         verbose_name_plural = 'Evenemang'
@@ -74,6 +75,10 @@ class Happening(models.Model):
     @staticmethod
     def can_create(observing_user: UserProfile):
         return observing_user.has_perm('nollesystemet.create_happening')
+
+    @staticmethod
+    def can_handle_payments(observing_user: UserProfile):
+        return observing_user.has_perm('nollesystemet.control_payments')
 
     @staticmethod
     def user_is_editor(observing_user: UserProfile):
@@ -178,7 +183,7 @@ class UserTypeBasePrice(models.Model):
 class DrinkOption(models.Model):
     """ Model representing an option of drinks to a happening and its associated price. """
 
-    drink = models.CharField(max_length=30, validators=[validate_no_emoji])
+    drink = models.CharField(max_length=100, validators=[validate_no_emoji])
     happening = models.ForeignKey(Happening, on_delete=models.CASCADE)
     price = models.PositiveSmallIntegerField()
 
@@ -194,7 +199,7 @@ class DrinkOption(models.Model):
 class ExtraOption(models.Model):
     """ Model representing extra options of a happening and their respective price. """
 
-    extra_option = models.CharField(max_length=30, validators=[validate_no_emoji])
+    extra_option = models.CharField(max_length=100, validators=[validate_no_emoji])
     happening = models.ForeignKey(Happening, on_delete=models.CASCADE)
     price = models.PositiveSmallIntegerField()
 

@@ -1,10 +1,11 @@
 from django.conf import settings
 from django.urls import path, include, reverse_lazy
-from django.contrib import admin
 
 import authentication.views as auth_views
 import nollesystemet.views as views
-import nollesystemet.viewsets as viewsets
+from nollesystemet.api_views import user as api_views_user
+from nollesystemet.api_views import registration as api_views_registration
+from nollesystemet.api_views import campussafari as api_views_campussafari
 
 login_urls = ([
     path('', views.LoginViewFohseriet.as_view(), name='index'),
@@ -18,11 +19,12 @@ login_urls = ([
 
 happening_urls = ([
     path('', views.HappeningListViewFohseriet.as_view(), name="lista"),
+    path('skapa/', views.HappeningUpdateView.as_view(), name='skapa'),
+    path('betalningar/', views.HappeningPaymentsView.as_view(), name="betalningar"),
     path('<int:pk>/redigera/', views.HappeningUpdateView.as_view(), name='redigera'),
     path('<int:pk>/anmalda/', views.HappeningRegisteredListView.as_view(), name='anmalda'),
-    path('skapa/', views.HappeningUpdateView.as_view(), name='skapa'),
     path('<int:pk>/ladda-ned-anmalda/', views.HappeningDownloadView.as_view(), name='ladda-ned-anmalda'),
-    path('<int:pk>/uppdatera-betalningar/', views.HappeningPaidAndPresenceView.as_view(), name='uppdatera-betalningar'),
+    path('<int:pk>/narvaro/', views.HappeningPaidAndPresenceView.as_view(), name='narvaro'),
     path('<int:pk>/bekrafta-anmalda/', views.HappeningConfirmView.as_view(), name='bekrafta-anmalda'),
 ], 'evenemang')
 
@@ -44,8 +46,18 @@ nolle_form_urls = ([
 ], 'nolleenkaten')
 
 api_urls = ([
-    path('user_profiles/<int:pk>', viewsets.user_profile_detail_api_view)
+    path('user_profiles/<int:pk>', api_views_user.get_user_profile_form_HTML),
+    path('registrations', api_views_registration.RegistrationList.as_view()),
+    path('registrations/<int:pk>', api_views_registration.update_registration),
+    path('registrations/<int:pk>/confirm', api_views_registration.confirm_registration),
+    path('campussafari/<int:group_pk>/check-side-quest/<int:side_pk>', api_views_campussafari.check_side_quest),
+    path('campussafari/<int:group_pk>/set-station-points/<int:station_pk>', api_views_campussafari.set_station_points)
 ], 'api')
+
+campussafari_urls = ([
+    path('stationer/', views.FohserietStationAdministration.as_view()),
+    path('sidouppdrag/', views.FohserietSideQuestAdministration.as_view())
+], 'campussafari')
 
 fohseriet_urls = ([
     path('', views.misc.FohserietIndexView.as_view(), name='index'),
@@ -56,6 +68,7 @@ fohseriet_urls = ([
     path('anvandare/', include(user_urls)),
     path('anmalan/', include(registration_urls)),
     path('nolleenkaten/', include(nolle_form_urls)),
+    path('campussafari/', include(campussafari_urls)),
     path('<path:url>/', views.FohserietMenuView.as_view(
         template_name="fohseriet/sidan-finns-inte.html"
     ), name="sidan-finns-inte"),

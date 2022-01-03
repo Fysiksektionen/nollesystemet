@@ -1,3 +1,4 @@
+import pandas as pandas
 from crispy_forms.helper import FormHelper
 from django import forms
 from django.forms.widgets import Textarea, DateTimeInput
@@ -7,6 +8,8 @@ from crispy_forms.layout import Layout, Fieldset, Field, Row, Column, HTML, Div,
 import nollesystemet.models as models
 from .misc import ModifiableModelForm, custom_inlineformset_factory
 from .widgets import BootstrapDateTimePickerInput
+from django.core.exceptions import ValidationError
+
 
 class HappeningForm(ModifiableModelForm):
     takes_registration = forms.TypedChoiceField(
@@ -67,7 +70,7 @@ class HappeningForm(ModifiableModelForm):
             },
             'nolle_groups': {
                 'label': 'Välkomna nØllegrupper',
-                'widget_class': forms.CheckboxSelectMultiple,
+                # 'widget_class': forms.CheckboxSelectMultiple,
                 'help_text': "Välj alla för att välkomna alla grupper."
             },
             'editors': {
@@ -110,10 +113,14 @@ class HappeningForm(ModifiableModelForm):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.initial.setdefault('user_types',
-                                [models.UserProfile.UserType.NOLLAN, models.UserProfile.UserType.FADDER]
+                                [models.UserProfile.UserType.NOLLAN,
+                                 models.UserProfile.UserType.FADDER,
+                                 models.UserProfile.UserType.FORFADDER]
                                 )
         self.initial.setdefault('automatic_confirmation',
-                                [models.UserProfile.UserType.NOLLAN, models.UserProfile.UserType.FADDER]
+                                [models.UserProfile.UserType.NOLLAN,
+                                 models.UserProfile.UserType.FADDER,
+                                 models.UserProfile.UserType.FORFADDER]
                                 )
         self.initial.setdefault('nolle_groups', models.NolleGroup.objects.all())
 
@@ -191,102 +198,66 @@ ExtraOptionFormset = custom_inlineformset_factory(
 )
 
 
-class HappeningPaidAndPresenceForm(forms.Form):
-    def __init__(self, *args, happening=None, **kwargs):
-        if not happening:
-            raise Exception("No happening was given to form.")
+class HappeningPaymentUploadForm(forms.Form):
+    swish = forms.FileField(required=False)
+    bankgiro = forms.FileField(required=False)
 
-        super().__init__(*args, **kwargs)
+    def __init__(self, *args, **kwargs):
+        super(HappeningPaymentUploadForm, self).__init__(*args, **kwargs)
 
-        self.happening = happening
-        self.registrations = models.Registration.objects.filter(happening=self.happening).order_by('user__first_name')
-        for i, registration in enumerate(self.registrations):
-            self.fields['%d_paid' % i] = forms.BooleanField(required=False,
-                                                            initial=registration.paid,
-                                                            label='Betalat')
-            self.fields['%d_attended' % i] = forms.BooleanField(required=False,
-                                                                initial=registration.attended,
-                                                                label='Närvarar')
+        self.fields['swish'].widget.attrs['hidden'] = True
+        self.fields['bankgiro'].widget.attrs['hidden'] = True
 
-        self.helper = FormHelper()
-        self.helper.form_tag = True
-        self.helper.form_method = 'post'
-        self.helper.layout = Layout(
-            Row(
-                Column(HTML('<h5>Användare</h5>')),
-                Column(HTML('Pris')),
-                Column(HTML('Dryck' if self.happening.drinkoption_set.count() > 0 else '')),
-                Column(HTML('Har betalat')),
-                Column(HTML('Har deltagit'))
-            ),
-            *[Row(
-                Column(HTML('%s' % str(registration.user))),
-                Column(HTML(self.price_HTML(registration))),
-                Column(HTML(registration.drink_option.drink if registration.drink_option else '')),
-                Column('%d_paid' % i),
-                Column('%d_attended' % i)
-            ) for i, registration in enumerate(self.registrations)],
-            HTML("""<button type="submit" name="submit" class="btn btn-primary" id="submit-id-submit">
-                    Spara <i class="fa fa-save" aria-hidden="true"></i>
-                    </button>""")
-        )
+    def clean_swish(self):
+        if 'swish' in self.cleaned_data and self.cleaned_data['swish']:
+            try:
+                raw_file_content = self.cleaned_data['swish'].read()
+                try:
+                    file_content = raw_file_content.decode('iso-8859-1')
+                except:
+                    file_content = raw_file_content.decode('utf-8')
 
-    def update_registrations(self):
-        for i, registration in enumerate(self.registrations):
-            registration.paid = self.cleaned_data['%d_paid' % i]
-            registration.attended = self.cleaned_data['%d_attended' % i]
-            registration.save()
+                rows = []
+                if '\r' in file_content:
+                    rows = file_content.split('\r\n')
+                else:
+                    rows = file_content.split('\n')
 
-    def price_HTML(self, registration):
-        if registration.on_site_paid_price:
-            return '%s kr (+%s kr)' % (str(registration.pre_paid_price), str(registration.on_site_paid_price))
+                assert len(rows) > 0
+                rows = [row[:-1] for row in rows[1:] if row.strip() != ""]
+                rows = [row.split(';') for row in rows]
+                return rows
+
+            except Exception as e:
+                raise ValidationError("Fel vid avläsning av swish-filen. Har du rätt format på filen?")
         else:
-            return '%s kr' % str(registration.pre_paid_price)
+            return None
 
+    def clean_bankgiro(self):
+        if 'bankgiro' in self.cleaned_data and self.cleaned_data['bankgiro']:
+            try:
+                data_frame = pandas.read_excel(self.cleaned_data['bankgiro'].read())
 
-class HappeningConfirmForm(forms.Form):
-    def __init__(self, *args, happening=None, **kwargs):
-        if not happening:
-            raise Exception("No happening was given to form.")
+                header_row = 0
+                while data_frame.iloc[header_row, 0] != "Avsändare":
+                    header_row += 1
 
-        super().__init__(*args, **kwargs)
+                last_row = header_row
+                try:
+                    while data_frame.iloc[last_row, 0] != "":
+                        last_row += 1
+                except:
+                    last_row -= 1
 
-        self.happening = happening
-        self.registrations = models.Registration.objects.filter(
-            happening=self.happening, confirmed=False
-        ).order_by('user__first_name')
-        for i, registration in enumerate(self.registrations):
-            self.fields['%d_confirmed' % i] = forms.BooleanField(required=False,
-                                                                 initial=registration.confirmed,
-                                                                 label='',
-                                                                 disabled=registration.confirmed)
+                rows = [
+                    [data_frame.iloc[row, col] for col in [0, 2, 3, 4]]
+                    for row in range(header_row + 1, last_row + 1)
+                ]
 
-        self.helper = FormHelper()
-        self.helper.form_tag = True
-        self.helper.form_method = 'post'
-        self.helper.layout = Layout(
-            Row(
-                Column(HTML('<h5>Användare</h5>')),
-                Column()
-            ),
-            *[Row(
-                Column(HTML('%s' % str(registration.user))),
-                Column('%d_confirmed' % i),
-            ) for i, registration in enumerate(self.registrations)],
-            HTML("""<button type="submit" name="submit" class="btn btn-primary" id="submit-id-submit">
-                    Spara <i class="fa fa-save" aria-hidden="true"></i>
-                    </button>""")
-        )
+                return rows
 
-    def update_confirmed(self):
-        failed_users = []
-        for i, registration in enumerate(self.registrations):
-            if not registration.confirmed:
-                if self.cleaned_data['%d_confirmed' % i]:
-                    try:
-                        if not registration.send_confirmation_email():
-                            failed_users.append(registration.user)
-                    except Exception as e:
-                        failed_users.append(registration.user)
-        return len(failed_users) == 0, failed_users
+            except Exception as e:
+                raise ValidationError("Fel vid avläsning av bakgiro-filen. Har du rätt format på filen?: %s" % str(e))
 
+        else:
+            return None

@@ -22,8 +22,10 @@ from nollesystemet.models import NolleGroup
 class FadderietMenuView(mixins.FadderietMixin, TemplateView):
     pass
 
+
 class FohserietMenuView(mixins.FohserietMixin, TemplateView):
     pass
+
 
 class FadderietNollegrupperView(mixins.FadderietMixin, TemplateView):
     template_name = "fadderiet/nollegrupperna.html"
@@ -39,6 +41,7 @@ class FadderietNollegrupperView(mixins.FadderietMixin, TemplateView):
         })
         return context
 
+
 class AccessDeniedView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -49,8 +52,10 @@ class AccessDeniedView(TemplateView):
             context['denied_site'] = path
         return context
 
+
 class AccessDeniedViewFadderiet(mixins.FadderietMixin, AccessDeniedView):
     template_name = "fadderiet/saknar-rattigheter.html"
+
 
 class AccessDeniedViewFohseriet(mixins.FohserietMixin, AccessDeniedView):
     template_name = "fohseriet/saknar-rattigheter.html"

@@ -1,6 +1,4 @@
 from django.apps import apps
-from django.urls import reverse
-from django.utils.html import format_html
 from django.utils.translation import gettext_lazy
 from django.contrib import admin
 from django.contrib.auth import models as django_auth_models
@@ -33,6 +31,8 @@ class MottagningensAdminSite(admin.AdminSite):
 
 
 logger = logging.getLogger('reset_mail_logger')
+
+
 def send_reset_password(modeladmin, request, queryset):
     for user in queryset:
         if user.auth_user.has_usable_password():
@@ -105,10 +105,10 @@ class NolleGroupsRestrictedAdmin(admin.ModelAdmin):
     exclude = ('schedule',)
 
     def has_add_permission(self, request):
-        return False
+        return request.user.is_superuser
 
     def has_delete_permission(self, request, obj=None):
-        return False
+        return request.user.is_superuser
 
     def has_change_permission(self, request, obj=None):
         return super(NolleGroupsRestrictedAdmin, self).has_change_permission(request, obj=obj) or \
@@ -130,6 +130,7 @@ class SiteTextAdmin(admin.TabularInline):
     def has_change_permission(self, request, obj=None):
         return super(SiteTextAdmin, self).has_change_permission(request, obj=obj) or \
                request.user.profile.has_perm('nollesystemet.edit_system')
+
 
 class SiteImageAdmin(admin.TabularInline):
     model = models.SiteImage
@@ -217,6 +218,7 @@ class SiteAdminMottagningen(SiteAdmin):
     def has_delete_permission(self, request, obj=None):
         return False
 
+
 class AuthUserAdmin(admin.ModelAdmin):
     list_display = ('upper_case_name',)
 
@@ -228,6 +230,7 @@ class AuthUserAdmin(admin.ModelAdmin):
 class RegistrationAdmin(admin.ModelAdmin):
     fields = ['happening', 'user', 'food_preference', 'drink_option', 'extra_option', 'other', 'created_at', 'updated_at', 'paid', 'attended']
     readonly_fields = ['happening', 'user', 'created_at', 'updated_at', 'paid', 'attended']
+
 
 class DynamicNolleFormQuestionAnswerAdmin(admin.TabularInline):
     fields = ("pk", "value", "group")
@@ -241,11 +244,62 @@ class DynamicNolleFormQuestionAnswerAdmin(admin.TabularInline):
     def has_delete_permission(self, request, obj=None):
         return False
 
+
 class DynamicNolleFormQuestionAdmin(admin.ModelAdmin):
     inlines = [DynamicNolleFormQuestionAnswerAdmin]
 
+
 class NolleFormAnswerAdmin(admin.ModelAdmin):
     inlines = [DynamicNolleFormQuestionAnswerAdmin]
+
+
+class FeedbackAdmin(admin.ModelAdmin):
+    list_display = ['target', 'anonymous']
+
+    def has_view_permission(self, request, obj=None):
+        return super(FeedbackAdmin, self).has_change_permission(request, obj=obj) or \
+               request.user.profile.has_perm('nollesystemet.edit_system')
+
+    def has_add_permission(self, request):
+        return request.user.is_superuser
+
+    def has_delete_permission(self, request, obj=None):
+        return request.user.is_superuser
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+
+class FeedbackObserverAdmin(admin.ModelAdmin):
+    list_display = ['email', 'target']
+
+    def has_add_permission(self, request):
+        return super(FeedbackObserverAdmin, self).has_add_permission(request) or \
+               request.user.profile.has_perm('nollesystemet.edit_system')
+
+    def has_delete_permission(self, request, obj=None):
+        return super(FeedbackObserverAdmin, self).has_delete_permission(request, obj=obj) or \
+               request.user.profile.has_perm('nollesystemet.edit_system')
+
+    def has_change_permission(self, request, obj=None):
+        return super(FeedbackObserverAdmin, self).has_change_permission(request, obj=obj) or \
+               request.user.profile.has_perm('nollesystemet.edit_system')
+
+
+class CampusSafariGroupAdmin(admin.ModelAdmin):
+    fields = ['name', 'responsible_fadders', 'side_quests']
+    readonly_fields = ['side_quests']
+    list_display = ['name', 'total_points']
+
+
+class CampusSafariStationAdmin(admin.ModelAdmin):
+    fields = ['name', 'responsible']
+    list_display = ['name']
+
+
+class CampusSafariSideQuestAdmin(admin.ModelAdmin):
+    fields = ['name', 'points']
+    list_display = ['__str__']
 
 
 superadmin_admin_site = SuperAdminSite(name='super-admin')
@@ -256,6 +310,11 @@ mottagningen_admin_site.register(models.SiteParagraphList, SiteParagraphListAdmi
 mottagningen_admin_site.register(models.Site, SiteAdminMottagningen)
 mottagningen_admin_site.register(models.HappeningSettings, SingeltonAdmin)
 mottagningen_admin_site.register(models.SiteSettings, SingeltonAdmin)
+mottagningen_admin_site.register(models.Feedback, FeedbackAdmin)
+mottagningen_admin_site.register(models.FeedbackObserver, FeedbackObserverAdmin)
+mottagningen_admin_site.register(models.CampusSafariGroup, CampusSafariGroupAdmin)
+mottagningen_admin_site.register(models.CampusSafariStation, CampusSafariStationAdmin)
+mottagningen_admin_site.register(models.CampusSafariSideQuest, CampusSafariSideQuestAdmin)
 
 superadmin_admin_site.register(models.Happening, HappeningAdmin)
 superadmin_admin_site.register(models.HappeningSettings, SingeltonAdmin)
@@ -272,5 +331,10 @@ superadmin_admin_site.register(models.NolleFormAnswer)
 superadmin_admin_site.register(models.DynamicNolleFormQuestion, DynamicNolleFormQuestionAdmin)
 superadmin_admin_site.register(django_auth_models.Group)
 superadmin_admin_site.register(apps.get_model(settings.AUTH_USER_MODEL), AuthUserAdmin)
+superadmin_admin_site.register(models.Feedback, FeedbackAdmin)
+superadmin_admin_site.register(models.FeedbackObserver, FeedbackObserverAdmin)
+superadmin_admin_site.register(models.CampusSafariGroup, CampusSafariGroupAdmin)
+superadmin_admin_site.register(models.CampusSafariStation, CampusSafariStationAdmin)
+superadmin_admin_site.register(models.CampusSafariSideQuest, CampusSafariSideQuestAdmin)
 
 

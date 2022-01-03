@@ -58,9 +58,9 @@ fadderiet_urls = ([
     path('bra-info/', views.FadderietMenuView.as_view(
         template_name="fadderiet/bra-info.html",
         site_name="Fadderiet: Bra info",
-        site_texts=['intro', 'vad_ar_vad_intro', 'infor_skolstart_intro', 'schemat_intro', 'tips_om_bostad_intro', 'corona_intro'],
+        site_texts=['intro', 'vad_ar_vad_intro', 'funka_intro', 'infor_skolstart_intro', 'schemat_intro', 'tips_om_bostad_intro', 'integrationsperioden_intro', 'corona_intro'],
         site_images=['image'],
-        site_paragraph_lists=['vad_ar_vad', 'infor_skolstart', 'schemat', 'tips_om_bostad', 'aktuellt', 'corona']
+        site_paragraph_lists=['vad_ar_vad', 'funka', 'infor_skolstart', 'schemat', 'tips_om_bostad', 'integrationsperioden', 'aktuellt', 'corona']
     ),
          name='bra-info'),
     path('om-fadderiet/', views.FadderietMenuView.as_view(
@@ -75,6 +75,12 @@ fadderiet_urls = ([
         site_texts=['body']
     ), name='kontakt'),
     path('nollegrupperna/', views.FadderietNollegrupperView.as_view(), name='nollegrupperna'),
+
+    path('campussafari/', views.FadderietCampussafariGrupperView.as_view(
+        site_name="Campussafari: Leaderboard",
+        site_texts=['info']
+    ), name='campussafari-leaderboard'),
+
     path('saknar-rattigheter/', views.misc.AccessDeniedViewFadderiet.as_view(), name='saknar-rattigheter'),
 
     path('nolleenkaten/', views.NolleFormView.as_view(), name='nolleenkaten'),

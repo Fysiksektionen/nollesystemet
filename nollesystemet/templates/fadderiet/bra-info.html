@@ -70,6 +70,23 @@
 
             <hr>
 
+            <h4 class="mt-3 mb-1 font-weight-bold">FUNKA</h4>
+            <p>
+                {{ site.texts.funka_intro|safe|linebreaks }}
+            </p>
+            {% for para in site.lists.funka %}
+                <div class="d-flex flex-wrap align-items-center">
+                    <div class="col-lg my-3 align-items-center">
+                        <h5>{{ para.title }}</h5>
+                        <p>
+                            {{ para.text|safe|linebreaks }}
+                        </p>
+                    </div>
+                </div>
+            {% endfor %}
+
+            <hr>
+
             <h4 class="mt-3 mb-1 font-weight-bold">Inför skolstart</h4>
             <p>
                 {{ site.texts.infor_skolstart_intro|safe|linebreaks }}
@@ -118,6 +135,24 @@
                     </div>
                 </div>
             {% endfor %}
+
+            <hr>
+
+            <h4 class="mt-3 mb-1 font-weight-bold">Integrationsπrioden</h4>
+            <p>
+                {{ site.texts.integrationsperioden_intro|safe|linebreaks }}
+            </p>
+            {% for para in site.lists.integrationsperioden %}
+                <div class="d-flex flex-wrap align-items-center">
+                    <div class="col-lg my-3 align-items-center">
+                        <h5>{{ para.title }}</h5>
+                        <p>
+                            {{ para.text|safe|linebreaks }}
+                        </p>
+                    </div>
+                </div>
+            {% endfor %}
+
         </div>
         <div class="tab-pane fade" id="corona" role="tabpanel" aria-labelledby="corona-tab">
             <p>

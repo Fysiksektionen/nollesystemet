@@ -1,0 +1,179 @@
+{% extends "fohseriet/base-sites/base-content.html" %}
+{% load crispy_forms_tags %}
+{% load crispy_forms_filters %}
+{% load static %}
+
+{% block title %}
+    Hantera betalningar
+{% endblock %}
+
+{% block content-indented %}
+    {% include "common/elements/back-button.html" %}
+
+    {% if success_message %}
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ success_message }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    {% endif %}
+    {% if error_message %}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ error_message }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            Felaktiga OCR-nummer:
+            <ul>
+                {% for error_payment in error_payments %}
+                    <li>{{ error_payment.OCR }} - {{ error_payment.info }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+    {% if form.errors %}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ form.errors }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    {% endif %}
+
+    <div class="d-flex flex-row justify-content-between my-4">
+        <div class="col-4 bg-dark text-white p-4 rounded-lg">
+
+            <form action="{% url "fohseriet:evenemang:betalningar" %}" method="post" enctype="multipart/form-data"
+                  id="payment-files-form" class="col my-0 h-100 d-flex flex-column justify-content-between">
+                {% csrf_token %}
+
+                <div class="row">
+                    <label id="swish-file-button" for="id_swish" class="btn btn-primary flex-grow-1" type="button">Ladda upp Swish</label>
+                    {{ form.swish }}
+                </div>
+                <div class="row">
+                    <label id="bankgiro-file-button" for="id_bankgiro" class="btn btn-primary flex-grow-1" type="submit">Ladda upp Bankgiro</label>
+                    {{ form.bankgiro }}
+                </div>
+            </form>
+        </div>
+
+        <div class="col-4 bg-dark text-white p-4 rounded-lg">
+            <div class="form-check form-check-inline d-flex justify-content-between">
+                <label class="form-check-label" for="show-paid-checkbox">Visa betalda</label>
+                <input class="form-check-input" type="checkbox" id="show-paid-checkbox">
+            </div>
+            <div class="form-check form-check-inline d-flex justify-content-between">
+                <label class="form-check-label" for="show-nonconfirmed-checkbox">Visa obekräftade</label>
+                <input class="form-check-input" type="checkbox" id="show-nonconfirmed-checkbox" checked>
+            </div>
+            <div class="input-group mt-2">
+                <input id="search-input" type="text" class="form-control">
+                <div class="input-group-append">
+                    <button id="search" class="btn btn-primary" type="button">Sök</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card my-2 bg-dark fohseriet-betalning-card">
+        <div class="card-header card">
+            <div class="d-flex flex-nowrap justify-content-between">
+                <div class="font-weight-bolder col-4" style="white-space: nowrap;">
+                    Namn
+                </div>
+                <div class="col-3">
+                    Belopp
+                </div>
+                <div class="col-2">
+                    Referensnr.
+                </div>
+                <div class="col-2" style="white-space: nowrap;">
+                    Bekräftad
+                </div>
+                <div class="col-1" style="white-space: nowrap;">
+                    Betalat
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="payments">
+
+    </div>
+
+    <div id="payment-placeholder" class="hidden card my-2 bg-chill-white text-black fohseriet-anmalda-card">
+        <div class="card-header card">
+            <div class="d-flex flex-nowrap justify-content-between">
+                <div class="content-name font-weight-bolder col-4" style="white-space: nowrap;"></div>
+                <div class="content-price col-3"></div>
+                <div class="content-OCR col-2"></div>
+                <div class="content-confirmed col-2" style="white-space: nowrap;">
+                </div>
+                <div class="col-1" style="white-space: nowrap;">
+                    <div class="form-check">
+                        <input class="paid-check-input form-check-input" type="checkbox" value="" data-payment-id="">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+
+{% block extrapostscript %}
+    {{ block.super }}
+    <script type="text/javascript">
+        $("#id_swish").change(function () {
+           $("#payment-files-form").submit();
+        });
+        $("#id_bankgiro").change(function () {
+           $("#payment-files-form").submit();
+        });
+
+        var searchAndUpdate = function(e) {
+            var paymentsDiv = $("#payments");
+            var paymentPlaceholder = $("#payment-placeholder");
+
+            var success = function (data) {
+                paymentsDiv.empty();
+                Object.values(data).forEach(payment => {
+                    var clonePaymentDiv = paymentPlaceholder.clone(true, true).appendTo(paymentsDiv);
+                    $(clonePaymentDiv).attr('id', "payment-" + payment["id"]);
+                    $(clonePaymentDiv).removeClass("hidden");
+
+                    $(clonePaymentDiv).find(".content-name").html(payment['name']);
+                    $(clonePaymentDiv).find(".content-price").html(payment['price']);
+                    $(clonePaymentDiv).find(".content-OCR").html(payment['OCR']);
+                    if( payment['confirmed'] ) {
+                        $(clonePaymentDiv).find(".content-confirmed").html('<i class="text-success fa fa-check" aria-hidden="true"></i>');
+                    } else {
+                        $(clonePaymentDiv).find(".content-confirmed").html('<i class="text-background-gray-10 fa fa-minus" aria-hidden="true"></i>')
+                    }
+                    $(clonePaymentDiv).find(".paid-check-input").prop('checked', payment['paid']);
+                    $(clonePaymentDiv).find(".paid-check-input").attr('data-payment-id', payment['id']);
+                });
+            };
+
+            var fail = function ( ) {
+                $(paymentsDiv).html("<b>Error in GET-request</b>")
+            }
+
+            getRegistrations({
+                successFunction: success,
+                failFunction: fail,
+                searchTerm: $("#search-input").val(),
+                showNonConfirmed: $("#show-nonconfirmed-checkbox").prop('checked'),
+                showPaid: $("#show-paid-checkbox").prop('checked')
+            });
+        };
+        $("#search").click(searchAndUpdate);
+
+        $(".paid-check-input").change(function (e) {
+            updateRegistration({
+                id: this.dataset.paymentId.toString(),
+                paid: $(this).prop('checked')
+            });
+        });
+    </script>
+{% endblock %}

@@ -38,14 +38,21 @@ class RegistrationView(mixins.FadderietMixin, ModifiableModelFormView):
                     self.handle_no_permission()
                 else:
                     self.registration = None
-        self.registration_user = self.request.user.profile
-        self.observing_user = self.request.user.profile
+        try:
+            self.registration_user = self.request.user.profile
+            self.observing_user = self.request.user.profile
+        except:
+            self.registration_user = None
+            self.observing_user = None
 
     def test_func(self):
-        if self.registration:
-            return self.registration.can_see(self.observing_user)
-        else:
-            return self.happening.can_register(self.observing_user)
+        try:
+            if self.registration:
+                return self.registration.can_see(self.observing_user)
+            else:
+                return self.happening.can_register(self.observing_user)
+        except:
+            return False
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()

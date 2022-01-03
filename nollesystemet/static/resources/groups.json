@@ -8,7 +8,8 @@
                 "edit_system",
                 "edit_happening",
                 "create_happening",
-                "edit_nolleForm"
+                "edit_nolleForm",
+                "control_payments"
             ]
         },
         {

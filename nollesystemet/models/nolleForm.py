@@ -18,7 +18,7 @@ class DynamicNolleFormQuestion(models.Model):
         verbose_name = 'nØlleformulärsfråga'
         verbose_name_plural = 'nØlleformulärsfrågor'
 
-    number_label = models.CharField(max_length=30, blank=False, unique=True, primary_key=False, validators=[validate_no_emoji])
+    number_label = models.CharField(max_length=50, blank=False, unique=True, primary_key=False, validators=[validate_no_emoji])
     title = models.CharField(max_length=150, blank=False, null=None, unique=True, primary_key=False, validators=[validate_no_emoji])
 
     question_type = models.PositiveSmallIntegerField(choices=QuestionType.choices, blank=False, null=None)
@@ -51,7 +51,7 @@ class DynamicNolleFormQuestion(models.Model):
                 error_messages.append("%s missing." % key)
 
         if question_info['question_type'] not in DynamicNolleFormQuestion.QuestionType.names:
-            error_messages.append("question_type %s is not a valid question type. Alternatives are: %s." %
+            error_messages.append("question_type %s is not a valid question target. Alternatives are: %s." %
                               (question_info['question_type'],
                                ", ".join(DynamicNolleFormQuestion.QuestionType.names))
                               )
@@ -69,7 +69,7 @@ class DynamicNolleFormQuestion(models.Model):
                                 if key not in answer_info:
                                     error_messages.append("'%s' missing in answer." % key)
                         elif not isinstance(answer_info, str):
-                            error_messages.append("Wrong answer data type.")
+                            error_messages.append("Wrong answer data target.")
 
             return error_messages
 
@@ -99,7 +99,7 @@ class DynamicNolleFormQuestion(models.Model):
 class DynamicNolleFormQuestionAnswer(models.Model):
     """
     Model representing an answer to a DynamicNolleFormQuestion. Can be created upon loading of NolleForm setup or when
-    a question is of type TEXT and a new answer is given.
+    a question is of target TEXT and a new answer is given.
     """
 
     question = models.ForeignKey(DynamicNolleFormQuestion, models.CASCADE, null=False, blank=False, validators=[validate_no_emoji])
@@ -143,6 +143,8 @@ class NolleFormAnswer(models.Model):
     food_preference = models.TextField(blank=True, validators=[validate_no_emoji])
     can_photograph = models.BooleanField()
 
+    special_needs = models.TextField(blank=True, validators=[validate_no_emoji])
+
     other = models.TextField(blank=True, validators=[validate_no_emoji])
 
     about_the_form = models.CharField(max_length=200, choices=[(val, val) for val in
@@ -166,6 +168,7 @@ class NolleFormAnswer(models.Model):
 
     def __str__(self):
         return "Formulärsvar: %s" % self.user.name
+
 
 @receiver(models.signals.post_save, sender=NolleFormAnswer)
 def update_user_profile_from_nolleForm(sender, instance, *args, **kwargs):

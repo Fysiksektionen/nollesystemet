@@ -1,12 +1,16 @@
+import random
+
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
 from django.db import models
 from django.template.loader import get_template
+from django.template import engines
 
 from .misc import validate_no_emoji
 from .happening import Happening, DrinkOption, ExtraOption
 from .user import UserProfile
 from .settings import HappeningSettings
+
 
 class Registration(models.Model):
     """ Model representing a registration of a user to a happening. Contains information on options and alike. """
@@ -23,6 +27,7 @@ class Registration(models.Model):
 
     confirmed = models.BooleanField(editable=False, default=False)
     paid = models.BooleanField(editable=False, default=False)
+    OCR = models.CharField(max_length=6, editable=False, blank=False, null=False)
     attended = models.BooleanField(editable=False, default=False)
 
     class Meta:
@@ -32,6 +37,9 @@ class Registration(models.Model):
         ]
         verbose_name = 'Anmälan'
         verbose_name_plural = 'Anmälningar'
+
+    def __init__(self, *args, **kwargs):
+        super(Registration, self).__init__(*args, **kwargs)
 
     def __str__(self):
         try:
@@ -125,16 +133,19 @@ class Registration(models.Model):
         happening_info = HappeningSettings.load()
 
         from nollesystemet.forms import RegistrationForm
+
         context = {
             'registration': self,
             'happening': self.happening,
-            'user_profile': self.user,
-            'form': RegistrationForm(instance=self),
-            'payment_info_html': happening_info.payment_info_html,
-            'payment_info_plain_text': happening_info.payment_info_plain_text,
-            'payment_info_post_price_html': happening_info.payment_info_post_price_html,
-            'payment_info_post_price_plain_text': happening_info.payment_info_post_price_plain_text
+            'user_profile': self.user
         }
+        context.update({
+            'form': RegistrationForm(instance=self),
+            'payment_info_html': engines['django'].from_string(happening_info.payment_info_html).render(context),
+            'payment_info_plain_text': engines['django'].from_string(happening_info.payment_info_plain_text).render(context),
+            'payment_info_post_price_html': engines['django'].from_string(happening_info.payment_info_post_price_html).render(context),
+            'payment_info_post_price_plain_text': engines['django'].from_string(happening_info.payment_info_post_price_plain_text).render(context)
+        })
 
         from_email, to = None, str(self.user.email)
         subject = subject_template.render(context)
@@ -149,4 +160,25 @@ class Registration(models.Model):
             return True
         else:
             return False
+
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+        if not self.OCR:
+            self.OCR = self._generate_OCR()
+
+        super().save(force_insert, force_update, using, update_fields)
+
+        if self.pre_paid_price == 0:
+            self.paid = True
+            super().save(force_insert, force_update, using, update_fields)
+        
+    @staticmethod
+    def _generate_OCR():
+        candidate_OCR = None
+        existing_OCRs = Registration.objects.values_list('OCR', flat=True)
+
+        while candidate_OCR is None or candidate_OCR in existing_OCRs:
+            candidate_OCR = random.randint(settings.OCR_NUMBER_LOW, settings.OCR_NUMBER_HIGH)
+
+        format_string = '%0' + str(settings.OCR_NUMBER_NUM_DIGITS) + 'd'
+        return format_string % candidate_OCR
 

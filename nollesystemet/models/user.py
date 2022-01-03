@@ -1,12 +1,7 @@
-import sys
-import logging
-
 from django.apps import apps
 from django.conf import settings
-from django.contrib.auth.models import Group
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.db.models.signals import post_delete
 from django.dispatch import receiver
 from django.utils.translation import gettext_lazy as _
 
@@ -22,6 +17,7 @@ class NolleGroup(models.Model):
     name = models.CharField(verbose_name="Namn", max_length=150, unique=True, null=False, blank=False, validators=[validate_no_emoji])
     description = models.TextField(blank=True, validators=[validate_no_emoji])
     logo = models.ImageField(null=True, blank=True)
+    group_photo = models.ImageField(null=True, blank=True)
     schedule = models.ImageField(null=True, blank=True)
     forfadders = models.ManyToManyField('UserProfile', blank=True, related_name='responsible_nolle_group')
 
@@ -34,7 +30,7 @@ class NolleGroup(models.Model):
 
     @staticmethod
     def is_forfadder(user):
-        return NolleGroup.objects.filter(forfadders=user).count() > 0
+        return user.user_type == UserProfile.UserType.FORFADDER
 
     @staticmethod
     def get_forfadder_group(user, accept_multiple=False):
@@ -56,17 +52,18 @@ class UserProfile(auth_models.UserProfile):
 
     class UserType(IntegerChoices):
         """
-        Enum type for choices of UserProfile.user_type
+        Enum target for choices of UserProfile.user_type
         """
         FADDER = 1, _("Fadder")
         NOLLAN = 2, _("nØllan")
         SENIOR = 3, _("Senior")
         EXTERNAL = 4, _("Extern")
         ADMIN = 5, _("Administrativ")
+        FORFADDER = 6, _("Förfadder")
 
     class Program(IntegerChoices):
         """
-        Enum type for choices of UserProfile.user_type
+        Enum target for choices of UserProfile.user_type
         """
         NONE = 0, _("Inget")
         CTFYS = 1, _("Teknisk fysik")
@@ -174,7 +171,40 @@ class UserProfile(auth_models.UserProfile):
         return self.user_type == UserProfile.UserType.NOLLAN
 
     def is_fadder(self):
-        return self.user_type == UserProfile.UserType.FADDER
+        return self.user_type == UserProfile.UserType.FADDER or self.user_type == UserProfile.UserType.FORFADDER
+
+    @staticmethod
+    def update_user(username, email, password=None, **kwargs):
+        auth_user = apps.get_model(settings.AUTH_USER_MODEL).objects.get(username=username)
+
+        prev_email = auth_user.email
+        auth_user.email = email
+
+        if not auth_user.has_usable_password():
+            if password:
+                auth_user.set_password(password)
+            else:
+                auth_user.set_unusable_password()
+
+        try:
+            auth_user.save()
+        except ValidationError as e:
+            raise e
+
+        if 'kth_id' in kwargs and kwargs['kth_id'] is None:
+            kwargs.pop('kth_id')
+        user_profile = UserProfile.objects.get(pk=auth_user.profile.pk)
+
+        try:
+            for field_name, field_value in kwargs.items():
+                user_profile.__setattr__(field_name, field_value)
+            user_profile.save()
+        except ValidationError as e:
+            auth_user.email = prev_email
+            auth_user.save()
+            raise e
+
+        return user_profile
 
     @staticmethod
     def create_new_user(username, email, password=None, **kwargs):

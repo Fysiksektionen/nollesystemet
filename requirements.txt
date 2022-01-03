@@ -28,3 +28,5 @@ sqlparse==0.4.1
 tqdm==4.61.2
 urllib3==1.26.6
 vdf==3.4
+pandas
+openpyxl

@@ -30,7 +30,7 @@ class IntegerChoices(models.IntegerChoices):
         elif value is None:
             return returning_list
 
-        raise TypeError("Wrong input type. Must be list of strings.")
+        raise TypeError("Wrong input target. Must be list of strings.")
 
     @classmethod
     def get_max_length(cls):

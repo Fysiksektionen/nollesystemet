@@ -83,24 +83,27 @@
             let userPk = this.dataset.objectPk;
             var formDiv = $("#ajax-user-form-" + userPk);
 
+            const url = "/fohseriet/api/user_profiles/" + userPk;
+
             if(!(this.getAttribute("aria-expanded") === "true")) {
                 // If expanding on click
                 $.ajax({
-                    url: "/fohseriet/api/user_profiles/" + userPk,
-                    dataType: "json",
+                    type: "GET",
+                    url: url,
                     success: function (data) {
-                        $(formDiv).html(data["from_HMTL"]);
+                        $(formDiv).html(data['form_HTML']);
                     },
-                    error: function (jqXHR, textStatus, errorThrown) {
-                        $(formDiv).html("<b>Error! </b>" + textStatus);
-                    }
+                    cache: false
+                })
+                .fail(function (jqXHR, textStatus, errorThrown) {
+                    $(formDiv).html("<b>Error in GET-request</b>");
                 });
+
             } else {
                 // If removed on click
                 $(formDiv).html("");
             }
         });
-        const csrftoken = Cookies.get('csrftoken');
     </script>
 
 {% endblock %}

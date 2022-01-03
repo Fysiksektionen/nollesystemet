@@ -1,0 +1,79 @@
+{% extends "fohseriet/base-sites/base-content.html" %}
+{% load static %}
+
+{% block title %}
+    Campussafari: Stationer
+{% endblock %}
+
+{% block content-indented %}
+    {% for station_w_points_for_group in stations_w_points_per_group %}
+        {% with group=station_w_points_for_group.group stations_w_points=station_w_points_for_group.stations_w_points  %}
+            <div class="card my-2 bg-chill-white text-black">
+                <div class="card-header card" data-toggle="collapse" href="#collapse{{ forloop.counter }}" aria-expanded="false" data-object-pk="{{ profile.pk }}">
+                    <div class="d-flex flex-nowrap justify-content-between">
+                        <div class="font-weight-bolder col-12 text-center">
+                            <h4 class="font-weight-bold p-0 my-2">{{ group.name }}</h4>
+                        </div>
+                    </div>
+                </div>
+                <div id="collapse{{ forloop.counter }}" class="collapse">
+                    <div class="d-flex card-body flex-column">
+                        {% for station_w_points in stations_w_points %}
+                            {% with station=station_w_points.station points=station_w_points.points %}
+                                <div class="row my-2">
+                                    <div class="col-12 col-sm-4 mt-auto mb-2 mb-sm-auto">
+                                        <b>{{ station.name }}</b>
+                                    </div>
+                                    <div class="col-sm"></div>
+                                    <div class="col-6 col-sm-3 col-lg-2 my-auto">
+                                        <input id="points-{{ group.pk }}-{{ station.pk }}" class="form-control" type="number" maxlength="9" min="0" value="{{ points }}"/>
+                                    </div>
+                                    <div class="col-6 col-sm-3 my-auto justify-content-end float-right text-right">
+                                        <button
+                                                id="points-{{ group.pk }}-{{ station.pk }}-btn"
+                                                class="btn btn-primary send-points"
+                                                data-input-id="points-{{ group.pk }}-{{ station.pk }}"
+                                                data-group-id="{{ group.pk }}"
+                                                data-station-id="{{ station.pk }}"
+                                        >
+                                            Skicka
+                                        </button>
+                                    </div>
+                                </div>
+                            {% endwith %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        {% endwith %}
+    {% endfor %}
+{% endblock %}
+
+
+{% block extrapostscript %}
+    {{ block.super }}
+    <script type="text/javascript">
+        $(".send-points").click(function () {
+            const input_field = $("#" + this.dataset.inputId);
+            const value = input_field.val();
+            $.ajax({
+                type: "POST",
+                url: "/fohseriet/api/campussafari/" + this.dataset.groupId + "/set-station-points/" + this.dataset.stationId,
+                data: JSON.stringify({ points: value }),
+                contentType: "application/json; charset=utf-8",
+                cache: false
+            })
+            .done(function(data, textStatus, jqXHR) {
+                input_field.css("background-color", "#5c9b58");
+            })
+            .fail(function(jqXHR, textStatus, errorThrown) {
+                input_field.css("background-color", "#c44545");
+                if (jqXHR.status === 401 || jqXHR.status === 403) {
+                    alert("Du har inte access att uppdatera det fältet. Ladda om sidan för att ha de senaste värdena.");
+                } else {
+                    alert( "Misslyckades med att skicka data. Okännt fel. Ladda om sidan." );
+                }
+            });
+        });
+    </script>
+{% endblock %}

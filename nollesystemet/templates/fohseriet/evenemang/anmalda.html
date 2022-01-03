@@ -9,11 +9,31 @@
 {% block content-indented %}
     {% include "common/elements/back-button.html" %}
 
-    <div class="d-flex flex-column col-md-6 col-lg-8 my-4">
-        {% include "common/elements/happening-information.html" %}
-        <p>
-            <strong>Antal anmälda: </strong> {{ happening.num_of_registered }}.
-        </p>
+    <div class="row">
+        <div class="col-12 col-lg-6 my-4">
+            <div class="card bg-dark fohseriet-anmalda-card h-100">
+                <div class="card-header">
+                    <strong>{{ happening.name }}</strong>
+                </div>
+                <div class="card-body">
+                    {% include "common/elements/happening-information.html" %}
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-lg-6 my-4 h-100">
+            <ul class="list-group">
+                <li class="list-group-item text-black list-group-item-dark active d-flex flex-row justify-content-between">
+                    <strong>Antal anmälda</strong>
+                    <strong>{{ happening.num_of_registered }}</strong>
+                </li>
+                {% for attendees_for_group in num_of_attendees_per_group %}
+                    <li class="list-group-item list-group-item-dark d-flex flex-row justify-content-between">
+                        <div>{{ attendees_for_group.group }}</div>
+                        <div>{{ attendees_for_group.count }}</div>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
     </div>
 
     <div class="d-flex flex-wrap my-4 justify-content-around text-nowrap">
@@ -30,7 +50,7 @@
             </a>
         </div>
         <div class="d-flex col-lg justify-content-center p-lg-2 my-lg-0 my-2">
-            <a href="{% url "fohseriet:evenemang:uppdatera-betalningar" happening.pk %}" class="btn btn-primary flex-fill">
+            <a href="{% url "fohseriet:evenemang:narvaro" happening.pk %}" class="btn btn-primary flex-fill">
                 Betalning och närvaro
                 <i class="fa fa-money" aria-hidden="true"></i>
             </a>
@@ -106,6 +126,9 @@
                                                 {% include "common/elements/registration-price-info.html" with registration=registration only %}
                                                 <p>
                                                     <strong>Anml. tid:</strong> {{ registration.created_at }}
+                                                </p>
+                                                <p>
+                                                    <strong>Referensnummer:</strong> {{ registration.OCR }}
                                                 </p>
                                             </div>
                                             <div class="d-flex justify-content-center">

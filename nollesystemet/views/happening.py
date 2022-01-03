@@ -1,13 +1,16 @@
 from typing import Callable, Any
 
+from django.forms import Form
 from django.urls import reverse_lazy, reverse
 from django.utils.text import slugify
-from django.views.generic import UpdateView, ListView, FormView
+from django.views import View
+from django.views.generic import UpdateView, ListView, FormView, TemplateView
 
 import nollesystemet.models as models
 import nollesystemet.forms as forms
 import nollesystemet.mixins as mixins
 from .misc import DownloadView, ModifiableModelFormView
+from ..forms import HappeningPaymentUploadForm
 
 
 class HappeningListViewFadderiet(mixins.FadderietMixin, ListView):
@@ -74,9 +77,110 @@ class HappeningListViewFohseriet(mixins.FohserietMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context.update({
-            'can_create': models.Happening.can_create(self.request.user.profile)
+            'can_create': models.Happening.can_create(self.request.user.profile),
+            'can_handle_payments': models.Happening.can_handle_payments(self.request.user.profile)
         })
         return context
+
+
+class HappeningPaymentsView(mixins.FohserietMixin, FormView):
+    form_class = HappeningPaymentUploadForm
+    back_url = reverse_lazy('fohseriet:evenemang:lista')
+    login_required = True
+    template_name = "fohseriet/evenemang/betalningar.html"
+
+    def test_func(self):
+        return models.Happening.can_handle_payments(self.request.user.profile)
+
+    def form_valid(self, form):
+        new_payments = 0
+        new_errors = 0
+        error_indexes = []
+        return_data = []
+
+        if form.cleaned_data['swish']:
+            return_data, new_payments, new_errors, error_indexes = self.handle_swish(form.cleaned_data['swish'])
+
+        if form.cleaned_data['bankgiro']:
+            return_data, new_payments, new_errors, error_indexes = self.handle_bankgiro(form.cleaned_data['bankgiro'])
+
+        error_payments = []
+        for error_index in error_indexes:
+            error_payments.append({
+                'OCR': return_data[error_index][4],
+                'info': return_data[error_index][-1]
+            })
+
+        return self.render_to_response(
+            self.get_context_data(
+                form=form,
+                success_message="Registrerade %d nya betalningar." % new_payments,
+                error_message="Registrerade %d nya felaktiga betalningar." % new_errors if new_errors > 0 else None,
+                error_payments=error_payments
+            )
+        )
+
+    @staticmethod
+    def handle_swish(swish_data):
+        """ Datastruktur: Datum, Avsändare, Mobilnummer, Belopp, Meddelande"""
+        new_payments = 0
+        new_errors = 0
+        error_indexes = []
+
+        for i, entry_data in enumerate(swish_data):
+            try:
+                OCR_match = models.Registration.objects.get(OCR=entry_data[4].strip())
+
+                paid_price = int(round(float(entry_data[3].replace(',', '.'))))
+                if OCR_match.pre_paid_price == paid_price:
+                    if not OCR_match.paid:
+                        OCR_match.paid = True
+                        OCR_match.save()
+                        new_payments += 1
+
+                    swish_data[i][4] = OCR_match.happening.name
+
+                else:
+                    new_errors += 1
+                    swish_data[i].append("%s betalade %d,00, skulle betala %d,00" % (OCR_match.user.name, paid_price, OCR_match.pre_paid_price))
+                    error_indexes.append(i)
+
+            except models.Registration.DoesNotExist:
+                pass
+
+        return swish_data, new_payments, new_errors, error_indexes
+
+    @staticmethod
+    def handle_bankgiro(bankgiro_data):
+        """ Datastruktur: Avsändare, Betalningsreferens, Bankgironummer, Belopp"""
+
+        new_payments = 0
+        new_errors = 0
+        error_indexes = []
+
+        for i, entry_data in enumerate(bankgiro_data):
+            try:
+                OCR_match = models.Registration.objects.get(OCR=entry_data[1].strip())
+
+                paid_price = int(round(float(entry_data[3])))
+                if OCR_match.pre_paid_price == paid_price:
+                    if not OCR_match.paid:
+                        OCR_match.paid = True
+                        OCR_match.save()
+                        new_payments += 1
+
+                    bankgiro_data[i][1] = OCR_match.happening.name
+
+                else:
+                    new_errors += 1
+                    bankgiro_data[i][1] = "FEL BELOPP! (%s)" % OCR_match.happening.name
+                    error_indexes.append(i)
+
+            except models.Registration.DoesNotExist:
+                pass
+
+        return bankgiro_data, new_payments, new_errors, error_indexes
+
 
 class HappeningRegisteredListView(mixins.FohserietMixin, ListView):
     model = models.Registration
@@ -117,9 +221,17 @@ class HappeningRegisteredListView(mixins.FohserietMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context.update({
-            'happening': models.Happening.objects.get(pk=self.kwargs['pk'])
+            'happening': models.Happening.objects.get(pk=self.kwargs['pk']),
+            'num_of_attendees_per_group': [
+                {
+                    'group': group.name,
+                    'count': models.Registration.objects.filter(happening_id=self.kwargs['pk'], user__nolle_group_id=group.id).count()
+                }
+                for group in models.NolleGroup.objects.all()
+            ]
         })
         return context
+
 
 class HappeningDownloadView(mixins.FohserietMixin, DownloadView):
 
@@ -136,6 +248,7 @@ class HappeningDownloadView(mixins.FohserietMixin, DownloadView):
             {'title': 'Namn', 'accessor': 'user.name'},
             {'title': 'E-post', 'accessor': 'user.email'},
             {'title': 'nØllegrupp', 'accessor': 'user.nolle_group'},
+            {'title': 'Användartyp', 'accessor': 'user.user_type'},
             {'title': 'Övrigt', 'accessor': 'other'},
             {'title': 'Förbetalningspris', 'accessor': 'pre_paid_price'},
             {'title': 'Pris på plats', 'accessor': 'on_site_paid_price'},
@@ -223,11 +336,8 @@ class HappeningUpdateView(mixins.FohserietMixin, ModifiableModelFormView):
             return super().form_invalid(form)
 
 
-class HappeningPaidAndPresenceView(mixins.FohserietMixin, FormView):
-    template_name = "fohseriet/evenemang/uppdatera-betalningar.html"
-
-    form_class = forms.HappeningPaidAndPresenceForm
-
+class HappeningPaidAndPresenceView(mixins.FohserietMixin, TemplateView):
+    template_name = "fohseriet/evenemang/narvaro.html"
     login_required = True
 
     def setup(self, request, *args, **kwargs):
@@ -242,13 +352,6 @@ class HappeningPaidAndPresenceView(mixins.FohserietMixin, FormView):
     def test_func(self):
         return self.happening.can_edit(self.request.user.profile)
 
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs.update({
-            'happening': self.happening
-        })
-        return kwargs
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context.update({
@@ -256,14 +359,9 @@ class HappeningPaidAndPresenceView(mixins.FohserietMixin, FormView):
         })
         return context
 
-    def form_valid(self, form):
-        form.update_registrations()
-        return self.render_to_response(self.get_context_data(form=form, saved=True))
 
-
-class HappeningConfirmView(mixins.FohserietMixin, FormView):
-    template_name = "fohseriet/evenemang/bekrafta-anmalda.html"
-    form_class = forms.HappeningConfirmForm
+class HappeningConfirmView(mixins.FohserietMixin, TemplateView):
+    template_name = "fohseriet/evenemang/bekrafta.html"
     login_required = True
 
     def setup(self, request, *args, **kwargs):
@@ -278,20 +376,12 @@ class HappeningConfirmView(mixins.FohserietMixin, FormView):
     def test_func(self):
         return self.happening.can_edit(self.request.user.profile)
 
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs.update({
-            'happening': self.happening
-        })
-        return kwargs
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context.update({
-            'happening': self.happening
+            'happening': self.happening,
+            'unconfirmed_registrations': models.Registration.objects.filter(
+                                             happening=self.happening, confirmed=False
+                                         ).order_by('user__first_name')
         })
         return context
-
-    def form_valid(self, form):
-        success, failed_users = form.update_confirmed()
-        return self.render_to_response(self.get_context_data(success=success, failed_users=failed_users))

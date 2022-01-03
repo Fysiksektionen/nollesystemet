@@ -1,6 +1,7 @@
 from django.core.cache import cache
 from django.db import models
 
+
 class SingeltonModel(models.Model):
     class Meta:
         abstract = True
@@ -54,3 +55,4 @@ class SiteSettings(SingeltonModel):
     class Meta:
         verbose_name = "Sidinställningar"
         verbose_name_plural = verbose_name
+

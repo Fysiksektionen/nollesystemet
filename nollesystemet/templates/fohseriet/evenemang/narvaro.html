@@ -1,0 +1,133 @@
+{% extends 'fohseriet/base-sites/base-content.html' %}
+{% load crispy_forms_tags %}
+{% load crispy_forms_filters %}
+
+{% block title %}
+    Närvaro och betalning: {{ happening }}
+{% endblock %}
+
+{% block content-indented %}
+    {% include "common/elements/back-button.html" %}
+
+    <div class="d-flex flex-row justify-content-end my-4">
+        <div class="col-4 bg-dark text-white p-4 rounded-lg">
+            <div class="form-check form-check-inline d-flex justify-content-between">
+                <label class="form-check-label" for="show-attended-checkbox">Visa närvarande</label>
+                <input class="form-check-input" type="checkbox" id="show-attended-checkbox" checked>
+            </div>
+            <div class="form-check form-check-inline d-flex justify-content-between">
+                <label class="form-check-label" for="show-nonconfirmed-checkbox">Visa obekräftade</label>
+                <input class="form-check-input" type="checkbox" id="show-nonconfirmed-checkbox">
+            </div>
+            <div class="input-group mt-2">
+                <input id="search-input" type="text" class="form-control">
+                <div class="input-group-append">
+                    <button id="search" class="btn btn-primary" type="button">Sök</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card my-2 bg-dark fohseriet-betalning-card">
+        <div class="card-header card">
+            <div class="d-flex flex-nowrap justify-content-between">
+                <div class="font-weight-bolder col-4" style="white-space: nowrap;">
+                    Namn
+                </div>
+                <div class="col-2">
+                    Belopp
+                </div>
+                <div class="col-2">
+                    Referensnr.
+                </div>
+                <div class="col-2" style="white-space: nowrap;">
+                    Betalat
+                </div>
+                <div class="col-2" style="white-space: nowrap;">
+                    Närvarande
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="registrations">
+
+    </div>
+
+    <div id="registration-placeholder" class="hidden card my-2 bg-chill-white text-black fohseriet-anmalda-card">
+        <div class="card-header card">
+            <div class="d-flex flex-nowrap justify-content-between">
+                <div class="content-name font-weight-bolder col-4" style="white-space: nowrap;"></div>
+                <div class="content-price col-2"></div>
+                <div class="content-OCR col-2"></div>
+                <div class="col-2" style="white-space: nowrap;">
+                    <div class="form-check">
+                        <input class="paid-check-input form-check-input" type="checkbox" value="" data-registration-id="">
+                    </div>
+                </div>
+                <div class="col-2" style="white-space: nowrap;">
+                    <div class="form-check">
+                        <input class="attended-check-input form-check-input" type="checkbox" value="" data-registration-id="">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extrapostscript %}
+    {{ block.super }}
+    <script type="text/javascript">
+        const searchAndUpdate = function (e) {
+            const registrations = $("#registrations");
+            const registrationPlaceholder = $("#registration-placeholder");
+
+            const success = function (data) {
+                registrations.empty();
+                Object.values(data).forEach(registration => {
+                    var cloneRegistrationDiv = registrationPlaceholder.clone(true, true).appendTo(registrations);
+                    $(cloneRegistrationDiv).attr('id', "registration-" + registration["id"]);
+                    $(cloneRegistrationDiv).removeClass("hidden");
+
+                    $(cloneRegistrationDiv).find(".content-name").html(registration['name']);
+                    $(cloneRegistrationDiv).find(".content-price").html(registration['price']);
+                    $(cloneRegistrationDiv).find(".content-OCR").html(registration['OCR']);
+                    $(cloneRegistrationDiv).find(".paid-check-input").prop('checked', registration['paid']);
+                    $(cloneRegistrationDiv).find(".paid-check-input").attr('data-registration-id', registration['id']);
+                    $(cloneRegistrationDiv).find(".attended-check-input").prop('checked', registration['attended']);
+                    $(cloneRegistrationDiv).find(".attended-check-input").attr('data-registration-id', registration['id']);
+                });
+            };
+
+            const fail = function () {
+                $(registrations).html("<b>Error in GET-request</b>")
+            };
+
+            getRegistrations({
+                successFunction: success,
+                failFunction: fail,
+                searchTerm: $("#search-input").val(),
+                showPaid: true,
+                showNonConfirmed: $("#show-nonconfirmed-checkbox").prop('checked'),
+                showAttended: $("#show-attended-checkbox").prop('checked'),
+                happeningId: "{{ happening.pk }}"
+            });
+        };
+
+        $("#search").click(searchAndUpdate);
+        $("#search").click();
+
+        $(".paid-check-input").change(function (e) {
+            updateRegistration({
+                id: this.dataset.registrationId.toString(),
+                paid: $(this).prop('checked')
+            });
+        });
+
+        $(".attended-check-input").change(function (e) {
+            updateRegistration({
+                id: this.dataset.registrationId.toString(),
+                attended: $(this).prop('checked')
+            });
+        });
+    </script>
+{% endblock %}

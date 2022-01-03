@@ -72,6 +72,11 @@ class NolleFormBaseForm(ModifiableModelForm):
                 'help_text': """Det kommer att fotograferas under mottagningen. Här kan du välja om mottagningen får använda bilder på dig till hemsidan eller på Facebook.
                              Oavsätt kommer en bild tas första dagen så att dina ansvariga faddrar kan känna igen dig. Denna bild kommer inte att spridas."""
             },
+            'special_needs': {
+                'label': 'Specialbehov',
+                'widget_class': forms.widgets.Textarea,
+                'widget_attrs': {'rows': 3}
+            },
             'other': {
                 'label': 'Övrigt',
                 'widget_class': forms.widgets.Textarea,
@@ -142,7 +147,7 @@ class NolleFormBaseForm(ModifiableModelForm):
         helper = super().get_form_helper(form_tag)
         helper.layout = Layout(
             Fieldset(
-                "Om dig",
+                "0. Om dig",
                 Row(
                     Column(Field('first_name', placeholder="Förnamn")),
                     Column(Field('last_name', placeholder="Efternamn"))
@@ -157,7 +162,7 @@ class NolleFormBaseForm(ModifiableModelForm):
                 ),
             ),
             Fieldset(
-                "Anhöriginformation",
+                "1. Anhöriginformation",
                 HTML('<p>Om något oväntat skulle hända kan det vara bra för oss att ha någon att kontakta.</p>'
                      '<br>'),
                 Row(
@@ -167,16 +172,21 @@ class NolleFormBaseForm(ModifiableModelForm):
                 ),
             ),
             Fieldset(
-                "Information till evenemang",
+                "√2. Information till evenemang",
                 'can_photograph',
                 'food_preference'
+            ),
+            Fieldset(
+                "2. Specialbehov",
+                HTML('<p>Har du några specialbehov som du gärna ser att de ansvariga för mottagningen vet om?</p>'),
+                'special_needs'
             ),
             Fieldset(
                 "Fler frågor!?",
                 *[self._get_dynamic_questions_layout(question) for question in DynamicNolleFormQuestion.objects.all()]
             ),
             Fieldset(
-                "Övrigt",
+                "∞. Övrigt",
                 'other',
                 'about_the_form'
             ),
@@ -201,6 +211,10 @@ class NolleFormAdministrationForm(ObjectsAdministrationForm):
     download_url = reverse_lazy('fohseriet:nolleenkaten:ladda-ned-svar')
 
     file_type = 'json'
+
+    def __init__(self, *args, **kwargs):
+        super(NolleFormAdministrationForm, self).__init__(*args, **kwargs)
+        self.fields['upload_objects_file'].label = "Ladda upp formulärfrågor"
 
     def read_and_verify_file_content(self):
         file = self.files.get('upload_objects_file')

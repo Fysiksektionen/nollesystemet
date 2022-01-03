@@ -1,0 +1,60 @@
+{% extends 'fohseriet/base-sites/base-content.html' %}
+{% load crispy_forms_tags %}
+{% load crispy_forms_filters %}
+
+{% block title %}
+    Bekräfta anmälda: {{ happening }}
+{% endblock %}
+
+{% block content-indented %}
+    {% include "common/elements/back-button.html" %}
+
+    <div class="card my-2 bg-dark fohseriet-betalning-card">
+        <div class="card-header card">
+            <div class="d-flex flex-nowrap justify-content-between">
+                <div class="font-weight-bolder col-6" style="white-space: nowrap;">
+                    Namn
+                </div>
+                <div class="col-2">
+                    nØllegrupp
+                </div>
+                <div class="col-2">
+                    Användartyp
+                </div>
+                <div class="col-2"></div>
+            </div>
+        </div>
+    </div>
+    {% for registration in unconfirmed_registrations %}
+        <div>
+            <div class="card my-2 bg-chill-white text-black fohseriet-anmalda-card">
+                <div class="card-header card">
+                    <div class="d-flex flex-nowrap justify-content-between">
+                        <div class="font-weight-bolder col-6 my-auto" style="white-space: nowrap;">
+                            {{ registration.user }}
+                        </div>
+                        <div class="col-2 my-auto">
+                            {{ registration.user.nolle_group }}
+                        </div>
+                        <div class="col-2 my-auto">
+                            {{ registration.user.type }}
+                        </div>
+                        <div class="col-2 my-auto">
+                            <button class="btn btn-primary confirm-button" data-registration-id={{ registration.pk }}>Bekräfta</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+{% endblock %}
+
+{% block extrapostscript %}
+    {{ block.super }}
+    <script type="text/javascript">
+        $(".confirm-button").click( function () {
+            confirmRegistration( this.dataset.registrationId.toString( ) );
+            this.setAttribute("disabled", true);
+        } );
+    </script>
+{% endblock %}
