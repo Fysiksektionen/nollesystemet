@@ -1,0 +1,41 @@
+{% extends 'fohseriet/base-sites/left-col-template.html' %}
+{% load crispy_forms_tags %}
+{% load crispy_forms_filters %}
+
+{% block title %}
+    nØlleenkäten
+{% endblock %}
+
+{% block content-left-col %}
+    {% include "common/elements/back-button.html" %}
+    <h5>
+        Antal svar: {{ num_of_answers }}
+    </h5>
+
+    {% if form %}
+        <hr style="height: 2px; border-width: 0; color: gray; background-color: gray;">
+        <h2>Administrera:</h2>
+        <div class="d-flex flex-column p-4">
+            {% if file_upload_success is not None %}
+                <div class="alert alert-{% if file_upload_success %}success{% else %}danger{% endif %}" role="alert">
+                    {{ file_upload_information|linebreaks }}
+                </div>
+            {% endif %}
+            {% crispy form %}
+        </div>
+    {% endif %}
+
+
+    <hr style="height: 2px; border-width: 0; color: gray; background-color: gray;">
+    <h2>Förhandsgranska:</h2>
+    <div class="container-fluid p-4">
+        {% crispy preview_form %}
+    </div>
+{% endblock %}
+
+{% block extrapostscript %}
+    <script type="text/javascript">
+        $("form").attr("onSubmit", "return confirm('Är du säker på att du vill uppdatera nØlleenkäten? Gör inte detta om folk redan börjat svara på enkäten!');")
+
+    </script>
+{% endblock %}

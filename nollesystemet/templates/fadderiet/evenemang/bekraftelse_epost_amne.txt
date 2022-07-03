@@ -1,0 +1,1 @@
+Anmälan till {{ registration.happening.name }}

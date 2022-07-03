@@ -1,0 +1,17 @@
+{% extends "fadderiet/base-sites/base-content.html" %}
+
+{% load tags %}
+
+{% load static %}
+{% block title %}
+    Denna sida finns inte
+{% endblock %}
+
+{% block content-indented %}
+    <p>
+        <a href="#">{% get_setting "DOMAIN_URL" %}{{ request.path }}</a> existerar inte.
+    </p>
+    <p>
+        {% include "common/elements/fel_mejla_admin.html" %}
+    </p>
+{% endblock %}

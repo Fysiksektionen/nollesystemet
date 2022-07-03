@@ -1,0 +1,28 @@
+{% extends "fadderiet/base-sites/base-content.html" %}
+{% load static %}
+
+{% block title %}
+    Om fadderiet
+{% endblock %}
+
+{% block content-indented %}
+    {{ site.texts.intro|safe|linebreaks }}
+    {% for fadderist in site.lists.fadderiet %}
+        <div class="container-fluid my-3 align-items-center">
+            <h4>{{ fadderist.title }}</h4>
+            <div class="d-flex flex-wrap align-items-center">
+                {% if fadderist.image %}
+                    <div class="col-lg-4 my-3 align-items-center">
+                        <img class="img-fluid" src="{% get_media_prefix %}{{ fadderist.image }}" alt="Bild på {{ fadderist.title }}">
+                    </div>
+                {% endif %}
+                <div class="col-lg my-3 align-items-center">
+                    <p>
+                        {{ fadderist.text|safe|linebreaks }}
+                    </p>
+                </div>
+            </div>
+        </div>
+        <hr>
+    {% endfor %}
+{% endblock %}

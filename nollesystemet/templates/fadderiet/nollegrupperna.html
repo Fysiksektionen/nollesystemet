@@ -1,0 +1,36 @@
+{% extends "fadderiet/base-sites/base-content.html" %}
+{% load static %}
+
+{% block title %}
+    nØllegrupperna
+{% endblock %}
+
+{% block content-indented %}
+    <hr>
+    {% for list_object in nolle_groups %}
+        <div class="container-fluid my-3">
+            <h4>{{ list_object.group.name }}</h4>
+            <div class="d-flex flex-wrap">
+                {% if list_object.group.logo or list_object.group.group_photo %}
+                    <div class="col-lg-4 my-3 align-items-center text-center">
+                        {% if list_object.group.logo %}
+                            <img class="img-fluid" src="{% get_media_prefix %}{{ list_object.group.logo }}" alt="">
+                        {% endif %}
+                        {% if list_object.group.logo and list_object.group.group_photo %}
+                            <div class="my-5"></div>
+                        {% endif %}
+                        {% if list_object.group.group_photo %}
+                            <img class="img-fluid" src="{% get_media_prefix %}{{ list_object.group.group_photo }}" alt="">
+                        {% endif %}
+                    </div>
+                {% endif %}
+                <div class="col-lg my-3">
+                    <p>
+                        {{ list_object.group.description|safe|linebreaks }}
+                    </p>
+                </div>
+            </div>
+        </div>
+        <hr>
+    {% endfor %}
+{% endblock %}

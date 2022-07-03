@@ -1,0 +1,22 @@
+{% extends 'fadderiet/base-sites/left-col-template.html' %}
+{% load crispy_forms_tags %}
+{% load crispy_forms_filters %}
+
+{% block title %}
+    Anmälan: {{ happening.name }}
+{% endblock %}
+
+{% block content-left-col %}
+    {% include "common/elements/happening-information.html" with happening=happening only %}
+    {% include "common/elements/registration-price-info.html" with registration=form.instance only %}
+    <hr>
+    {% crispy form %}
+    {% if not form.instance.pk %}
+        <p>
+            <i>
+                Genom att skicka iväg ditt svar godkänner du att vi behandlar dessa uppgifter enligt Fysiksektionens
+                personuppgiftspolicy som återfinns här: <a href="https://f.kth.se/personuppgifter">Personuppgiftspolicy</a>.
+            </i>
+        </p>
+    {% endif %}
+{% endblock %}

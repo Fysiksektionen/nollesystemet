@@ -1,0 +1,15 @@
+{% extends "fadderiet/base-sites/centered-col-4.html" %}
+
+{% block title-centered %}Serverfel{% endblock %}
+
+{% block menu %}{% endblock %}
+
+{% block centered-content-col-4%}
+    <div class="d-flex flex-column justify-content-center text-center">
+        <h3>Whops! Något gick fel.</h3>
+        <p>
+            Testa gärna igen. Kvarstår problemet? Mejla <a href="mailto:nollesystemet@f.kth.se">nollesystemet@f.kth.se</a>.
+        </p>
+        <a class="btn btn-primary" href="{% url "fadderiet:index" %}">Till fadderiets startsida</a>
+    </div>
+{% endblock %}

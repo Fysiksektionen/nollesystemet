@@ -1,0 +1,15 @@
+{% extends "fadderiet/base-sites/base-content.html" %}
+
+{% load static %}
+{% block title %}
+    Du saknar rättigheter
+{% endblock %}
+
+{% block content-indented %}
+    <p>
+        Du har inte rätt att besöka sidan <a href="{{ denied_site }}">{{ denied_site }}</a>. Försök att logga in med ett annat konto.
+    </p>
+    <p>
+        {% include "common/elements/fel_mejla_admin.html" %}
+    </p>
+{% endblock %}

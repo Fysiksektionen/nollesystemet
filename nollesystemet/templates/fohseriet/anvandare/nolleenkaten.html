@@ -1,0 +1,12 @@
+{% extends 'fohseriet/base-sites/left-col-template.html' %}
+{% load crispy_forms_tags %}
+{% load crispy_forms_filters %}
+
+{% block title %}
+    nØlleenkäten: {{ object.user }}
+{% endblock %}
+
+{% block content-left-col %}
+    {% include "common/elements/back-button.html" %}
+    {% crispy form %}
+{% endblock %}

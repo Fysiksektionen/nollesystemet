@@ -1,0 +1,35 @@
+{% extends 'fohseriet/base-sites/left-col-template.html' %}
+{% load crispy_forms_tags %}
+{% load crispy_forms_filters %}
+
+{% load tags %}
+
+{% block title %}
+    Redigera anmälan
+{% endblock %}
+
+{% block content-left-col %}
+    {% include "common/elements/back-button.html" %}
+
+    <h3>Anmälan till {{ object.happening.name }} för {{ object.user }}</h3>
+
+    {% if mail_failed is not None %}
+        <div class="alert {% if mail_failed %}alert-danger{% else %}alert-success{% endif %} alert-dismissible fade show" role="alert">
+            <p>
+                {% if mail_failed %}
+                    Ett fel skedde när bekräftelse skulle skickas. Felmeddelande: {{ mail_failed_message }}
+                {% else %}
+                    Bekräftelsemeddelande skickades!
+                {% endif %}
+            </p>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times</span>
+            </button>
+        </div>
+    {% endif %}
+
+    {% include "common/elements/happening-information.html" with happening=object.happening only %}
+    {% include "common/elements/registration-price-info.html" with registration=object only %}
+    <hr>
+    {% crispy form %}
+{% endblock %}

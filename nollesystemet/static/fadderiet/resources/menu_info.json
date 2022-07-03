@@ -1,0 +1,105 @@
+{
+    "order": ["schema", "bra-info", "om-fadderiet", "nollegrupperna", "evenemang", "nolleenkaten", "kontakt", "fohseriet", "mina-sidor:profil", ["logga-in", "logga-ut"]],
+    "menu_items": {
+        "index": {
+            "name": "Hem",
+            "url_name": "fadderiet:index",
+            "align": "left"
+        },
+        "schema": {
+            "name": "Schema",
+            "url_name": "fadderiet:schema",
+            "align": "left"
+        },
+        "bra-info": {
+            "name": "Bra info",
+            "url_name": "fadderiet:bra-info",
+            "align": "left"
+        },
+        "om-fadderiet": {
+            "name": "Om fadderiet",
+            "url_name": "fadderiet:om-fadderiet",
+            "align": "left"
+        },
+        "nollegrupperna": {
+            "name": "nØllegrupperna",
+            "url_name": "fadderiet:nollegrupperna",
+            "align": "left"
+        },
+        "evenemang": {
+            "name": "Evenemang",
+            "url_name": "fadderiet:evenemang:index",
+            "align": "left",
+            "conditions": {
+                "logged-in": "True"
+            }
+        },
+        "kontakt": {
+            "name": "Kontakt",
+            "url_name": "fadderiet:kontakt",
+            "align": "left"
+        },
+        "mina-sidor": {
+            "name": "Mina sidor",
+            "url_name": "fadderiet:mina-sidor",
+            "align": "right",
+            "conditions": {
+                "logged-in": "True"
+            }
+        },
+        "mina-sidor:profil": {
+            "name": "Min profil",
+            "url_name": "fadderiet:mina-sidor:profil",
+            "align": "right",
+            "conditions": {
+                "logged-in": "True"
+            }
+        },
+        "logga-in": {
+            "name": "Logga in",
+            "url_name": "fadderiet:logga-in:index",
+            "align": "right",
+            "conditions": {
+                "logged-in": "False"
+            }
+        },
+        "logga-ut": {
+            "name": "Logga ut",
+            "url_name": "fadderiet:logga-ut",
+            "align": "right",
+            "template_content": "Logga ut ({{ request.user.profile.first_name }})",
+            "conditions": {
+                "logged-in": "True"
+            }
+        },
+        "fohseriet": {
+            "name": "Föhseriet",
+            "url_name": "fohseriet:index",
+            "align": "left",
+            "conditions": {
+                "logged-in": "True",
+                "methods": {
+                    "any": [
+                        "nollesystemet.UserProfile.can_create",
+                        "nollesystemet.UserProfile.can_see_some_user",
+                        "nollesystemet.Happening.can_create",
+                        "nollesystemet.Happening.user_is_editor"
+                    ]
+                }
+            }
+        },
+        "nolleenkaten": {
+            "name": "nØlleenkäten",
+            "url_name": "fadderiet:nolleenkaten",
+            "align": "left",
+            "conditions": {
+                "logged-in": "True",
+                "methods": {
+                    "all": [
+                        "nollesystemet.NolleFormAnswer.can_fill_out"
+                    ]
+                }
+            }
+        }
+    }
+}

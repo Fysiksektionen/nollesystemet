@@ -1,0 +1,23 @@
+{
+    "groups": [
+        {
+            "name": "Administratör",
+            "perms": [
+                "see_users",
+                "edit_users",
+                "edit_system",
+                "edit_happening",
+                "create_happening",
+                "edit_nolleForm",
+                "control_payments"
+            ]
+        },
+        {
+            "name": "Arrangör",
+            "perms": [
+                "edit_happening",
+                "create_happening"
+            ]
+        }
+    ]
+}

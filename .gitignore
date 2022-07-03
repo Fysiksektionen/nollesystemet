@@ -1,0 +1,8 @@
+/venv/
+/project_administration/settings/config_files/db_info.cnf
+/project_administration/settings/config_files/settings.json
+/project_administration/settings/config_files/mail.json
+/node_modules/
+/.idea/
+**/__pycache__/
+*.pyc

@@ -1,0 +1,17 @@
+{% extends "common/sites/base.html" %}
+{% load static %}
+
+{% block metatitle %}Fadderiets hemsida{% endblock %}
+
+{% block extrastyle %}
+    <link rel="stylesheet" href={% static "fadderiet/scss/basestyle.css" %}>
+{% endblock %}
+
+{% block menu %}
+    {% url "fadderiet:index" as logo_url %}
+    {% include "common/elements/menu-items.html" with menu=menu logo=site_settings.fadderiet_logo logo_url=logo_url only %}
+{% endblock %}
+
+{% block footer %}
+    {% include "fadderiet/elements/footer.html" %}
+{% endblock %}

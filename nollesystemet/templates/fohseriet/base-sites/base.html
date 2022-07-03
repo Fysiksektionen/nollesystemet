@@ -1,0 +1,25 @@
+{% extends "common/sites/base.html" %}
+{% load static %}
+
+{% block extraprescript %}
+    <script src="{% static "fohseriet/js/prescript.js" %}"></script>
+{% endblock %}
+
+{% block metatitle %}Föhseriets hemsida{% endblock %}
+
+{% block extrastyle %}
+    <link rel="stylesheet" href={% static "fohseriet/scss/basestyle.css" %}>
+{% endblock %}
+
+{% block menu %}
+    {% url "fohseriet:index" as logo_url %}
+    {% include "common/elements/menu-items.html" with menu=menu logo=site_settings.fohseriet_logo logo_url=logo_url only %}
+{% endblock %}
+
+{% block footer %}
+    <div id="footer-container" class="flex-row d-flex p-4 bg-secondary"> </div>
+{% endblock %}
+
+{% block extrapostscript %}
+    <script src="{% static "fohseriet/js/postscript.js" %}"></script>
+{% endblock %}

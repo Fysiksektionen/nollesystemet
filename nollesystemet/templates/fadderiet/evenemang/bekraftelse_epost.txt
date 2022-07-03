@@ -1,0 +1,16 @@
+Anmälan till {{ happening }}
+
+Tack för att fyllt i anmälan till {{ happening }}.
+
+Betalning:
+{{ payment_info_plain_text|linebreaks }}
+{% include "common/elements/registration-price-info.html" with registration=registration only %}
+{% if registration.on_site_paid_price %}
+    {{ payment_info_post_price_plain_text|linebreaks }}
+{% endif %}
+
+Frågor?
+Har du några frågor kring evenemanget? Kontakta ansvarig arrangör: {{ happening.contact_name }}{% if happening.contact_email %}, {{ happening.contact_email }}{% endif %}{% if happening.contact_phone %}, {{ happening.contact_phone }}{% endif %}.
+
+---------------------------------------------------------
+Du får detta mejl i egenskap av användare av Fysiksektionens anmälningssystem nØllesystemet. Samtliga personuppgifter lagras enligt vår personuppgiftspolicy som återfinns här: https://f.kth.se/personuppgifter

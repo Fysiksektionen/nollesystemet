@@ -1,0 +1,17 @@
+{% extends "fadderiet/base-sites/centered-col-4.html" %}
+{% load crispy_forms_tags %}
+
+{% block title-centered %}Återställ lösenord{% endblock %}
+
+{% block centered-content-col-4 %}
+    <div class="text-center">
+        <p>
+            Har du glömt ditt lösenord?
+        </p>
+        <p class="text-center">
+            Fyll i den mejladdress du använt på sidan så skickar vi instruktioner för att återställa lösenordet.
+        </p>
+    </div>
+    {% crispy form %}
+{% endblock %}
+

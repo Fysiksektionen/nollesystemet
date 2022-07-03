@@ -1,0 +1,27 @@
+{% extends "authentication/base.html" %}
+{% block title %}Create user{% endblock %}
+
+{% block content %}
+    <form method="post">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        {% for field in form %}
+            <div>
+                {% if field.errors %}
+                    <ol>
+                    {% for error in field.errors %}
+                        <li><strong>{{ error|escape }}</strong></li>
+                    {% endfor %}
+                    </ol>
+                {% endif %}
+                {{ field.label_tag }}
+                {{ field }}
+                {% if field.help_text %}
+                    <p class="help">{{ field.help_text|safe }}</p>
+                {% endif %}
+            </div>
+
+        {% endfor %}
+        <input type="submit" value="Save" class="btn btn-secondary">
+    </form>
+{% endblock %}

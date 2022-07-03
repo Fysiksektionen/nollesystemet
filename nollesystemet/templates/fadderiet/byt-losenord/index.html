@@ -1,0 +1,14 @@
+{% extends "fadderiet/base-sites/centered-col-4.html" %}
+{% load crispy_forms_tags %}
+
+{% block title-centered %}
+    Byt lösenord
+{% endblock %}
+
+{% block centered-content-col-4 %}
+    <p class="text-center">
+        Fyll i informationen nedan för att byta ditt lösenord.
+    </p>
+    {% crispy form %}
+{% endblock %}
+

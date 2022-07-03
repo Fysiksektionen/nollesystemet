@@ -1,0 +1,74 @@
+{% extends "fohseriet/base-sites/base-content.html" %}
+{% load static %}
+
+{% block title %}
+    Campussafari: Sidouppdrag
+{% endblock %}
+
+{% block content-indented %}
+    {% for group_data in groups_data %}
+        {% with group=group_data.group side_quests=group_data.side_quests %}
+            <div class="my-3">
+                <h3>{{ group.name }}</h3>
+                <div class="card my-2 bg-dark">
+                    <div class="card-header card">
+                        <div class="d-flex flex-nowrap justify-content-between">
+                            <div class="font-weight-bolder col-6" style="white-space: nowrap;">
+                                Uppdrag
+                            </div>
+                            <div class="col float-right text-right">
+                                Genomfört
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% for side_quest_info in side_quests %}
+                    {% with quest=side_quest_info.quest checked=side_quest_info.checked %}
+                        <div class="card my-2 bg-chill-white text-black">
+                            <div class="card-header card">
+                                <div class="d-flex flex-nowrap justify-content-between">
+                                    <div class="col font-weight-bolder my-auto" style="white-space: nowrap;">{{ quest }}</div>
+                                    <div class="col float-right text-right" style="white-space: nowrap;">
+                                        <div class="form-check">
+                                            <input
+                                                    class="check-mission-box form-check-input"
+                                                    type="checkbox"
+                                                    data-group-id="{{ group.pk }}"
+                                                    data-sidequest-id="{{ quest.pk }}"
+                                                    {% if checked %}checked{% endif %}
+                                            >
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endwith %}
+                {% endfor %}
+            </div>
+        {% endwith %}
+    {% endfor %}
+{% endblock %}
+
+
+{% block extrapostscript %}
+    {{ block.super }}
+    <script type="text/javascript">
+        $(".check-mission-box").click(function () {
+            const value = $(this).prop('checked');
+            $.ajax({
+                type: "POST",
+                url: "/fohseriet/api/campussafari/" + this.dataset.groupId + "/check-side-quest/" + this.dataset.sidequestId,
+                data: JSON.stringify({ check: value }),
+                contentType: "application/json; charset=utf-8",
+                cache: false
+            })
+            .fail(function(jqXHR, textStatus, errorThrown) {
+                if (jqXHR.status === 401 || jqXHR.status === 403) {
+                    alert("Du har inte access att uppdatera det fältet. Hur tog du dig hit?!");
+                } else {
+                    alert( "Misslyckades med att skicka data. Okännt fel. Ladda om sidan." );
+                }
+            });
+        });
+    </script>
+{% endblock %}

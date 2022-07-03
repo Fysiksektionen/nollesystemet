@@ -1,0 +1,11 @@
+{% extends "fadderiet/base-sites/centered-col-4.html" %}
+{% load crispy_forms_tags %}
+
+{% block title-centered %}Logga in{% endblock %}
+
+{% block centered-content-col-4%}
+    <div class="d-flex flex-column">
+        <a href="{{ cred_login_url }}" class="btn btn-primary btn-block py-3 my-3">nØllan</a>
+        <a href="{{ cas_login_url }}" class="btn btn-primary btn-block py-3 my-3">Fadder</a>
+    </div>
+{% endblock %}

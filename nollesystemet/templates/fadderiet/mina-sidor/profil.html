@@ -1,0 +1,12 @@
+{% extends 'fadderiet/base-sites/left-col-template.html' %}
+{% load crispy_forms_tags %}
+{% load crispy_forms_filters %}
+
+{% block title %}Min profil{% endblock %}
+
+{% block content-left-col %}
+    <p>
+        Här kan du redigera din profil. Fyll gärna i alla fält så mottagningen kan nå dig om något skulle hända. Ingen av denna information kommer släppas utanför de innersta i mottagningen.
+    </p>
+    {% crispy form %}
+{% endblock %}

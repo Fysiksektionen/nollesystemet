@@ -1,0 +1,81 @@
+{
+    "order": ["hantera-event", "hantera-anvandare", "nolleenkaten", "admin", "fadderiet", ["logga-in", "logga-ut"]],
+    "menu_items": {
+        "index": {
+            "name": "Start",
+            "url_name": "fohseriet:index",
+            "align": "left"
+        },
+        "hantera-event": {
+            "name": "Hantera event",
+            "url_name": "fohseriet:evenemang:lista",
+            "align": "left",
+            "conditions": {
+                "methods": {
+                    "any": [
+                        "nollesystemet.Happening.can_create",
+                        "nollesystemet.Happening.can_see_some_registered"
+                    ]
+                }
+            }
+        },
+        "hantera-anvandare": {
+            "name": "Hantera användare",
+            "url_name": "fohseriet:anvandare:index",
+            "align": "left",
+            "conditions": {
+                "methods": {
+                    "all": [
+                        "nollesystemet.UserProfile.can_see_some_user"
+                    ]
+                }
+            }
+        },
+        "nolleenkaten": {
+            "name": "nØlleenkäten",
+            "url_name": "fohseriet:nolleenkaten:index",
+            "align": "left",
+            "conditions": {
+                "methods": {
+                    "any": [
+                        "nollesystemet.UserProfile.can_edit_some_user"
+                    ]
+                }
+            }
+        },
+        "fadderiet": {
+            "name": "Fadderiets hemsida",
+            "url_name": "fadderiet:index",
+            "align": "left"
+        },
+        "admin": {
+            "name": "Admin-sidan",
+            "url_name": "nolle-admin:index",
+            "align": "left",
+            "conditions": {
+                "permissions": {
+                    "any": [
+                        "nollesystemet.edit_system"
+                    ]
+                }
+            }
+        },
+        "logga-ut": {
+            "url_name": "fohseriet:logga-ut",
+            "align": "right",
+            "template_content": "Logga ut ({{ request.user.profile.first_name }})",
+            "conditions": {
+                "logged-in": "True"
+            }
+        },
+        "logga-in": {
+            "name": "Logga in",
+            "url_name": "fohseriet:logga-in:index",
+            "align": "right",
+            "conditions": {
+                "logged-in": "False"
+            },
+            "selected_url_regex": ".*"
+        }
+    }
+}

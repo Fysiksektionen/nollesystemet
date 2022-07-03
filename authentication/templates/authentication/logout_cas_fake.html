@@ -1,0 +1,10 @@
+{% extends "authentication/base.html" %}
+
+{% block title %}CAS fake logout{% endblock %}
+
+{% block content %}
+    <form method="post">
+        {% csrf_token %}
+        <input type="submit" name="Logout">
+    </form>
+{% endblock %}

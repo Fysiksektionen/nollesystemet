@@ -1,0 +1,33 @@
+{% load crispy_forms_tags crispy_forms_filters %}
+
+<fieldset id="{{ formset.prefix }}-formset">
+    <legend>{{ header }}</legend>
+    {{ formset.management_form }}
+    {% for form in formset %}
+        <div class="{{ formset.prefix }}-form pb-1">
+            {{ form.errors }}
+            {{ form.non_field_errors }}
+            {% for hidden in form.hidden_fields %}
+                {{ hidden }}
+            {% endfor %}
+            {% crispy form %}
+        </div>
+    {% endfor %}
+    <div class="emptyform {{ formset.prefix }}-form pb-1" style="display: none">
+        {% with form=formset.empty_form %}
+            {{ form.errors }}
+            {{ form.non_field_errors }}
+            {% for hidden in form.hidden_fields %}
+                {{ hidden }}
+            {% endfor %}
+            {% crispy form %}
+        {% endwith %}
+    </div>
+    <button type="button" class="btn btn-success add-{{ formset.prefix }}-form-btn">
+        Lägg till fler
+        <i class="fa fa-plus" aria-hidden="true"></i>
+    </button>
+</fieldset>
+<script>
+        bindFormset("{{ formset.prefix }}");
+</script>

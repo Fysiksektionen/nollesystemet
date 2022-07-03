@@ -1,0 +1,16 @@
+{% extends "fadderiet/base-sites/centered-col-4.html" %}
+{% block title-centered %}Byt lösenord{% endblock %}
+
+{% block centered-content-col-4 %}
+    <div class="text-center">
+        {% if password_changed %}
+            <p>Lösenordet byttes.</p>
+            <p>För att säkerställa att inget fuffenss är på gång har vi nu loggat ut dig och du får logga in igen.</p>
+            <a href="{% url "fadderiet:logga-in:index" %}" class="btn btn-primary col-4">Logga in</a>
+        {% else %}
+            <p>Bytet misslyckades.</p>
+            <p>Logga in och försök igen.</p>
+            <a href="{% url "fadderiet:byt-losenord:index" %}" class="btn btn-primary col-4">Byt lösenord</a>
+        {% endif %}
+    </div>
+{% endblock %}

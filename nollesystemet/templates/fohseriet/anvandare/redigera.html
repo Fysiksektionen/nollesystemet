@@ -1,0 +1,48 @@
+{% extends 'fohseriet/base-sites/left-col-template.html' %}
+{% load crispy_forms_tags %}
+{% load crispy_forms_filters %}
+
+{% block title %}
+    {% if object.pk %}
+        Redigera användare
+    {% else %}
+        Skapa användare
+    {% endif %}
+{% endblock %}
+
+{% block content-left-col %}
+    {% include "common/elements/back-button.html" %}
+    {% if reset_failed is not None %}
+        <div class="alert {% if reset_failed %}alert-danger{% else %}alert-success{% endif %} alert-dismissible fade show" role="alert">
+            <p>
+                {% if reset_failed %}
+                    Ett fel skedde när återställningen skulle skickas. Felmeddelande: {{ reset_failed_message }}
+                {% else %}
+                    Återställningsmejl har skickats till användaren.
+                {% endif %}
+            </p>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times</span>
+            </button>
+        </div>
+    {% endif %}
+    {% crispy form %}
+{% endblock %}
+
+{% block extrapostscript %}
+    {{ super.block }}
+    <script type="text/javascript">
+        $(":input[type='submit'][name='resetpassword']").click(function (e) {
+            const form = $(this).parents("form:first");
+            if ( confirm('Är du säker på att du vill återställa personens lösenord? Eventuella icksesparade ändringar' +
+                'i profilen kommer att gå förorade. Åtgärden går inte att ångra.') ) {
+                $(form).find(":input:not([type='submit']):not([name='csrfmiddlewaretoken'])").each(function () {
+                    $(this).removeAttr( "required" );
+                    $(this).attr( "disabled", true );
+                });
+            } else {
+                e.preventDefault();
+            }
+        })
+    </script>
+{% endblock %}

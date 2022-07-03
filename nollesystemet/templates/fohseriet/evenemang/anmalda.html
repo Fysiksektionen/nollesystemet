@@ -1,0 +1,204 @@
+{% extends "fohseriet/base-sites/base-content.html" %}
+{% load crispy_forms_tags %}
+{% load crispy_forms_filters %}
+
+{% block title %}
+    Anmälda till {{ happening.name }}
+{% endblock %}
+
+{% block content-indented %}
+    {% include "common/elements/back-button.html" %}
+
+    <div class="row">
+        <div class="col-12 col-lg-6 my-4">
+            <div class="card bg-dark fohseriet-anmalda-card h-100">
+                <div class="card-header">
+                    <strong>{{ happening.name }}</strong>
+                </div>
+                <div class="card-body">
+                    {% include "common/elements/happening-information.html" %}
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-lg-6 my-4 h-100">
+            <ul class="list-group">
+                <li class="list-group-item text-black list-group-item-dark active d-flex flex-row justify-content-between">
+                    <strong>Antal anmälda</strong>
+                    <strong>{{ happening.num_of_registered }}</strong>
+                </li>
+                {% for attendees_for_group in num_of_attendees_per_group %}
+                    <li class="list-group-item list-group-item-dark d-flex flex-row justify-content-between">
+                        <div>{{ attendees_for_group.group }}</div>
+                        <div>{{ attendees_for_group.count }}</div>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <div class="d-flex flex-wrap my-4 justify-content-around text-nowrap">
+        <div class="d-flex col-lg justify-content-center p-lg-2 my-lg-0 my-2">
+            <a href="{% url "fohseriet:evenemang:ladda-ned-anmalda" happening.pk %}" class="btn btn-success flex-fill" download>
+                Ladda ned
+                <i class="fa fa-download" aria-hidden="true"></i>
+            </a>
+        </div>
+        <div class="d-flex col-lg justify-content-center p-lg-2 my-lg-0 my-2">
+            <a href="{% url "fohseriet:evenemang:bekrafta-anmalda" happening.pk %}" class="btn btn-primary flex-fill">
+                Bekräfta anmälda
+                <i class="fa fa-check" aria-hidden="true"></i>
+            </a>
+        </div>
+        <div class="d-flex col-lg justify-content-center p-lg-2 my-lg-0 my-2">
+            <a href="{% url "fohseriet:evenemang:narvaro" happening.pk %}" class="btn btn-primary flex-fill">
+                Betalning och närvaro
+                <i class="fa fa-money" aria-hidden="true"></i>
+            </a>
+        </div>
+    </div>
+
+    {% if object_list %}
+        <div class="card my-2 bg-dark fohseriet-anmalda-card">
+            <div class="card-header card">
+                <div class="d-flex flex-nowrap justify-content-between">
+                    <div class="font-weight-bolder col-lg" style="white-space: nowrap;">
+                        Namn
+                    </div>
+                    <div class="d-flex flex-fill hidden visible-lg col-6 justify-content-around" style="white-space: nowrap;">
+                        <div class="d-flex col">
+                            nØllegrupp
+                        </div>
+                        <div class="d-flex col">
+                            Användartyp
+                        </div>
+                    </div>
+                    <div class="d-flex col-2 justify-content-center align-items-center" style="white-space: nowrap;">
+                        Bekräftad
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% for reg_object in object_list %}
+            {% with reg_object.registration as registration %}
+                <div class="card my-2 bg-chill-white text-black fohseriet-anmalda-card">
+                    <div class="card-header card" data-toggle="collapse" href="#collapse{{ forloop.counter }}">
+                        <div class="d-flex flex-nowrap justify-content-between">
+                            <div class="font-weight-bolder col-lg" style="white-space: nowrap;">
+                                {{ registration.user.name }}
+                            </div>
+                            <div class="d-flex flex-fill hidden visible-lg col-6 justify-content-around" style="white-space: nowrap;">
+                                <div class="d-flex col">
+                                    {{ registration.user.nolle_group }}
+                                </div>
+                                <div class="d-flex col">
+                                    {{ registration.user.type }}
+                                </div>
+                            </div>
+                            <div class="d-flex col-2 justify-content-center align-items-center" style="white-space: nowrap;">
+                                {% if registration.confirmed %}
+                                    <i class="text-success fa fa-check" aria-hidden="true"></i>
+                                {% else %}
+                                    <i class="text-background-gray-10 fa fa-minus" aria-hidden="true"></i>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div id="collapse{{ forloop.counter }}" class="collapse">
+                        <div class="d-flex card-body flex-wrap">
+                            {% if reg_object.can_see %}
+                                <div class="d-flex flex-column col-md-9 col-lg-7">
+                                    {% crispy reg_object.form %}
+                                </div>
+                                <div class="d-flex col-md-9 col-lg-5">
+                                    <div class="d-flex flex-fill">
+                                        <div class="d-flex flex-fill flex-column align-content-center justify-content-start">
+                                            <div class="d-flex flex-column my-3 px-3 border border-dark rounded-lg">
+                                                <h4 class="mt-3 mb-4">Om anmälan</h4>
+                                                <p>
+                                                    <strong>Namn:</strong> {{ registration.user.name }}
+                                                </p>
+                                                <p>
+                                                    <strong>Användartyp:</strong> {{ registration.user.type }}
+                                                </p>
+                                                <p>
+                                                    <strong>nØllegrupp:</strong> {{ registration.user.nolle_group }}
+                                                </p>
+                                                {% include "common/elements/registration-price-info.html" with registration=registration only %}
+                                                <p>
+                                                    <strong>Anml. tid:</strong> {{ registration.created_at }}
+                                                </p>
+                                                <p>
+                                                    <strong>Referensnummer:</strong> {{ registration.OCR }}
+                                                </p>
+                                            </div>
+                                            <div class="d-flex justify-content-center">
+                                                {% if reg_object.can_edit %}
+                                                    <a class="col-8 col-sm-6 col-md-5 col-lg col-xl-9 btn btn-primary my-3" href="{% url 'fohseriet:anmalan:redigera' registration.pk %}?next={{ request.path|urlencode }}">
+                                                        Redigera
+                                                        <i class="fa fa-edit" aria-hidden="true"></i>
+                                                    </a>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endwith %}
+        {% endfor %}
+    {% else %}
+        Evenemanget har inga anmälda. {% include "common/elements/fel_mejla_admin.html" %}
+    {% endif %}
+{% endblock %}
+
+{% block extrapostscript %}
+    {{ block.super }}
+{#    <script>#}
+{##}
+{#        $('#search-bar').on("keyup", function () {#}
+{#            update_active_rows_table();#}
+{#        });#}
+{##}
+{#        $('#filter-elements button').click(function () {#}
+{#            $(this).toggleClass('active-button');#}
+{#            update_active_rows_table();#}
+{#        });#}
+{##}
+{#        function check_all_button_constraints(buttonList, rowElement) {#}
+{#            var tempBool = false;#}
+{#            for (var i = 0; i < buttonList.length; ++i) {#}
+{#                var buttonElement = buttonList[i];#}
+{#                var groupName = buttonElement.dataset.groupName;#}
+{#                var columnId = '#' + buttonElement.dataset.columnId;#}
+{#                var isActive = $(buttonElement).hasClass('active-button');#}
+{#                var containsGroup = $(rowElement.find(columnId)[0]).text().indexOf(groupName) > -1;#}
+{#                if (isActive && containsGroup) {#}
+{#                    tempBool = true;#}
+{#                }#}
+{#            }#}
+{#            return tempBool;#}
+{#        }#}
+{##}
+{#        function update_active_rows_table() {#}
+{#            var tableId = '#user-table-body';#}
+{#            var searchValue = $('#search-bar').val().toLowerCase();#}
+{#            var should_be_active = new Array($(tableId + " tr").length);#}
+{#            for (var i = 0; i < should_be_active.length; ++i) { should_be_active[i] = true; }#}
+{##}
+{#            var nolle_group_buttons = $('#nolle-groups button');#}
+{#            var user_types_buttons = $('#user-types button');#}
+{##}
+{#            $(tableId + " tr").filter(function (index, element) {#}
+{#                $(element).show();#}
+{#                if (!(($(this).text().toLowerCase().indexOf(searchValue) > -1) &&#}
+{#                    check_all_button_constraints(nolle_group_buttons, $(this)) &&#}
+{#                    check_all_button_constraints(user_types_buttons, $(this)))) {#}
+{#                    $(element).hide();#}
+{#                }#}
+{##}
+{#            });#}
+{#        }#}
+{#    </script>#}
+{% endblock %}

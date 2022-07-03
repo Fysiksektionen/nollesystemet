@@ -1,0 +1,15 @@
+{% extends "fadderiet/base-sites/base-content.html" %}
+
+{% load static %}
+
+{% block title %}
+    {{ site.texts.title }}
+{% endblock %}
+
+{% block content-spanning %}
+    <img class="img-fluid" src="{% get_media_prefix %}{{ site.images.banner }}" alt="" style="z-index: -1;"/>
+{% endblock %}
+
+{% block content-indented %}
+    {{ site.texts.valkommen_text|safe|linebreaks }}
+{% endblock %}

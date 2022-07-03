@@ -1,0 +1,15 @@
+{% extends "fadderiet/base-sites/centered-col-4.html" %}
+
+{% block title-centered %}Återställ lösenord{% endblock %}
+
+{% block centered-content-col-4 %}
+    <div class="text-center">
+        <p>
+            Ditt lösenord har återställts.
+        </p>
+        <p>
+            Du kan logga in nu.
+        </p>
+        <a href="{% url "fadderiet:logga-in:index" %}" class="btn btn-primary col-4">Logga in</a>
+    </div>
+{% endblock %}

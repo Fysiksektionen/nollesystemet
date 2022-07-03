@@ -1,0 +1,39 @@
+{% extends "fohseriet/base-sites/base-content.html" %}
+{% load crispy_forms_tags %}
+{% load crispy_forms_filters %}
+
+{% block content-indented %}
+    {% include "common/elements/back-button.html" %}
+    <hr style="height: 2px; border-width: 0; color: gray; background-color: gray;">
+    <h2>Information:</h2>
+    <div class="container-fluid p-4">
+        {% block information %}{% endblock %}
+    </div>
+
+    {% if form %}
+        <hr style="height: 2px; border-width: 0; color: gray; background-color: gray;">
+        <h2>Administrera:</h2>
+        {% if file_upload_success is not None %}
+            <div class="alert alert-{% if file_upload_success %}success{% else %}danger{% endif %}" role="alert">
+                {{ file_upload_information|linebreaks }}
+            </div>
+        {% endif %}
+        <div class="d-flex flex-column col-xl-8 col-lg-10 p-4">
+            {% crispy form %}
+        </div>
+    {% endif %}
+
+    <hr style="height: 2px; border-width: 0; color: gray; background-color: gray;">
+    <h2>Visa/Redigera:</h2>
+    <div class="container-fluid p-4">
+        {% if object_list %}
+            <p>
+                Du ser endast de objekt du har rättighet att se. Vissa kan vara dolda för dig.
+            </p>
+            {% block object_list %}{% endblock %}
+        {% else %}
+            {% block empty_object_list %}{% endblock %}
+        {% endif %}
+    </div>
+
+{% endblock %}
