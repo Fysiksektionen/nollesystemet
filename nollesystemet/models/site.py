@@ -9,7 +9,7 @@ from .misc import validate_no_emoji
 
 
 class Site(models.Model):
-    """ Model representing a site an its content such as texts and images. """
+    """ Model representing a site and its content such as texts and images. """
     name = models.CharField(max_length=200, unique=True, primary_key=False, validators=[validate_no_emoji])
     # created_date = models.DateTimeField(auto_now_add=True)
     # modified_date = models.DateTimeField(auto_now=True)
