@@ -23,11 +23,6 @@
                 <h5><b>Fadderiet tipsar</b></h5>
             </a>
         </li>
-        <li class="nav-item">
-            <a class="nav-link" id="corona-tab" data-toggle="tab" href="#corona" role="tab" aria-controls="corona" aria-selected="true">
-                <h5><b>Om Coronaviruset</b></h5>
-            </a>
-        </li>
     </ul>
     <div class="my-3">
         <hr>
@@ -154,22 +149,7 @@
             {% endfor %}
 
         </div>
-        <div class="tab-pane fade" id="corona" role="tabpanel" aria-labelledby="corona-tab">
-            <p>
-                {{ site.texts.corona|safe|linebreaks }}
-            </p>
-            {% for para in site.lists.corona %}
-                <h4 class="mt-3 mb-1 font-weight-bold">{{ para.title }}</h4>
-                <div class="d-flex flex-wrap align-items-center">
-                    <div class="col-lg my-3 align-items-center">
-                        <p>
-                            {{ para.text|safe }}
-                        </p>
-                    </div>
-                </div>
-                <hr>
-            {% endfor %}
-        </div>
+
     </div>
 {% endblock %}
 
@@ -179,7 +159,7 @@
         $(document).ready( function () {
             console.log("1");
             let hash_string = window.location.hash.replace( /^#/, '' );
-            var acceptable_hashes = ['fadderiet-tippsar', 'aktuellt', 'corona'];
+            var acceptable_hashes = ['fadderiet-tippsar', 'aktuellt'];
             var tab;
             if (acceptable_hashes.includes(hash_string)) {
                 tab = $( "#" + hash_string + "-tab" );
