@@ -68,7 +68,7 @@ class NolleFormBaseForm(ModifiableModelForm):
                 'help_text': "Här kan du fylla i eventuell speckost. Lämna gärna tom om du inte har något att fylla i."
             },
             'can_photograph': {
-                'label': "Är det okej att bli fotograferad under mottagningen?",
+                'label': "Är det okej att vi publicerar bilder på dig?",
                 'help_text': """Det kommer att fotograferas under mottagningen. Här kan du välja om mottagningen får använda bilder på dig till hemsidan eller på Facebook.
                              Oavsätt kommer en bild tas första dagen så att dina ansvariga faddrar kan känna igen dig. Denna bild kommer inte att spridas."""
             },
