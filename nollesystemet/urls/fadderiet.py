@@ -76,6 +76,13 @@ fadderiet_urls = ([
     ), name='kontakt'),
     path('nollegrupperna/', views.FadderietNollegrupperView.as_view(), name='nollegrupperna'),
 
+    path('sponsorer/', views.FadderietMenuView.as_view(
+        template_name='fadderiet/sponsorer.html',
+        site_name="Fadderiet: Sponsorer",
+        site_texts=['sponsor_text'],
+        site_images=['sponsor_image']
+    ), name='sponsorer'),
+
     path('campussafari/', views.FadderietCampussafariGrupperView.as_view(
         site_name="Campussafari: Leaderboard",
         site_texts=['info']

@@ -1,5 +1,5 @@
 {
-    "order": ["schema", "bra-info", "om-fadderiet", "nollegrupperna", "evenemang", "nolleenkaten", "kontakt", "fohseriet", "mina-sidor:profil", ["logga-in", "logga-ut"]],
+    "order": ["schema", "bra-info", "om-fadderiet", "nollegrupperna", "evenemang", "nolleenkaten", "sponsorer", "kontakt", "fohseriet", "mina-sidor:profil", ["logga-in", "logga-ut"]],
     "menu_items": {
         "index": {
             "name": "Hem",
@@ -33,6 +33,11 @@
             "conditions": {
                 "logged-in": "True"
             }
+        },
+        "sponsorer": {
+            "name": "Sponsorer",
+            "url_name": "fadderiet:sponsorer",
+            "align": "left"
         },
         "kontakt": {
             "name": "Kontakt",
