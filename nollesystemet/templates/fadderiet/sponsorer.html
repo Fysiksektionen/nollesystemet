@@ -7,8 +7,8 @@
 {% endblock %}
 
 {% block content-indented %}
-    {{ site.texts.body|safe|linebreaks }}
+    {{ site.texts.sponsor_text|safe|linebreaks }}
     <div class="col-lg-4 my-3 align-items-center">
-        <img class="img-fluid" src="{% get_media_prefix %}{{ site.images.schema }}" alt="Ericsson">
+        <img class="img-fluid" src="{% get_media_prefix %}{{ site.images.sponsor_image }}" alt="Ericsson">
     </div>
 {% endblock %}
