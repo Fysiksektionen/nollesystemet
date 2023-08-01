@@ -2553,13 +2553,13 @@ fieldset:disabled a.btn {
 }
 .btn-primary:hover {
   color: #ffffff;
-  background-color: #e52920;
-  border-color: #de231a;
+  background-color: #4D0574;
+  border-color: #4D0574;
 }
 .btn-primary:focus, .btn-primary.focus {
   color: #ffffff;
-  background-color: #e52920;
-  border-color: #de231a;
+  background-color: #4D0574;
+  border-color: #4D0574;
   box-shadow: 0 0 0 0.2rem rgba(236, 101, 94, 0.5);
 }
 .btn-primary.disabled, .btn-primary:disabled {
@@ -2569,7 +2569,7 @@ fieldset:disabled a.btn {
 }
 .btn-primary:not(:disabled):not(.disabled):active, .btn-primary:not(:disabled):not(.disabled).active, .show > .btn-primary.dropdown-toggle {
   color: #ffffff;
-  background-color: #de231a;
+  background-color: #4D0574;
   border-color: #d32119;
 }
 .btn-primary:not(:disabled):not(.disabled):active:focus, .btn-primary:not(:disabled):not(.disabled).active:focus, .show > .btn-primary.dropdown-toggle:focus {
@@ -2913,13 +2913,13 @@ fieldset:disabled a.btn {
 }
 .btn-fadderiet:hover {
   color: #ffffff;
-  background-color: #e52920;
-  border-color: #de231a;
+  background-color: #4D0574;
+  border-color: #4D0574;
 }
 .btn-fadderiet:focus, .btn-fadderiet.focus {
   color: #ffffff;
-  background-color: #e52920;
-  border-color: #de231a;
+  background-color: #4D0574;
+  border-color: #4D0574;
   box-shadow: 0 0 0 0.2rem rgba(236, 101, 94, 0.5);
 }
 .btn-fadderiet.disabled, .btn-fadderiet:disabled {
@@ -2929,7 +2929,7 @@ fieldset:disabled a.btn {
 }
 .btn-fadderiet:not(:disabled):not(.disabled):active, .btn-fadderiet:not(:disabled):not(.disabled).active, .show > .btn-fadderiet.dropdown-toggle {
   color: #ffffff;
-  background-color: #de231a;
+  background-color: #4D0574;
   border-color: #d32119;
 }
 .btn-fadderiet:not(:disabled):not(.disabled):active:focus, .btn-fadderiet:not(:disabled):not(.disabled).active:focus, .show > .btn-fadderiet.dropdown-toggle:focus {
@@ -5047,7 +5047,7 @@ a.badge:hover, a.badge:focus {
 }
 a.badge-primary:hover, a.badge-primary:focus {
   color: #ffffff;
-  background-color: #de231a;
+  background-color: #4D0574;
 }
 a.badge-primary:focus, a.badge-primary.focus {
   outline: 0;
@@ -5203,7 +5203,7 @@ a.badge-black:focus, a.badge-black.focus {
 }
 a.badge-fadderiet:hover, a.badge-fadderiet:focus {
   color: #ffffff;
-  background-color: #de231a;
+  background-color: #4D0574;
 }
 a.badge-fadderiet:focus, a.badge-fadderiet.focus {
   outline: 0;
@@ -6599,7 +6599,7 @@ a.close.disabled {
 a.bg-primary:hover, a.bg-primary:focus,
 button.bg-primary:hover,
 button.bg-primary:focus {
-  background-color: #de231a !important;
+  background-color: #4D0574 !important;
 }
 
 .bg-secondary {
@@ -6719,7 +6719,7 @@ button.bg-black:focus {
 a.bg-fadderiet:hover, a.bg-fadderiet:focus,
 button.bg-fadderiet:hover,
 button.bg-fadderiet:focus {
-  background-color: #de231a !important;
+  background-color: #4D0574 !important;
 }
 
 .bg-white {
